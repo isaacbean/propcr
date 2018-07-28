@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ff9d2e">
+<meta name="apple-mobile-web-app-title" content="proPCR">
+<meta name="application-name" content="proPCR">
+<meta name="msapplication-TileColor" content="#ff9d2e">
+<meta name="theme-color" content="#ffffff">
+  <title>proPCR</title>
+  <style>
+    body,
+    input,
+    label,
+    select,
+    textarea {
+      margin: 0;
+      background: 0;
+      font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif
+    }
+
+    input[type='checkbox'] {
+      width: 20px
+    }
+
+
+    input[type='button'],
+    input[type='submit'] {
+      display: block;
+      width: 200px;
+      margin: auto;
+      margin-top: 15px;
+      margin-bottom: 30px;
+      padding: 7px;
+      border: 1px solid black;
+      border-radius: 4px;
+      background-color: transparent;
+      outline: 0;
+      text-transform: uppercase;
+      font-size: 20px;
+      text-decoration: none;
+      -webkit-appearance: none;
+      cursor: pointer
+    }
+
+    input[type='button'].button16 {
+      font-size: 16px;
+    }
+
+    #regularRampButton, #regularHeatButton{
+      margin-top: 50px;
+    }
+
+    input[type='button']:hover,
+    input[type='submit']:hover {
+      color: white;
+      background-color: #111;
+      border: 1px solid #111;
+    }
+
+    input[type='button']:active,
+    input[type='submit']:active {
+      color: #111;
+      background-color: ##ff9d2e;
+      border: 1px solid #111;
+    }
+
+
+    .logo {
+      display: block;
+      width: 200px;
+      height: 38px;
+      margin: auto;
+      padding-top: 15px;
+      padding-bottom: 35px
+    }
+
+    .navbar {
+      z-index: 1;
+      position: fixed;
+      top: 0;
+      width: 100%;
+
+      background-color: white
+    }
+
+    .sidenav {
+      z-index: 3;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      padding-top: 60px;
+      overflow-x: hidden;
+      background-color: #111;
+      text-align: center;
+      text-transform: uppercase;
+      transition: .5s
+    }
+
+    .sidenav a {
+      display: block;
+      margin-bottom: 35px;
+      padding: 8px 8px 8px 32px;
+      color: #818181;
+      text-decoration: none;
+      font-size: 25px;
+      transition: .3s;
+      cursor: pointer;
+    }
+
+    .sidenav a:hover {
+      color: #f1f1f1
+    }
+
+
+    .container {
+      width: 95%;
+      margin: auto;
+      margin-top: 120px;
+      margin-bottom: 50px;
+
+    }
+
+    .sidenav .closebtn {
+      position: absolute;
+      top: 1px;
+      left: 0;
+      padding: 0;
+      width: 60px;
+      font-size: 40px
+    }
+
+    .openbtn {
+      z-index: 2;
+      position: fixed;
+      top: 14px;
+      left: 3%;
+
+      border: none;
+      font-size: 25px;
+      cursor: pointer;
+      display: none;
+      line-height: 80%;
+    }
+
+
+
+    .menubtn {
+      position: relative;
+      padding: 5px;
+      top: -3px;
+      display: none;
+      font-size: 15px;
+    }
+
+    #programpcr h3{
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    #programpcr h2{
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    #preheat {
+      margin-top: 40px;
+      margin-bottom: 30px;
+    }
+
+    .inputNum {
+      display: block;
+      width: 95%;
+      margin: auto;
+      padding-top: 5px
+    }
+
+    .inputNum p {
+      margin-top: 1px;
+    }
+
+    #runbutton,
+    #pauseButton {
+      display: inline-block;
+      width: 40%;
+      float: right;
+    }
+
+    #savebutton,
+    #stopButton {
+      display: inline-block;
+      width: 40%;
+      float: left;
+    }
+
+    body {
+      -ms-overflow-style: none; // IE 10+
+      overflow: -moz-scrollbars-none; // Firefox
+    }
+
+    body::-webkit-scrollbar {
+      display: none; // Safari and Chrome
+    }
+
+    .buttondiv {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .buttondiv input[type=button] {
+      width: 30%
+    }
+
+    .tab {
+      border: none;
+      outline: none;
+      background-color: #ffffff;
+      float: left;
+      border-top: 2px solid black;
+      border-left: 2px solid black;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      width: 33.33%;
+      height: 90px;
+      text-align: center;
+
+    }
+
+    .tab span {
+      font-size: 24px;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: normal;
+    }
+
+    #tabheat {
+      border-right: 2px solid black;
+    }
+
+    #programpcr{
+      display: none;
+      padding-top: 100px;
+    }
+
+    #programramp{
+      display: none;
+      padding-top: 100px;
+    }
+
+    #programheat{
+      padding-top: 100px;
+      display: none;
+    }
+
+    @media(min-width:1100px) {
+      .container {
+        width: 40%;
+      }
+      .openbtn {
+        left: 30%;
+      }
+      #runbutton,
+      #pauseButton {
+        width: 30%;
+      }
+      #savebutton,
+      #stopButton {
+        width: 30%;
+      }
+      .sidenav .closebtn {
+        left: 30%;
+      }
+      .menubtn {
+        display: inline-block;
+      }
+      .inputNum {
+        width: 65%;
+      }
+    }
+
+    @media(min-width:710px) and (max-width :1100px) {
+      .container {
+        width: 50%;
+      }
+      .openbtn {
+        left: 20%;
+      }
+
+      .sidenav .closebtn {
+        left: 20%;
+      }
+      .menubtn {
+        display: inline-block;
+      }
+      .inputNum {
+        width: 65%;
+      }
+    }
+
+
+
+    #loaddiv, #settingsdiv, #viewdiv, #programdiv{
+      display: none
+    }
+
+    .setting > * {
+      display: inline;
+      font-size: 20px;
+      line-height: 2;
+    }
+
+    #progselect>* {
+      text-align: center;
+    }
+
+    .setting {
+      border-top: 2px solid #818181;
+      cursor: pointer;
+    }
+
+    .info {
+      background-color: #e5e5e5;
+      border-left: 3px solid #818181;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+
+    .settingsbutton {
+
+    }
+
+    .autostartprog{
+      text-align: center;
+    }
+
+    #autostartprog{
+      border: 1px solid black;
+      text-align: center;
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px;
+    }
+
+    #autostartalert{
+      text-align: center;
+    }
+
+    #connectnetwork{
+      text-align: center;
+    }
+
+    #autostartbutton, #aponbutton, #connectwifibutton, #userpswbutton, #updatewifibutton, #quietfanbutton{
+      font-size: 15px;
+      width: auto;
+
+    }
+
+    #loaddiv h1{
+      text-align: center;
+    }
+
+    #displaydiv {
+      margin: auto;
+      text-align: center;
+      display: none;
+    }
+
+    #displaydiv h3 {
+      display: inline;
+    }
+
+    #savealert {
+      text-align: center;
+      margin: 0;
+    }
+
+    #progstate1 {
+      text-align: center;
+    }
+
+    #tempdiv {
+
+      display: none;
+    }
+
+    #tempdiv h3,
+    #gradienttemp h3 {
+      display: inline-block;
+    }
+
+    .statustemp {
+      width: 220px;
+      margin: auto;
+    }
+
+    .pretext {
+      display: block;
+      width: 200px;
+      margin: auto;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      border-style: hidden;
+      border-radius: 4px;
+      text-align: center
+    }
+
+    .pretext>a {
+      line-height: 2.5;
+    }
+
+    .displaytemp {
+      display: block;
+      width: 95%;
+      margin: auto;
+      text-align: center
+    }
+
+
+
+    .has-float-label {
+      display: block;
+      position: relative
+    }
+
+    .has-float-label>span,
+    .has-float-label label {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 1;
+      font-size: 75%;
+      -webkit-transition: all .2s;
+      transition: all .2s;
+      cursor: text
+    }
+
+    .has-float-label select {
+      -moz-appearance: none;
+      -webkit-appearance: none;
+      appearance: none
+    }
+
+    .has-float-label input,
+    .has-float-label select {
+      width: 100%;
+      margin-bottom: 2px;
+      padding-top: 1em;
+      border: 0;
+      border-bottom: 2px solid #818181;
+      border-radius: 0;
+      font-size: 150%
+    }
+
+    .has-float-label input::-webkit-input-placeholder,
+    .has-float-label select::-webkit-input-placeholder {
+      opacity: .5;
+      -webkit-transition: all .2s;
+      transition: all .2s
+    }
+
+    .has-float-label input:-ms-input-placeholder,
+    .has-float-label select:-ms-input-placeholder {
+      opacity: .5;
+      -webkit-transition: all .2s;
+      transition: all .2s
+    }
+
+    .has-float-label input::-ms-input-placeholder,
+    .has-float-label select::-ms-input-placeholder {
+      opacity: .5;
+      -webkit-transition: all .2s;
+      transition: all .2s
+    }
+
+    .has-float-label input::placeholder,
+    .has-float-label select::placeholder {
+      opacity: .5;
+      -webkit-transition: all .2s;
+      transition: all .2s
+    }
+
+    .has-float-label input:placeholder-shown:not(:focus)::-webkit-input-placeholder,
+    .has-float-label select:placeholder-shown:not(:focus)::-webkit-input-placeholder {
+      opacity: 0
+    }
+
+    .has-float-label input:placeholder-shown:not(:focus):-ms-input-placeholder,
+    .has-float-label select:placeholder-shown:not(:focus):-ms-input-placeholder {
+      opacity: 0
+    }
+
+    .has-float-label input:placeholder-shown:not(:focus)::-ms-input-placeholder,
+    .has-float-label select:placeholder-shown:not(:focus)::-ms-input-placeholder {
+      opacity: 0
+    }
+
+    .has-float-label input:placeholder-shown:not(:focus)::placeholder,
+    .has-float-label select:placeholder-shown:not(:focus)::placeholder {
+      opacity: 0
+    }
+
+    .has-float-label input:placeholder-shown:not(:focus)+*,
+    .has-float-label select:placeholder-shown:not(:focus)+* {
+      top: 20px;
+      opacity: .5;
+      font-size: 150%
+    }
+
+    .has-float-label input:focus,
+    .has-float-label select:focus {
+      border-color: rgba(0, 0, 0, 0.5);
+      outline: 0
+    }
+
+    .onoffswitch {
+      display: block;
+      position: relative;
+      top: 10px;
+      width: 165px;
+      margin: auto;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -webkit-user-select: none
+    }
+
+    .onoffswitch-checkbox {
+      display: none
+    }
+
+    .onoffswitch-label {
+      display: block;
+      overflow: hidden;
+      border: 2px solid #000;
+      border-radius: 11px;
+      cursor: pointer
+    }
+
+    .onoffswitch-inner {
+      display: block;
+      width: 200%;
+      margin-left: -100%;
+      transition: margin .3s ease-in 0s
+    }
+
+    .onoffswitch-inner:after,
+    .onoffswitch-inner:before {
+      display: block;
+      box-sizing: border-box;
+      width: 50%;
+      height: 30px;
+      float: left;
+      padding: 0;
+      color: white;
+      font-family: Trebuchet, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 30px
+    }
+
+    .onoffswitch-inner:before {
+      padding-left: 10px;
+      color: #000;
+      background-color: #fff
+    }
+
+    .onoffswitch-inner:after {
+      padding-right: 10px;
+      color: #000;
+      background-color: #fff;
+      text-align: right
+    }
+
+
+    #contentramp:before {
+      content: 'GRADIENT RAMP ON';
+    }
+
+    #contentramp:after {
+      content: 'GRADIENT RAMP OFF';
+    }
+
+
+    #contentlid:before {
+      content: 'PREHEAT LID';
+    }
+
+    #contentlid:after {
+      content: 'PREHEAT LID';
+    }
+
+    #contentgradient:before {
+      content: 'GRADIENT ON';
+      background-color: #ff9d2e;
+      color: #fff;
+    }
+
+    #contentgradient:after {
+      content: 'GRADIENT OFF';
+
+    }
+
+    #contentblock:before {
+      content: 'PREHEAT BLOCK';
+    }
+
+    #contentblock:after {
+      content: 'PREHEAT BLOCK';
+    }
+
+
+
+    .onoffswitch-switch {
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 131px;
+      bottom: 0;
+      width: 18px;
+      margin: 6px;
+      border: 2px solid #000;
+      border-radius: 11px;
+      background: #fff;
+      transition: all .3s ease-in 0s
+    }
+
+    .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-inner {
+      margin-left: 0
+    }
+
+    .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-switch {
+      right: 0
+    }
+  </style>
+  <script>
+    var pcrRunning = false;
+    var connected = false;
+    var programType = "";
+    var programTab = "";
+    var programButton = "";
+
+    function ge(s) {
+      return document.getElementById(s);
+    }
+
+    function ce(s) {
+      return document.createElement(s);
+    }
+
+    function displayNone(s) {
+      return document.getElementById(s).style.display = "none";
+    }
+
+    function displayBlock(s) {
+      return document.getElementById(s).style.display = "block";
+    }
+
+    function turnOrange(s) {
+      return document.getElementById(s).style.backgroundColor = "#ff9d2e";
+    }
+
+    function turnWhite(s) {
+      return document.getElementById(s).style.backgroundColor = "white";
+    }
+
+    function valueString(s){
+      return document.getElementById(s).value.toString();
+    }
+
+    function openNav() {
+      ge('mySidenav').style.width = '100%';
+    }
+
+    function closeNav() {
+      ge('mySidenav').style.width = '0';
+    }
+
+
+    function showProgram() {
+      ge("menudiv").style.display = "none";
+      ge("openbtn").style.display = "block";
+      ge("programdiv").style.display = "block";
+      ge("loaddiv").style.display = "none";
+      ge("settingsdiv").style.display = "none";
+      ge("viewdiv").style.display = "none";
+      closeNav();
+    }
+
+    function showLoad() {
+      loadData();
+      ge("menudiv").style.display = "none";
+      ge("openbtn").style.display = "block";
+      ge("programdiv").style.display = "none";
+      ge("loaddiv").style.display = "block";
+      ge("settingsdiv").style.display = "none";
+      ge("viewdiv").style.display = "none";
+      closeNav();
+    }
+
+    function showSettings() {
+      loadConfig();
+      loadData();
+      ge("menudiv").style.display = "none";
+      ge("openbtn").style.display = "block";
+      ge("programdiv").style.display = "none";
+      ge("loaddiv").style.display = "none";
+      ge("settingsdiv").style.display = "block";
+      ge("viewdiv").style.display = "none";
+      closeNav();
+    }
+
+    function showView() {
+      ge("menudiv").style.display = "none";
+      ge("openbtn").style.display = "block";
+      ge("programdiv").style.display = "none";
+      ge("loaddiv").style.display = "none";
+      ge("settingsdiv").style.display = "none";
+      ge("viewdiv").style.display = "block";
+      closeNav();
+    }
+
+    function editLoad(keydata, datadata){
+      ge("setLidTemp").value = datadata[0];
+      ge("initDenatureTemp").value = datadata[1];
+      ge("initDenatureTime").value = datadata[2];
+      ge("cycleNum").value = datadata[3];
+      ge("denatureTemp").value = datadata[4];
+      ge("denatureTime").value = datadata[5];
+      if (datadata[6] == true) {
+        ge("gradientswitch").checked = true;
+         ge("annealTempLow").value = datadata[8];
+         ge("annealTempHigh").value = datadata[9];
+      } else {
+        ge("gradientswitch").checked = false;
+        ge("annealTemp").value = datadata[7];
+      }
+       ge("annealTime").value = datadata[10];
+       ge("extendTemp").value = datadata[11];
+       ge("extendTime").value = datadata[12];
+       ge("finalExtendTemp").value = datadata[13];
+       ge("finalExtendTime").value = datadata[14];
+       ge("programName").value = keydata;
+       showProgram();
+    }
+
+    function deleteLoad(keydata){
+      p = "delete:";
+      p += keydata;
+      p += "*";
+      ws.send(p);
+      deletechange = true;
+    }
+
+    function runLoad(keydata, datadata){
+      p = "run:[";
+      p += datadata;
+      p += "]*";
+      p += keydata;
+      ws.send(p);
+      showView();
+    }
+
+    function readTextFile(file, callback) {
+      var rawFile = new XMLHttpRequest();
+      rawFile.overrideMimeType("application/json");
+      rawFile.open("GET", file, true);
+      rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4 && rawFile.status == "200") {
+          callback(rawFile.responseText);
+        }
+      }
+      rawFile.send(null);
+    }
+
+    function loadConfig(){
+      readTextFile("/config.json", function(text) {
+        var data = JSON.parse(text);
+        if (data.autostart == "true") {
+          ge("autostartstat").innerHTML = "&nbsp;Autostart: ON";
+          ge("autostartbutton").value = "Turn Autostart Off";
+          ge("autostartprog").innerHTML = data.programname;
+        }
+        if (data.autostart == "false") {
+          ge("autostartstat").innerHTML = "&nbsp;Autostart: OFF";
+          ge("autostartbutton").value = "Turn Autostart On";
+          ge("autostartprog").innerHTML = "No Program Selected";
+        }
+        if (data.userpsw == "false") {
+          ge("userpswstat").innerHTML = "&nbsp;Custom proPCR password: OFF";
+          ge("userpswbutton").value = "Turn Custom Password On";
+        }
+        if (data.userpsw == "true") {
+          ge("userpswstat").innerHTML = "&nbsp;Custom proPCR password: ON";
+          ge("userpswbutton").value = "Turn Custom Password Off";
+        }
+        if (data.apon == "true") {
+          ge("aponstat").innerHTML = "&nbsp;Broadcast proPCR Network: ON";
+          ge("aponbutton").value = "Turn proPCR Network Off";
+        }
+        if (data.apon == "false") {
+          ge("aponstat").innerHTML = "&nbsp;Broadcast proPCR Network: OFF";
+          ge("aponbutton").value = "Turn proPCR Network On";
+        }
+        if (data.connectwifi == "true") {
+          ge("connectwifistat").innerHTML = "&nbsp;Connect to Wifi Network: ON";
+          ge("connectwifibutton").value = "Turn Wifi Connection Off";
+          ge("connectnetworkmsg").innerHTML = "On startup proPCR will connect to the network:"
+          ge("connectnetwork").innerHTML = data.userssid;
+        }
+        if (data.connectwifi == "false") {
+          ge("connectwifistat").innerHTML = "&nbsp;Connect to Wifi Network: OFF";
+          ge("connectwifibutton").value = "Turn Wifi Connection On";
+          ge("connectnetworkmsg").innerHTML = "On startup proPCR will only broadcast the proPCR network and will not connect to and existing network"
+          ge("connectnetwork").innerHTML = "";
+        }
+      });
+    }
+
+
+
+    function loadData() {
+      ge("loaddiv").innerHTML = "";
+      ge("progselect").innerHTML = "";
+      var loaddiv = ge("loaddiv");
+      var progselect = ge("progselect");
+      var h1 = ce("h1");
+      h1.setAttribute('id', 'loadalert');
+      var h3 = ce("h3");
+      h3.setAttribute('id', 'selectalert');
+      progselect.appendChild(h3);
+      loaddiv.appendChild(h1);
+      ge("loadalert").innerHTML = "Loading...";
+      ge("selectalert").innerHTML = "Loading...";
+
+
+      readTextFile("/programs.json", function(text) {
+        var data = JSON.parse(text);
+        if (Object.keys(data).length === 0 && data.constructor === Object){
+          ge("loadalert").innerHTML = "No Programs Saved";
+          ge("selectalert").innerHTML = "No Programs Saved";
+        }else{
+          ge("loadalert").innerHTML = "";
+          ge("selectalert").innerHTML = "";
+        for (var key in data) {
+          if (data.hasOwnProperty(key)) {
+            let keydata = key;
+            let datadata = data[key];
+
+            var loaddiv = ge("loaddiv");
+            var progselect = ge("progselect");
+
+            var selectdiv = ce("div");
+            selectdiv.setAttribute('id', keydata);
+            selectdiv.addEventListener("click", function(event) {
+              selectLoad(keydata, datadata);
+            });
+
+            var h4 = ce("h4");
+            h4.setAttribute('class', 'selectprogname');
+            var t2 = document.createTextNode(key);
+
+            var progdiv = ce("div");
+            progdiv.setAttribute('id', keydata);
+
+            var h1 = ce("h1");
+            h1.setAttribute('class', 'loadprogname');
+            var t = document.createTextNode(key);
+
+            var buttondiv = ce("div");
+            buttondiv.setAttribute('class', 'buttondiv');
+
+            var run = ce("input");
+            run.setAttribute('type', 'button');
+            run.setAttribute('value', 'run');
+            run.setAttribute('class', 'loadbutton');
+            run.addEventListener("click", function(event) {
+              runLoad(keydata, datadata);
+            });
+
+            var edit = ce("input");
+            edit.setAttribute('type', 'button');
+            edit.setAttribute('value', 'edit');
+            edit.setAttribute('class', 'loadbutton');
+            edit.addEventListener("click", function(event) {
+              editLoad(keydata, datadata);
+            });
+
+            var loaddelete = ce("input");
+            loaddelete.setAttribute('type', 'button');
+            loaddelete.setAttribute('value', 'delete');
+            loaddelete.setAttribute('class', 'loadbutton');
+            loaddelete.addEventListener("click", function(event) {
+              deleteLoad(keydata);
+            });
+
+            h4.appendChild(t2);
+            selectdiv.appendChild(h4);
+            progselect.appendChild(selectdiv);
+
+            h1.appendChild(t);
+            buttondiv.appendChild(run);
+            buttondiv.appendChild(edit);
+            buttondiv.appendChild(loaddelete);
+            progdiv.appendChild(h1);
+            progdiv.appendChild(buttondiv);
+            loaddiv.appendChild(progdiv);
+            console.log(key + " -> " + data[key]);
+
+          }
+        }
+      }
+      });
+  }
+
+    function gradientCheck() {
+      ge("pgradient").style.display = "block";
+      var checkBox = ge("gradientswitch");
+      var regular = ge("regularProg");
+      var gradient = ge("gradientProg");
+      if (checkBox.checked == true) {
+        ge("annealTemp").value = "";
+        regular.style.display = "none";
+        gradient.style.display = "block";
+      } else {
+        ge("annealTempLow").value = "";
+        ge("annealTempHigh").value = "";
+        regular.style.display = "block";
+        gradient.style.display = "none";
+      }
+    }
+
+    function showPreheatLid() {
+      if (Boolean(pcrRunning)) {
+        ge("ppreheatLidText").innerHTML = "Program Running - Cannot Preheat Lid";
+      }
+      var checkBox = ge("preheatlidswitch");
+      var div = ge("preheatliddiv");
+      checkBox.checked ? div.style.display = "block" : div.style.display = "none";
+    }
+
+    function showPreheatBlock() {
+      if (Boolean(pcrRunning)) {
+        ge("ppreheatBlockText").innerHTML = "Program Running - Cannot Preheat Block";
+      }
+      var checkBox = ge("preheatblockswitch");
+      var div = ge("preheatblockdiv");
+      checkBox.checked ? div.style.display = "block" : div.style.display = "none";
+    }
+
+    function preheatLid() {
+      if (Boolean(pcrRunning)) {
+        ge("ppreheatLidText").innerHTML = "Program Running - Cannot Preheat Lid";
+        return;
+      }
+
+      btn1 = 'preheatLid=true';
+      btn2 = document.getElementsByName('preheatLidInput')[0].value.toString();
+      btn3 = 'preheatLidTemp=';
+      btn4 = btn3.concat(btn2);
+      valuetext = ge('preheatLidButton').value;
+      if (valuetext == 'Start' && document.getElementsByName('preheatLidInput')[0].value=='') {
+        ge("ppreheatLidText").innerHTML = "Please Enter a Temperature";
+        return;
+      }else{
+        ge("ppreheatLidText").innerHTML = "";
+      }
+      if (valuetext === 'Start') {
+        btn1 = 'preheatLid=true';
+      }
+      if (valuetext === 'Stop') {
+        btn1 = 'preheatLid=false';
+      }
+      if (ge()) {
+
+      }
+      ws.send(btn1);
+      ws.send(btn4);
+    }
+
+    function preheatBlock() {
+      if (Boolean(pcrRunning)) {
+        ge("ppreheatBlockText").innerHTML = "Program Running - Cannot Preheat Block";
+        return;
+      }
+      btn5 = 'preheatBlock=true';
+      btn6 = document.getElementsByName('preheatBlockInput')[0].value.toString();
+      btn7 = 'preheatBlockTemp=';
+      btn8 = btn7.concat(btn6);
+      valuetext1 = ge('preheatBlockButton').value;
+      if (valuetext1 == 'Start' && document.getElementsByName('preheatBlockInput')[0].value=='') {
+        ge("ppreheatBlockText").innerHTML = "Please Enter a Temperature";
+        return;
+      }else{
+        ge("ppreheatBlockText").innerHTML = "";
+      }
+      if (valuetext1 === 'Start') {
+        btn5 = 'preheatBlock=true';
+      }
+      if (valuetext1 === 'Stop') {
+        btn5 = 'preheatBlock=false';
+      }
+      ws.send(btn5);
+      ws.send(btn8);
+    }
+
+    var formfields = ["setLidTemp", "initDenatureTemp", "initDenatureTime", "cycleNum", "denatureTemp", "denatureTime", "annealTemp", "annealTime", "annealTemp", "annealTempHigh", "annealTempLow", "extendTemp", "extendTime", "finalExtendTemp",
+      "finalExtendTime", "programName"
+    ];
+    var formalerts = ["psetLidTemp", "pinitDenatureTemp", "pinitDenatureTime", "pcycleNum", "pdenatureTemp", "pdenatureTime", "pannealTemp", "pannealTime", "pannealTemp", "pannealTempHigh", "pannealTempLow", "pextendTemp", "pextendTime",
+      "pfinalExtendTemp", "pfinalExtendTime", "pprogramName"
+    ];
+
+    function clearform() {
+      for (var i = 0; i < formfields.length; i++) {
+        ge(formfields[i]).value = "";
+      }
+    }
+
+    function clearalerts() {
+      for (var i = 0; i < formalerts.length; i++) {
+        ge(formalerts[i]).innerHTML = "";
+        ge(formalerts[i]).style.backgroundColor = "none";
+      }
+    }
+
+    function validate() {
+      clearalerts();
+      var aok = true;
+      if (ge("finalExtendTime").value == "" ||
+        isNaN(ge("finalExtendTime").value) ||
+        ge("finalExtendTime").value < 0 || ge("finalExtendTime").value > 1200) {
+        aok = false;
+        ge("pfinalExtendTime").innerHTML = "Please enter a value between 0 and 1200";
+        ge("pfinalExtendTime").style.backgroundColor = "#FF7F7F";
+        ge("finalExtendTime").focus();
+      }
+      if (ge("finalExtendTemp").value == "" ||
+        isNaN(ge("finalExtendTemp").value) ||
+        ge("finalExtendTemp").value < 30 || ge("finalExtendTemp").value > 100) {
+        aok = false;
+        ge("pfinalExtendTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pfinalExtendTemp").style.backgroundColor = "#FF7F7F";
+        ge("finalExtendTemp").focus();
+      }
+      if (ge("extendTime").value == "" ||
+        isNaN(ge("extendTime").value) ||
+        ge("extendTime").value < 0 || ge("extendTime").value > 1200) {
+        aok = false;
+        ge("pextendTime").innerHTML = "Please enter a value between 0 and 1200";
+        ge("pextendTime").style.backgroundColor = "#FF7F7F";
+        ge("extendTime").focus();
+      }
+      if (ge("extendTemp").value == "" ||
+        isNaN(ge("extendTemp").value) ||
+        ge("extendTemp").value < 30 || ge("extendTemp").value > 100) {
+        aok = false;
+        ge("pextendTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pextendTemp").style.backgroundColor = "#FF7F7F";
+        ge("extendTemp").focus();
+      }
+      if (ge("annealTime").value == "" ||
+        isNaN(ge("annealTime").value) ||
+        ge("annealTime").value < 0 || ge("annealTime").value > 1200) {
+        aok = false;
+        ge("pannealTime").innerHTML = "Please enter a value between 0 and 1200";
+        ge("pannealTime").style.backgroundColor = "#FF7F7F";
+        ge("annealTime").focus();
+      }
+      if (ge("gradientswitch").checked) {
+        if (
+          isNaN(ge("annealTempLow").value) ||
+          ge("annealTempLow").value < 30 || ge("annealTempLow").value > 100) {
+          aok = false;
+          ge("pannealTempLow").innerHTML = "Please enter a value between 30 and 100";
+          ge("pannealTempLow").style.backgroundColor = "#FF7F7F";
+          ge("annealTempLow").focus();
+        }
+        if (
+          isNaN(ge("annealTempHigh").value) ||
+          ge("annealTempHigh").value < 30 || ge("annealTempHigh").value > 100) {
+          aok = false;
+          ge("pannealTempHigh").innerHTML = "Please enter a value between 30 and 100";
+          ge("pannealTempHigh").style.backgroundColor = "#FF7F7F";
+          ge("annealTempHigh").focus();
+        }
+        if (ge("annealTempHigh").value - ge("annealTempLow").value > 8) {
+          aok = false;
+          ge("pannealTempHigh").innerHTML = "Please enter temperatures with an 8 degree range or less";
+          ge("pannealTempHigh").style.backgroundColor = "#FF7F7F";
+          ge("annealTempLow").focus();
+        }
+      }
+      if (!ge("gradientswitch").checked) {
+
+        if (
+          isNaN(ge("annealTemp").value) ||
+          ge("annealTemp").value < 30 || ge("annealTemp").value > 100) {
+          aok = false;
+          ge("pannealTemp").innerHTML = "Please enter a value between 30 and 100";
+          ge("pannealTemp").style.backgroundColor = "#FF7F7F";
+          ge("annealTemp").focus();
+        }
+      }
+      if (ge("denatureTime").value == "" ||
+        isNaN(ge("denatureTime").value) ||
+        ge("denatureTime").value < 0 || ge("denatureTime").value > 1200) {
+        aok = false;
+        ge("pdenatureTime").innerHTML = "Please enter a value between 0 and 1200";
+        ge("pdenatureTime").style.backgroundColor = "#FF7F7F";
+        ge("denatureTime").focus();
+      }
+      if (ge("denatureTemp").value == "" ||
+        isNaN(ge("denatureTemp").value) ||
+        ge("denatureTemp").value < 30 || ge("denatureTemp").value > 100) {
+        aok = false;
+        ge("pdenatureTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pdenatureTemp").style.backgroundColor = "#FF7F7F";
+        ge("denatureTemp").focus();
+      }
+      if (ge("initDenatureTime").value == "" ||
+        isNaN(ge("initDenatureTime").value) ||
+        ge("initDenatureTime").value < 0 || ge("initDenatureTime").value > 1200) {
+        aok = false;
+        ge("pinitDenatureTime").innerHTML = "Please enter a value between 0 and 1200";
+        ge("pinitDenatureTime").style.backgroundColor = "#FF7F7F";
+        ge("initDenatureTime").focus();
+      }
+      if (ge("cycleNum").value == "" ||
+        isNaN(ge("cycleNum").value) ||
+        ge("cycleNum").value < 1 || ge("cycleNum").value > 100) {
+        aok = false;
+        ge("pcycleNum").innerHTML = "Please enter a value between 1 and 100";
+        ge("pcycleNum").style.backgroundColor = "#FF7F7F";
+        ge("cycleNum").focus();
+      }
+      if (ge("initDenatureTemp").value == "" ||
+        isNaN(ge("initDenatureTemp").value) ||
+        ge("initDenatureTemp").value < 30 || ge("initDenatureTemp").value > 100) {
+        aok = false;
+        ge("pinitDenatureTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pinitDenatureTemp").style.backgroundColor = "#FF7F7F";
+        ge("initDenatureTemp").focus();
+      }
+      if (ge("setLidTemp").value != ""){
+        if (isNaN(ge("setLidTemp").value) ||
+        ge("setLidTemp").value < 30 || ge("setLidTemp").value > 100) {
+        aok = false;
+        ge("psetLidTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("psetLidTemp").style.backgroundColor = "#FF7F7F";
+        ge("setLidTemp").focus();
+      }
+    }
+      if (Boolean(aok)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function expandShow(setting, icon){
+      if (ge(setting).style.display == "none") {
+        ge(icon).innerHTML = "&mdash;";
+        ge(setting).style.display = "block";
+      }else{
+        ge(icon).innerHTML = "+";
+        ge(setting).style.display = "none";
+      }
+    }
+
+    // function autostartShow(){
+    //   if (ge("autostart").style.display == "none") {
+    //     ge("autostarticon").innerHTML = "&mdash;";
+    //     ge("autostart").style.display = "block";
+    //   }else{
+    //     ge("autostarticon").innerHTML = "+";
+    //     ge("autostart").style.display = "none";
+    //   }
+    // }
+
+    function connectwifiShow(){
+      if (ge("connectwifi").style.display == "none") {
+        ge("connectwifiicon").innerHTML = "&mdash;";
+        ge("connectwifi").style.display = "block";
+      }else{
+        ge("connectwifiicon").innerHTML = "+";
+        ge("connectwifi").style.display = "none";
+      }
+    }
+
+    function aponShow(){
+      if (ge("apon").style.display == "none") {
+        ge("aponicon").innerHTML = "&mdash;";
+        ge("apon").style.display = "block";
+      }else{
+        ge("aponicon").innerHTML = "+";
+        ge("apon").style.display = "none";
+      }
+    }
+
+    function userpswShow(){
+      if (ge("userpsw").style.display == "none") {
+        ge("userpswicon").innerHTML = "&mdash;";
+        ge("userpsw").style.display = "block";
+      }else{
+        ge("userpswicon").innerHTML = "+";
+        ge("userpsw").style.display = "none";
+      }
+    }
+
+    function quietfanShow(){
+      if (ge("quietfan").style.display == "none") {
+        ge("quietfanicon").innerHTML = "&mdash;";
+        ge("quietfan").style.display = "block";
+      }else{
+        ge("quietfanicon").innerHTML = "+";
+        ge("quietfan").style.display = "none";
+      }
+    }
+
+    function getData() {
+      p = "[";
+      if (programType === "pr") {
+        p += "r";
+      }
+      if (programType === "pg") {
+        p += "g";
+      }
+      if (programType === "ptd") {
+        p += "td";
+      }
+      if (programType === "ptdg") {
+        p += "tdg";
+      }
+      if (programType === "rr") {
+        p += "rr";
+      }
+      if (programType === "rg") {
+        p += "rg";
+      }
+      if (programType === "hr") {
+        p += "hr";
+      }
+      if (programType === "hg") {
+        p += "hg";
+      }
+      if (ge("setLidTemp").value == "") {
+        p += ",0"
+      }else{
+        p += ",";
+        p += ge("setLidTemp").value.toString();
+      }
+      if (programType === "pr" || programType === "pg" || programType === "ptd" || programType === "ptdg") {
+        p += ",";
+        p += ge("initDenatureTemp").value.toString();
+        p += ",";
+        p += ge("initDenatureTime").value.toString();
+        p += ",";
+        p += ge("cycleNum").value.toString();
+        p += ",";
+        p += ge("denatureTemp").value.toString();
+        p += ",";
+        p += ge("denatureTime").value.toString();
+        p += ",";
+        p += ge("annealTime").value.toString();
+        p += ",";
+        p += ge("extendTemp").value.toString();
+        p += ",";
+        p += ge("extendTime").value.toString();
+        p += ",";
+        p += ge("finalExtendTemp").value.toString();
+        p += ",";
+        p += ge("finalExtendTime").value.toString();
+      }
+      if (programType === "pr" || programType === "ptd") {
+        p += ",";
+        p += ge("annealTemp").value.toString();
+      }
+      if (programType === "pg" || programType === "ptdg") {
+        p += ",";
+        p += ge("annealTempLow").value.toString();
+        p += ",";
+        p += ge("annealTempHigh").value.toString();
+      }
+      if (programType === "ptd" || programType === "ptdg") {
+        p += ",";
+        p += ge("TDCycleNum").value.toString();
+        p += ",";
+        p += ge("TDdenatureTemp").value.toString();
+        p += ",";
+        p += ge("TDdenatureTime").value.toString();
+        p += ",";
+        p += ge("TDAnnealTime").value.toString();
+        p += ",";
+        p += ge("TDextendTemp").value.toString();
+        p += ",";
+        p += ge("TDextendTime").value.toString();
+      }
+      if (programType === "ptd"){
+        p += ",";
+        p += ge("TDStartTemp").value.toString();
+        p += ",";
+        p += ge("TDEndTemp").value.toString();
+      }
+      if (programType === "ptdg"){
+        p += ",";
+        p += ge("TDLowStartTemp").value.toString();
+        p += ",";
+        p += ge("TDHighStartTemp").value.toString();
+        p += ",";
+        p += ge("TDLowEndTemp").value.toString();
+        p += ",";
+        p += ge("TDHighEndTemp").value.toString();
+      }
+      if (programType === "rr" || programType === "rg") {
+        p += ",";
+        p += ge("rampTime").value.toString();
+      }
+      if (programType === "rr") {
+        p += ",";
+        p += ge("startRampTemp").value.toString();
+        p += ",";
+        p += ge("endRampTemp").value.toString();
+      }
+      if (programType === "rg") {
+        p += ",";
+        p += ge("lowstartRampTemp").value.toString();
+        p += ",";
+        p += ge("highstartRampTemp").value.toString();
+        p += ",";
+        p += ge("lowendRampTemp").value.toString();
+        p += ",";
+        p += ge("highendRampTemp").value.toString();
+      }
+      if (programType === "hr" || programType === "hg") {
+        p += ",";
+        p += ge("heatBlockTime").value.toString();
+      }
+      if (programType === "hr"){
+        p += ",";
+        p += ge("heatBlockTemp").value.toString();
+      }
+      if (programType === "hg"){
+        p += ",";
+        p += ge("lowheatBlockTemp").value.toString();
+        p += ",";
+        p += ge("highheatBlockTemp").value.toString();
+      }
+
+      p += "]*";
+      return p
+    }
+
+
+    function saveProgram() {
+      if (ge("programName").value == "") {
+        ge("pprogramName").innerHTML = "Please enter a program name";
+        ge("pprogramName").style.backgroundColor = "#FF7F7F";
+        ge("programName").focus();
+        return;
+      }
+      if (validate()) {
+        p = "save:"
+        p += getData();
+        p += ge("programName").value.toString();
+        ws.send(p);
+        savechange = true;
+      }
+    }
+
+    function sendProgram() {
+      if (validate()) {
+        p = "run:"
+        p += getData();
+        p += ge("programName").value.toString();
+        ws.send(p);
+        showView();
+      }
+    }
+
+    var savechange = false;
+    var deletechange = false;
+    var autostartchange = false;
+    var aponchange = false;
+    var connectchange = false;
+    var userpswchange = false;
+
+
+    function InitWebSocket() {
+      ws = new WebSocket('ws://'+document.location.host+'/ws',['arduino']);
+      ws.binaryType = "arraybuffer";
+
+      ws.onmessage = function(evt) {
+        JSONobj = JSON.parse(evt.data);
+        pcrRunning = Number(JSONobj.pcrOn)
+        if (pcrRunning) {
+          pcrRunning = true;
+          ge('displaydiv').style.display = "block";
+          ge('displaydiv1').style.display = "block";
+          if (JSONobj.pauseSwitch == "Unpause") {
+            ge('progstate').innerHTML = "Paused " + JSONobj.programName;
+          } else {
+            ge('progstate').innerHTML = "Running " + JSONobj.programName;
+          }
+          ge('cycleNumber').innerHTML = JSONobj.cycleNum;
+          ge('cycleState').innerHTML = JSONobj.cycleState;
+          ge('cycleCount').innerHTML = JSONobj.cycleCount;
+          ge('timer').innerHTML = JSONobj.timer;
+          if (JSONobj.cycleState == "Initial Denature"){
+            ge('cycleTime').innerHTML = JSONobj.initDenatureTime;}
+          if (JSONobj.cycleState == "Denature Step"){
+          ge('cycleTime').innerHTML = JSONobj.denatureTime;}
+          if (JSONobj.cycleState == "Anneal Step"){
+          ge('cycleTime').innerHTML = JSONobj.annealTime;}
+          if (JSONobj.cycleState == "Extend Step"){
+          ge('cycleTime').innerHTML = JSONobj.extendTime;}
+          if (JSONobj.cycleState == "Final Extend Step"){
+          ge('cycleTime').innerHTML = JSONobj.finalExtendTime;}
+          if (Number(JSONobj.isGradient)) {
+            ge("gradienttemp").style.display = "block";
+            ge('tempone').innerHTML = JSONobj.tempone;
+            ge('temptwo').innerHTML = JSONobj.temptwo;
+            ge('tempthree').innerHTML = JSONobj.tempthree;
+            ge("blocktemp").style.display = "none";
+          } else {
+            ge("gradienttemp").style.display = "none";
+          }
+        } else {
+          ge('progstate').innerHTML = "PCR Ready";
+          ge('displaydiv').style.display = "none";
+          ge('displaydiv1').style.display = "none";
+        }
+        if (JSONobj.connected == "true") {
+          connected = true;
+          var stringip = "http://"+JSONobj.localIPaddress;
+          //ge("wifidiv").style.display = "block";
+          // ge("ssidname").innerHTML = JSONobj.userssid;
+          // ge("ssidspan").innerHTML = JSONobj.userssid;
+          // ge("ipaddress").value = stringip;
+
+
+        }else{
+          connected = false;
+        }
+        if (JSONobj.Setpointlid == "0") {
+          ge('Setpointlid').innerHTML = "Not Set"
+        }else {
+          ge('Setpointlid').innerHTML = JSONobj.Setpointlid + "&deg;C";
+        }
+        if (JSONobj.Setpointblock == "0") {
+          ge('Setpointblock').innerHTML = "Not Set"
+        }else {
+          ge('Setpointblock').innerHTML = JSONobj.Setpointblock + "&deg;C";
+        }
+
+        ge('preheatLidTemp').innerHTML = JSONobj.templid;
+        ge('templid').innerHTML = JSONobj.templid;
+        ge('preheatLidText').innerHTML = JSONobj.preheatLidText;
+        if (ge('preheatLidText').innerHTML == "Lid is On") {
+          ge('pretextlid').style.backgroundColor = "#ff9d2e";
+          ge('preheatLidset').style.backgroundColor = "#ff9d2e";
+          ge("preheatlidstat").innerHTML = "&nbsp;Preheat Lid: ON";
+        } else {
+          ge('pretextlid').style.backgroundColor = "white";
+          ge('preheatLidset').style.backgroundColor = "white";
+          ge("preheatlidstat").innerHTML = "&nbsp;Preheat Lid: OFF";
+        }
+        ge('preheatBlockTemp').innerHTML = JSONobj.blockTemp;
+        ge('blockTemp1').innerHTML = JSONobj.blockTemp;
+        ge('preheatBlockText').innerHTML = JSONobj.preheatBlockText;
+        if (ge('preheatBlockText').innerHTML == "Block is On") {
+          ge('preheatBlockset').style.backgroundColor = "#ff9d2e";
+          ge("preheatblockstat").innerHTML = "&nbsp;Preheat Block: ON";
+          ge('pretextblock').style.backgroundColor = "#ff9d2e";
+        } else {
+          ge('preheatBlockset').style.backgroundColor = "white";
+          ge("preheatblockstat").innerHTML = "&nbsp;Preheat Block: OFF";
+          ge('pretextblock').style.backgroundColor = "white";
+        }
+        ge('preheatLidButton').value = JSONobj.preheatLidButton;
+        ge('pauseButton').value = JSONobj.pauseSwitch;
+        ge('preheatBlockButton').value = JSONobj.preheatBlockButton;
+        if (Boolean(savechange) && Object.keys(JSONobj)[0] == "savealert") {
+          ge('savealert').innerHTML = JSONobj.savealert;
+          savechange = false;
+        }
+        if (Boolean(autostartchange) && Object.keys(JSONobj)[0] == "autostartalert") {
+          ge('autostartalert').innerHTML = JSONobj.autostartalert;
+          autostartchange = false;
+          loadConfig();
+        }
+        if (Boolean(aponchange) && Object.keys(JSONobj)[0] == "aponalert") {
+          ge('aponalert').innerHTML = JSONobj.aponalert;
+          aponchange = false;
+          loadConfig();
+        }
+        if (Boolean(connectchange) && Object.keys(JSONobj)[0] == "connectalert") {
+          ge('connectalert').innerHTML = JSONobj.connectalert;
+          connectchange = false;
+          loadConfig();
+        }
+        if (Boolean(userpswchange) && Object.keys(JSONobj)[0] == "userpswalert") {
+          ge('userpswalert').innerHTML = JSONobj.userpswalert;
+          connectchange = false;
+          loadConfig();
+        }
+        if (Boolean(deletechange) && Object.keys(JSONobj)[0] == "deletealert") {
+          var deleted = ge(JSONobj.deleted);
+          deleted.innerHTML = "";
+          var h1 = ce("h1");
+          var t = document.createTextNode(JSONobj.deletealert);
+          h1.appendChild(t);
+          deleted.appendChild(h1);
+          deletechange = false;
+        }
+
+      }
+      if (ws.readyState === ws.CLOSED) {
+        ge('progstate').innerHTML = "PCR Not Connected";
+        ge('progstate1').style.display = "block";
+        ge('tempdiv').style.display = "none";
+      } else {
+        ge('progstate').innerHTML = "PCR Ready";
+        ge('progstate1').style.display = "none";
+        ge('tempdiv').style.display = "block";
+      }
+    }
+
+
+
+    function onBodyLoad() {
+      showTab('programpcr', 'tabpcr');
+      programRegular();
+      regularRampButton();
+      regularHeatButton();
+      InitWebSocket();
+    }
+
+    function pauseButton() {
+      a = 'isPaused=true';
+      pause = ge('pauseButton').value;
+      if (pause === 'Pause') {
+        a = 'isPaused=true';
+      }
+      if (pause === 'Unpause') {
+        a = 'isPaused=false';
+      }
+      ws.send(a);
+    }
+    var firststop = true;
+
+    function stopButton() {
+      if (Boolean(firststop)) {
+        ge("stopalert").innerHTML = "Are you sure you want to quit the program?";
+        ge("stopButton").value = "CONFIRM STOP";
+        firststop = false;
+        return;
+      } else {
+        ge("stopalert").innerHTML = "";
+        ge("stopButton").value = "STOP";
+        ge('progstate').innerHTML = "PCR Ready";
+        firststop = true;
+        a = 'stop:';
+        ws.send(a);
+      }
+    }
+
+function selectLoad(key, keydata){
+  ge("autostartprog").innerHTML = key;
+  ge("autostartprog").setAttribute("data-autostart", keydata);
+}
+
+function autostartSend(){
+  if (ge("autostartprog").innerHTML != "No Program Selected") {
+  autostartchange = true;
+  var autostart = ge("autostartprog");
+  var data = autostart.dataset.autostart;
+  p = "autostart:"
+  p += data;
+  p += "*"
+  p += ge("autostartprog").innerHTML;
+  ws.send(p);
+}
+if (ge("autostartbutton").value == "Turn Autostart Off") {
+
+}
+}
+
+function userpswSend(){
+  userpswchange = true;
+  var aok = true;
+  if (ge("userpswbutton").value == "Turn Custom Password On") {
+    if (ge("userpswinput").value < 8 || ge("userpswinput").value > 63) {
+      aok = false;
+      ge("puserpswinput").innerHTML = "Please enter a password between 8 and 63 characters";
+      ge("puserpswinput").style.backgroundColor = "#FF7F7F";
+      ge("userpswinput").focus();
+    }
+
+    p = "userpswon:";
+    p += ge("userpswinput").value;
+    p += "*";
+  }
+  if (ge("userpswbutton").value == "Turn Custom Password Off") {
+    p = "userpswoff:";
+  }
+  if (Boolean(aok)) {
+    ws.send(p);
+  }
+
+}
+
+function quietfanSend(){
+    p = "quietfan:";
+    if (ge("quietfanbutton").value = "Turn Quiet Fan On") {
+      p += "true";
+    }
+    if (ge("quietfanbutton").value = "Turn Quiet Fan Off") {
+      p += "false";
+    }
+    p += "*";
+    ws.send(p);
+}
+
+function connectWifi(){
+    connectchange = true;
+  if (ge("connectwifibutton").value == "Turn Wifi Connection On") {
+    p = "wifion:";
+    p += ge("wifiname").value;
+    p += "*";
+    p += ge("wifipass").value;
+    ws.send(p);
+
+  }
+  if (ge("connectwifibutton").value == "Turn Wifi Connection Off") {
+    p = "wifioff:";
+    ws.send(p);
+
+  }
+}
+
+function aponSend(){
+  if (ge("aponbutton").value == "Turn proPCR Network Off") {
+    if (Boolean(connected)) {
+      aponchange = true;
+      p = "apon:";
+      ws.send(p);
+
+    }else{
+      ge("aponalert").innerHTML = "You must be connected to a wifi network to disable the proPCR wifi broadcast";
+      ge("aponalert").style.backgroundColor = "#FF7F7F";
+    }
+  }
+  if (ge("aponbutton").value == "Turn proPCR Network On") {
+      aponchange = true;
+      p = "apon:";
+      ws.send(p);
+
+    }
+  }
+
+
+function showTab(tab, tablink){
+  ge("programpcr").style.display = "none";
+  ge("tabpcr").style.borderBottom = "2px solid black";
+  ge("programramp").style.display = "none";
+  ge("tabramp").style.borderBottom = "2px solid black";
+  ge("programheat").style.display = "none";
+  ge("tabheat").style.borderBottom = "2px solid black";
+  ge(tab).style.display = "block";
+  ge(tablink).style.borderBottom = "none";
+  if (tablink == "tabpcr") {
+    programTab = "p";
+    programType = programTab + programButton;
+  }
+  if (tablink == "tabramp") {
+    programTab = "r";
+    programType = programTab + programButton;
+  }
+  if (tablink == "tabheat") {
+    programTab = "h";
+    programType = programTab + programButton;
+  }
+}
+
+
+function regularHeatButton(){
+      programButton = "r";
+      programType = programTab + programButton;
+      turnWhite("gradientHeatButton");
+      turnOrange("regularHeatButton");
+      ge("gradheatstat").innerHTML = "Regular Heat Block:";
+      displayBlock("regheat");
+      displayNone("gradheat");
+}
+
+function gradientHeatButton(){
+      programButton = "g";
+      programType = programTab + programButton;
+      turnOrange("gradientHeatButton");
+      turnWhite("regularHeatButton");
+      ge("gradheatstat").innerHTML = "Gradient Heat Block:";
+      displayNone("regheat");
+      displayBlock("gradheat");
+}
+
+function regularRampButton(){
+      programButton = "r";
+      programType = programTab + programButton;
+      turnWhite("gradientRampButton");
+      turnOrange("regularRampButton");
+      ge("gradrampstat").innerHTML = "Regular Ramp:";
+      displayBlock("regramp");
+      displayNone("gradramp");
+}
+
+function gradientRampButton(){
+      programButton = "g";
+      programType = programTab + programButton;
+      turnOrange("gradientRampButton");
+      turnWhite("regularRampButton");
+      ge("gradrampstat").innerHTML = "Gradient Ramp:";
+      displayNone("regramp");
+      displayBlock("gradramp");
+  }
+
+function programRegular(){
+  programButton = "r";
+  programType = programTab + programButton;
+  ge("progtype").innerHTML = "Regular PCR:"
+  turnOrange("regularButton");
+  turnWhite("gradientButton");
+  turnWhite("TDButton");
+  turnWhite("TDGButton");
+  displayBlock("initialdiv");
+  displayNone("TDdiv");
+  displayBlock("regularProg");
+  displayNone("gradientProg");
+  displayBlock("saverundiv");
+}
+
+function programGradient(){
+  programButton = "g";
+  programType = programTab + programButton;
+  ge("progtype").innerHTML = "Gradient PCR:"
+  turnWhite("regularButton");
+  turnOrange("gradientButton");
+  turnWhite("TDButton");
+  turnWhite("TDGButton");
+  displayBlock("initialdiv");
+  displayNone("TDdiv");
+  displayNone("regularProg");
+  displayBlock("gradientProg");
+  displayBlock("saverundiv");
+}
+
+function programTD(){
+  programButton = "td";
+  programType = programTab + programButton;
+  ge("progtype").innerHTML = "Touchdown PCR:"
+  turnWhite("regularButton");
+  turnWhite("gradientButton");
+  turnOrange("TDButton");
+  turnWhite("TDGButton");
+  displayBlock("initialdiv");
+  displayBlock("TDdiv");
+  displayBlock("TDregulardiv");
+  displayNone("TDGdiv");
+  displayBlock("regularProg");
+  displayNone("gradientProg");
+  displayBlock("saverundiv");
+}
+
+function programTDG(){
+  programButton = "tdg";
+  programType = programTab + programButton;
+  ge("progtype").innerHTML = "Touchdown Gradient PCR:"
+  turnWhite("regularButton");
+  turnWhite("gradientButton");
+  turnWhite("TDButton");
+  turnOrange("TDGButton");
+  displayBlock("initialdiv");
+  displayBlock("TDdiv");
+  displayNone("TDregulardiv");
+  displayBlock("TDGdiv");
+  displayNone("regularProg");
+  displayBlock("gradientProg");
+  displayBlock("saverundiv");
+}
+
+  </SCRIPT>
+</head>
+
+<body onload="onBodyLoad()">
+
+  <div class="navbar"><img class="logo" src="data:image/png;base64,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"
+      alt="proPCR" width="200" height="38">
+    <div id="mySidenav" class="sidenav" onclick="closeNav()"><a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a><a onclick="showProgram()">New Program</a><a onclick="showLoad()">Load Program</a><a onclick="showView()">PCR Status</a><a onclick="showSettings()">Settings</a></div>
+    <span id="openbtn" class="openbtn" onclick="openNav()">&#9776;<span class="menubtn">Menu</span></span>
+  </div>
+  <div class="container">
+
+    <div id="menudiv">
+      <input type="button" onclick="showProgram()" value="New Program" />
+      <input type="button" onclick="showLoad()" value="Load Program" />
+      <input type="button" onclick="showView()" value="PCR Status" />
+      <input type="button" onclick="showSettings()" value="Settings" />
+
+    </div>
+    <div id="loaddiv">
+
+    </div>
+
+    <div id="settingsdiv">
+
+      <div id="autostartset" class="setting" onclick="expandShow('autostart','autostarticon')"><div id="autostarticon" class="settingsicon">+</div><div id="autostartstat">&nbsp;Autostart: OFF</div></div>
+      <div id="autostart" style="display:none">
+        <div class="info">Autostart automatically runs a selected program when the machine powers on</div>
+        <div id="autostartalert"></div>
+        <input type="button" onclick="autostartSend()" id="autostartbutton" class="settingsbutton" value="Turn Autostart On"/>
+        <div class="autostartprog"><h3>Autostart Program:</h3><div><div id="autostartprog">No Program Selected</div></div></div>
+        <p style="text-align:center">Select Program:</p>
+        <div id="progselect">
+
+        </div>
+      </div>
+
+      <div id="connectwifiset" class="setting" onclick="expandShow('connectwifi','connectwifiicon')"><div id="connectwifiicon" class="settingsicon">+</div><div id="connectwifistat">&nbsp;Connect to Wifi Network: OFF</div></div>
+      <div id="connectwifi" style="display:none">
+        <div class="info">Connect to an existing wifi network. The machine will be accesible to any device connected to the same network.</div>
+        <div id="connectnetworkmsg">On startup proPCR will connect to the network:&nbsp;;</div>
+        <h3 id="connectnetwork"></h3>
+        <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Wifi Network Name' id="wifiname" maxlength="32"/><span>Wifi Network Name</span></label>
+          <p id="pprogramName"></p>
+        </div>
+        <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Wifi Password' id="wifipass" maxlength="63"/><span>Wifi Password</span></label>
+          <p id="pprogramName"></p>
+        </div>
+        <div id="connectalert">
+
+        </div>
+        <input type="button" id="connectwifibutton" class="settingsbutton" onclick="connectWifi()" value="Turn Wifi Connection On"/>
+
+      </div>
+
+      <div id="aponset" class="setting" onclick="expandShow('apon','aponicon')"><div id="aponicon" class="settingsicon">+</div><div id="aponstat" class="settingsname">&nbsp;Broadcast proPCR Network: ON</div></div>
+      <div id="apon" style="display:none">
+        <div class="info">This setting turns on and off the wifi network that the proPCR broadcasts. If you turn this off and have trouble connecting to another wifi network, you may have to reset the proPCR to connect to it.</div>
+        <div id="aponalert">
+        </div>
+        <input type="button" id="aponbutton" onclick="aponSend()"value="Turn Broadcast On"/>
+      </div>
+
+      <div id="userpswset" class="setting" onclick="expandShow('userpsw','userpswicon')"><div id="userpswicon" class="settingsicon">+</div><div id="userpswstat" class="settingsname">&nbspCustom proPCR password: OFF</div></div>
+      <div id="userpsw" style="display:none">
+        <div class="info">Set a custom password for the proPCR wifi network.</div>
+        <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='New Password' id="userpswinput" maxlength="63"/><span>New Password</span></label></div>
+          <div id="puserpswinput"></div>
+          <input type="button" id="userpswbutton" onclick="userpswSend()" value="Turn Custom Password On"/>
+        <div id="userpswalert"></div>
+        </div>
+
+        <!-- <div id="quietfanset" class="setting" onclick="quietfanShow()"><div id="quietfanicon" class="settingsicon">+</div><div id="quietfanstat" class="settingsname">&nbspCustom proPCR password: OFF</div></div>
+        <div id="quietfan" style="display:none">
+          <div class="info">Set a custom password for the proPCR wifi network.</div>
+          <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Custom proPCR network password' id="quietfaninput" maxlength="63"/><span>Custom proPCR network password</span></label></div>
+            <div id="pquietfaninput"></div>
+            <input type="button" id="quietfanbutton" onclick="quietfanSend()" value="Turn Custom Password On"/>
+          <div id="quietfanalert"></div> -->
+
+          <div class="setting"></div>
+      </div>
+
+
+    <div id="viewdiv">
+
+      <h1 id="progstate" style="text-align:center"></h1>
+      <div id="progstate1">
+        <p style="text-align:center">Please check the wifi connection and/or reload the page</p>
+        <h3>To Connect:</h3>
+        <h4>1. Plug in and turn on the PCR</h4>
+        <h4>2. Join the wifi network "proPCR-X" (X will be a unique number)</h4>
+        <h4>3. In a web browser navigate to connect.propcr.com or http://1.1.1.X (replace X with the unique number)</h4>
+      </div>
+      <div id="displaydiv">
+        <div>
+          <h3 id='cycleState'></h3>&nbsp;
+          <h3>in cycle</h3>&nbsp;
+          <h3 id='cycleCount'></h3>&nbsp;
+          <h3>of</h3>&nbsp;
+          <h3 id='cycleNumber'></h3>
+        </div>
+        <div>
+          <h3 id='timer'></h3>
+          <h3>seconds of</h3>&nbsp;
+          <h3 id='cycleTime'></h3>
+        </div>
+      </div>
+      <div id="tempdiv" class="statustemp">
+        <div id="displaytemp">
+          <h3>Lid Temp =</h3>&nbsp;
+          <h3 id='templid'></h3>
+          <h3>&deg;C</h3>
+        </div>
+        <div id="blocktemp">
+          <h3>Block Temp =</h3>&nbsp;
+          <h3 id='blockTemp1'></h3>
+          <h3>&deg;C</h3>
+        </div>
+      </div>
+      <div id="gradienttemp" class="statustemp" style="display:none">
+        <div>
+          <h3>High Temp =</h3>&nbsp;
+          <h3 id='tempthree'></h3>
+          <h3>&deg;C</h3></div>
+        <div>
+          <h3>Mid Temp =</h3>&nbsp;
+          <h3 id='temptwo'></h3>
+          <h3>&deg;C</h3></div>
+        <div>
+          <h3>Low Temp =</h3>&nbsp;
+          <h3 id='tempone'></h3>
+          <h3>&deg;C</h3></div>
+      </div>
+      <div id="displaydiv1">
+        <input id='pauseButton' type="button" onclick="pauseButton();" value="Pause">
+        <input id='stopButton' type="button" onclick="stopButton();" value="Stop">
+        <div>
+          <p id="stopalert" style="text-align:center"></p>
+        </div>
+
+      </div>
+    </div>
+
+
+
+
+
+
+    <div id="programdiv">
+      <div id="tabs">
+        <button class="tab" id="tabpcr" onclick="showTab('programpcr', 'tabpcr')"><span>PCR</span></button>
+        <button class="tab" id="tabramp" onclick="showTab('programramp', 'tabramp')"><span>Ramp</span></button>
+        <button class="tab" id="tabheat" onclick="showTab('programheat', 'tabheat')"><span>Heat Block</span></button>
+      </div>
+      <div id="programramp">
+        <input type="button" class="button16" id="regularRampButton" onclick="regularRampButton()" value="Regular Ramp" />
+        <input type="button" class="button16" id="gradientRampButton" onclick="gradientRampButton()" value="Gradient Ramp" />
+        <h2 id="gradrampstat">Gradient Ramp Off</h2>
+        <div id="regramp">
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Start Temp &deg;C' id="startRampTemp" name='startRampTemp' maxlength="2" /><span>Start Temp &deg;C</span></label>
+            <p id="pstartRampTemp"></p>
+          </div>
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='End Temp &deg;C' id="endRampTemp" name='endRampTemp' maxlength="2" /><span>End Temp &deg;C</span></label>
+            <p id="pendRampTemp"></p>
+          </div>
+        </div>
+        <div id="gradramp">
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Low Start Temp &deg;C' id="lowstartRampTemp" name='lowstartRampTemp' maxlength="2" /><span>Low Start Temp &deg;C</span></label>
+            <p id="plowstartRampTemp"></p>
+          </div>
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High Start Temp &deg;C' id="highstartRampTemp" name='highstartRampTemp' maxlength="2" /><span>High Start Temp &deg;C</span></label>
+            <p id="phighstartRampTemp"></p>
+          </div>
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Low End Temp &deg;C' id="lowendRampTemp" name='lowendRampTemp' maxlength="2" /><span>Low End Temp &deg;C</span></label>
+            <p id="plowendRampTemp"></p>
+          </div>
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High End Temp &deg;C' id="highendRampTemp" name='highendRampTemp' maxlength="2" /><span>High End Temp &deg;C</span></label>
+            <p id="phighendRampTemp"></p>
+          </div>
+        </div>
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Ramp Time (minutes)' id="rampTime" name='rampTime' maxlength="3"/><span>Ramp Time (minutes)</span></label>
+          <p id="prampTime"></p>
+        </div>
+
+      </div>
+
+
+      <div id="programheat">
+        <input type="button" class="button16" id="regularHeatButton" onclick="regularHeatButton()" value="Regular Heat" />
+        <input type="button" class="button16" id="gradientHeatButton" onclick="gradientHeatButton()" value="Gradient Heat" />
+        <h2 id="gradheatstat">Gradient Heat Off</h2>
+        <div id="regheat" >
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Heat Block Temp &deg;C' id="heatBlockTemp" name='heatBlockTemp' maxlength="2" /><span>Heat Block Temp &deg;C</span></label>
+            <p id="pheatBlockTemp"></p>
+          </div>
+        </div>
+        <div id="gradheat">
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Low Heat Block Temp &deg;C' id="lowheatBlockTemp" name='lowheatBlockTemp' maxlength="2" /><span>Low Heat Block Temp &deg;C</span></label>
+            <p id="plowheatBlockTemp"></p>
+          </div>
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High Heat Block Temp &deg;C' id="highheatBlockTemp" name='highheatBlockTemp' maxlength="2" /><span>High Heat Block Temp &deg;C</span></label>
+            <p id="phighheatBlockTemp"></p>
+          </div>
+        </div>
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Heat Block Time (minutes)' id="heatBlockTime" name='heatBlockTime' maxlength="3"/><span>Heat Block Time (minutes)</span></label>
+          <p id="pheatBlockTime"></p>
+        </div>
+      </div>
+
+
+
+    <div id="programpcr">
+
+      <div id="selectprogram">
+        <h3 style="text-align:center">Please Select PCR Program Type:</h3>
+        <input type="button" class="button16" id="regularButton" onclick="programRegular()" value="Regular PCR" />
+        <input type="button" class="button16" id="gradientButton" onclick="programGradient()" value="Gradient PCR" />
+        <input type="button" class="button16" id="TDButton" onclick="programTD()" value="Touchdown PCR" />
+        <input type="button" class="button16" id="TDGButton" onclick="programTDG()" value="Touchdown Gradient" />
+      </div>
+      <h2 id="progtype"></h2>
+      <div id="initialdiv" style="display:none">
+      <div id="preheat">
+      <div id="preheatLidset" class="setting" onclick="expandShow('preheatliddiv','preheatliddivicon')"><div id="preheatliddivicon" class="settingsicon">+</div><div id="preheatlidstat" class="settingsname">&nbspPreheat Lid: OFF</div></div>
+      <div id="preheatliddiv" style="display:none;">
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Preheat Lid Temp &deg;C' id="preheatLidInput" name='preheatLidInput' maxlength="3" /><span>Preheat Lid Temp &deg;C</span></label>
+          <p id="preheatLidInput"></p>
+        </div>
+        <div class="displaytemp">
+          <p>Current Lid Temp=
+            <A ID='preheatLidTemp'></A>&deg;C</p>
+        </div>
+        <div class="displaytemp">
+          <p>Lid Temp Setpoint =
+            <A ID='Setpointlid'></A></p>
+        </div>
+        <div class="pretext" id="pretextlid">
+          <A ID='preheatLidText'>Lid is Off</A>
+          <p id="ppreheatLidText"></p>
+        </div><input id='preheatLidButton' type="button" onclick="preheatLid()" value="Start">
+      </div>
+
+      <!-- <div class="onoffswitch"><input type="checkbox" class="onoffswitch-checkbox" id="preheatlidswitch" onclick="showPreheatLid()"><label class="onoffswitch-label" for="preheatlidswitch"><span id="contentlid" class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div> -->
+
+
+        <!-- <div class="onoffswitch"><input type="checkbox" class="onoffswitch-checkbox" id="preheatblockswitch" onclick="showPreheatBlock()"><label class="onoffswitch-label" for="preheatblockswitch"><span id="contentblock" class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div> -->
+      <div id="preheatBlockset" class="setting" onclick="expandShow('preheatblockdiv','preheatblockdivicon')"><div id="preheatblockdivicon" class="settingsicon">+</div><div id="preheatblockstat" class="settingsname">&nbspPreheat Block: OFF</div></div>
+      <div id="preheatblockdiv" style="display:none;">
+
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Preheat Block Temp (&deg;C)' id="preheatBlockInput" name='preheatBlockInput' maxlength="2"/><span>Preheat Block Temp (&deg;C)</span></label>
+          <p id="preheatBlockInput"></p>
+        </div>
+        <div class="displaytemp">
+          <p>Block Temp=
+            <A id='preheatBlockTemp'></A>&deg;C</p>
+        </div>
+        <div class="displaytemp">
+          <p>Block Temp Setpoint=
+            <A ID='Setpointblock'></A></p>
+        </div>
+        <div class="pretext" id="pretextblock">
+          <A ID='preheatBlockText'>Block is off</A>
+          <p id="ppreheatBlockText"></p>
+        </div><input id='preheatBlockButton' type="button" onclick="preheatBlock()" value="Start">
+      </div>
+
+    <div class="setting"></div>
+  </div>
+
+
+
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Lid Temp (&deg;C)' id="setLidTemp" name='setLidTemp' maxlength="3" /><span>Lid Temp (&deg;C)</span></label>
+        <p id="psetLidTemp"></p>
+      </div>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Initial Denature Temp (&deg;C)' id="initDenatureTemp" name='initDenatureTemp' maxlength="2"/><span>Initial Denature Temp (&deg;C)</span></label>
+        <p id="pinitDenatureTemp"></p>
+      </div>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Initial Denature Time (sec)' id="initDenatureTime" name='initDenatureTime' maxlength="4"/><span>Initial Denature Time (sec)</span></label>
+        <p id="pinitDenatureTime"></p>
+      </div>
+
+
+    <div id="TDdiv" style="display:none">
+      <h3 style="text-align:center">Touchdown (TD) Phase</h3>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Phase Number of Cycles' id="TDCycleNum" name='TDCycleNum' maxlength="2"/><span>TD Phase Number of Cycles</span></label>
+        <p id="pTDCycleNum"></p>
+      </div>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Denature Temp (&deg;C)' id="TDdenatureTemp" name='TDdenatureTemp' maxlength="2"/><span>TD Denature Temp (&deg;C)</span></label>
+        <p id="pTDdenatureTemp"></p>
+      </div>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Denature Time (sec)' id="TDdenatureTime" name='TDdenatureTime' maxlength="4"/><span>TD Denature Time (sec)</span></label>
+        <p id="pTDdenatureTime"></p>
+      </div>
+      <div id="TDregulardiv" style="display:none">
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Start Anneal Temp (&deg;C)' id="TDStartTemp" name='TDStartTemp' maxlength="2" /><span>TD Start Anneal Temp (&deg;C)</span></label>
+          <p id="pTDStartTemp"></p>
+        </div>
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD End Anneal Temp (&deg;C)' id="TDEndTemp" name='TDEndTemp' maxlength="2" /><span>TD End Anneal Temp (&deg;C)</span></label>
+          <p id="pTDEndTemp"></p>
+        </div>
+      </div>
+      <div id="TDGdiv" style="display:none">
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Low TD Start Anneal Temp (&deg;C)' id="TDLowStartTemp" name='TDLowStartTemp' maxlength="2" /><span>Low TD Start Anneal Temp (&deg;C)</span></label>
+          <p id="pTDLowStartTemp"></p>
+        </div>
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High TD Start Anneal Temp (&deg;C)' id="TDHighStartTemp" name='TDHighStartTemp' maxlength="2" /><span>High TD Start Anneal Temp (&deg;C)</span></label>
+          <p id="pTDHighStartTemp"></p>
+        </div>
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Low TD End Anneal Temp (&deg;C)' id="TDLowEndTemp" name='TDLowEndTemp' maxlength="2" /><span>Low TD End Anneal Temp (&deg;C)</span></label>
+          <p id="pTDLowEndTemp"></p>
+        </div>
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High TD End Anneal Temp (&deg;C)' id="TDHighEndTemp" name='TDHighEndTemp' maxlength="2" /><span>High TD End Anneal Temp (&deg;C)</span></label>
+          <p id="pTDHighEndTemp"></p>
+        </div>
+      </div>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Anneal Time (sec)' id="TDAnnealTime" name='TDAnnealTime' maxlength="4"/><span>TD Anneal Time (sec)</span></label>
+        <p id="pTDAnnealTime"></p>
+      </div>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Extend Temp (&deg;C)' id="TDextendTemp" name='TDextendTemp' maxlength="2"/><span>TD Extend Temp (&deg;C)</span></label>
+        <p id="pTDextendTemp"></p>
+      </div>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Extend Time (sec)' id="TDextendTime" name='TDextendTime' maxlength="4"/><span>TD Extend Time (sec)</span></label>
+        <p id="pTDextendTime"></p>
+      </div>
+      <h3 style="text-align:center">Regular Phase</h3>
+
+    </div>
+
+
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Number of Cycles' id="cycleNum" name='cycleNum' maxlength="3"/><span>Number of Cycles</span></label>
+        <p id="pcycleNum"></p>
+      </div>
+
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Denature Temp (&deg;C)' id="denatureTemp" name='denatureTemp' maxlength="2"/><span>Denature Temp (&deg;C)</span></label>
+        <p id="pdenatureTemp"></p>
+      </div>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Denature Time (sec)' id="denatureTime" name='denatureTime' maxlength="4"/><span>Denature Time (sec)</span></label>
+        <p id="pdenatureTime"></p>
+      </div>
+
+
+      <!-- <div class="onoffswitch"><input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="gradientswitch" onclick="gradientCheck()"><label class="onoffswitch-label" for="gradientswitch"><span id="contentgradient" class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div> -->
+
+          <div id="regularProg" style="display:none">
+            <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Anneal Temp (&deg;C)' id="annealTemp" name='annealTemp' maxlength="2"/><span>Anneal Temp (&deg;C)</span></label>
+              <p id="pannealTemp"></p>
+            </div>
+          </div>
+          <div id="gradientProg" style="display:none">
+          <p id="pgradient" style="display:none;text-align:center">Low and High temperatures can have an 8 degree range</p>
+            <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Low Anneal Temp (&deg;C)' id="annealTempLow" name='annealTempLow' maxlength="2"/><span>Low Anneal Temp (&deg;C)</span></label>
+              <p id="pannealTempLow"></p>
+            </div>
+            <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High Anneal Temp (&deg;C)' id="annealTempHigh" name='annealTempHigh' maxlength="2"/><span>High Anneal Temp (&deg;C)</span></label>
+              <p id="pannealTempHigh"></p>
+            </div>
+          </div>
+
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Anneal Time (sec)' id="annealTime" name='annealTime' maxlength="4"/><span>Anneal Time (sec)</span></label>
+            <p id="pannealTime"></p>
+          </div>
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Extend Temp (&deg;C)' id="extendTemp" name='extendTemp' maxlength="2"/><span>Extend Temp (&deg;C)</span></label>
+            <p id="pextendTemp"></p>
+          </div>
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Extend Time (sec)' id="extendTime" name='extendTime' maxlength="4"/><span>Extend Time (sec)</span></label>
+            <p id="pextendTime"></p>
+          </div>
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Final Extend Temp (&deg;C)' id="finalExtendTemp" name='finalExtendTemp' maxlength="2"/><span>Final Extend Temp (&deg;C)</span></label>
+            <p id="pfinalExtendTemp"></p>
+          </div>
+          <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Final Extend Time (sec)' id="finalExtendTime" name='finalExtendTime' maxlength="4"/><span>Final Extend Time (sec)</span></label>
+            <p id="pfinalExtendTime"></p>
+          </div>
+
+
+    </div>
+  </div>
+    <div id="saverundiv" style="display:none">
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Lid Temp &deg;C (Optional)' id="setLidTemp" name='setLidTemp' maxlength="3" /><span>Lid Temp &deg;C (Optional)</span></label>
+        <p id="psetLidTemp"></p>
+      </div>
+      <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Program Name (Optional)' id="programName" name='programName' maxlength="20"/><span>Program Name (Optional)</span></label>
+        <p id="pprogramName"></p>
+      </div>
+      <p id="savealert"></p>
+      <input type='button' onclick="saveProgram()" id="savebutton" value="Save" />
+      <input type='button' onclick="sendProgram()" id="runbutton" value="Run" />
+    </div>
+  </div>
+  </div>
+</body>
+
+</html>
