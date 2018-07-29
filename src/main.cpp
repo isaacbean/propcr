@@ -120,9 +120,35 @@ boolean denatureStep = true;
 boolean annealStep = false;
 boolean extendStep = false;
 String cycleState = "Lid Heating";
-byte programState = 0;
 unsigned long previousMillis;
 unsigned long currentMillis;
+
+byte programState = 0;
+int  programType = 0;
+
+float TDCycleNum;
+float TDdenatureTemp;
+float TDdenatureTime;
+float TDStartTemp;
+float TDEndTemp;
+float TDLowStartTemp;
+float TDHighStartTemp;
+float TDLowEndTemp;
+float TDHighEndTemp;
+float TDAnnealTime;
+float TDextendTemp;
+float TDextendTime;
+float startRampTemp;
+float endRampTemp;
+float lowstartRampTemp;
+float highstartRampTemp;
+float lowendRampTemp;
+float highendRampTemp;
+float rampTime;
+float heatBlockTemp;
+float lowheatBlockTemp;
+float highheatBlockTemp;
+float heatBlockTime;
 
 String data;
 String programName;
@@ -396,6 +422,7 @@ void resetPCR() {
         PCRon = false;
         programState = 0;
         blockOn = false;
+        denatureStep = true;
         preheatBlock = false;
         preheatLid = false;
 }
@@ -1370,49 +1397,192 @@ void handleWS(String msg){
                         return;
                 }
                 array.printTo(Serial);
-                setLidTemp = array[0];
+                programType = array[0];
+                Serial.print("programType: ");
+                Serial.println(programType);
+                setLidTemp = array[1];
                 Serial.print("Lid temp: ");
                 Serial.println(setLidTemp);
-                initDenatureTemp = array[1];
-                Serial.print("initDenatureTemp: ");
-                Serial.println(initDenatureTemp);
-                initDenatureTime = array.get<float>(2);
-                initDenatureTimeSec = initDenatureTime;
-                initDenatureTime *= 1000;
-                Serial.print("initDenatureTime: ");
-                Serial.println(initDenatureTime);
-                cycleNum = array.get<float>(3);
-                Serial.print("cycleNum: ");
-                Serial.println(cycleNum);
-                denatureTemp = array.get<float>(4);
-                Serial.print("denatureTemp: ");
-                Serial.println(denatureTemp);
-                denatureTime = array.get<float>(5);
-                denatureTimeSec = denatureTime;
-                denatureTime *= 1000;
-                Serial.print("denatureTime: ");
-                Serial.println(denatureTime);
-                programIsGradient = array.get<float>(6);
-                Serial.print("programIsGradient: ");
-                Serial.println(programIsGradient);
-                annealTemp = array.get<float>(7);
-                annealTempLow = array.get<float>(8);
-                annealTempHigh = array.get<float>(9);
-                annealTime = array.get<float>(10);
-                annealTimeSec = annealTime;
-                annealTime *= 1000;
-                Serial.print("annealTime: ");
-                Serial.println(annealTime);
-                extendTemp = array.get<float>(11);
-                extendTime = array.get<float>(12);
-                extendTimeSec = extendTime;
-                extendTime *= 1000;
-                finalExtendTemp = array.get<float>(13);
-                finalExtendTime = array.get<float>(14);
-                finalExtendTimeSec = finalExtendTime;
-                finalExtendTime *= 1000;
-                Serial.print("finalExtendTime: ");
-                Serial.println(finalExtendTime);
+                if (programType == 1 || programType == 2 || programType == 3 || programType == 4) {
+                  initDenatureTemp = array[2];
+                  Serial.print("initDenatureTemp: ");
+                  Serial.println(initDenatureTemp);
+                  initDenatureTime = array.get<float>(3);
+                  initDenatureTimeSec = initDenatureTime;
+                  initDenatureTime *= 1000;
+                  Serial.print("initDenatureTime: ");
+                  Serial.println(initDenatureTime);
+                  cycleNum = array.get<float>(4);
+                  Serial.print("cycleNum: ");
+                  Serial.println(cycleNum);
+                  denatureTemp = array.get<float>(5);
+                  Serial.print("denatureTemp: ");
+                  Serial.println(denatureTemp);
+                  denatureTime = array.get<float>(6);
+                  denatureTimeSec = denatureTime;
+                  denatureTime *= 1000;
+                  Serial.print("denatureTime: ");
+                  Serial.println(denatureTime);
+                  annealTime = array.get<float>(7);
+                  annealTimeSec = annealTime;
+                  annealTime *= 1000;
+                  Serial.print("annealTime: ");
+                  Serial.println(annealTime);
+                  extendTemp = array.get<float>(8);
+                  extendTime = array.get<float>(9);
+                  extendTimeSec = extendTime;
+                  extendTime *= 1000;
+                  finalExtendTemp = array.get<float>(10);
+                  finalExtendTime = array.get<float>(11);
+                  finalExtendTimeSec = finalExtendTime;
+                  finalExtendTime *= 1000;
+                  Serial.print("finalExtendTime: ");
+                  Serial.println(finalExtendTime);
+                }
+                if (programType == 1 || programType == 3) {
+                  annealTemp = array.get<float>(12);
+                  Serial.print("annealTemp: ");
+                  Serial.println(annealTemp);
+                }
+                if (programType == 2 || programType == 4) {
+                  annealTempLow = array.get<float>(12);
+                  Serial.print("annealTempLow: ");
+                  Serial.println(annealTempLow);
+                  annealTempHigh = array.get<float>(13);
+                  Serial.print("annealTempHigh: ");
+                  Serial.println(annealTempHigh);
+                }
+                if (programType == 3 || programType == 4) {
+                  TDCycleNum = array.get<float>(14);
+                  Serial.print("TDCycleNum: ");
+                  Serial.println(TDCycleNum);
+                  TDdenatureTemp = array.get<float>(15);
+                  Serial.print("TDdenatureTemp: ");
+                  Serial.println(TDdenatureTemp);
+                  TDdenatureTime = array.get<float>(16);
+                  Serial.print("TDdenatureTime: ");
+                  Serial.println(TDdenatureTime);
+                  TDAnnealTime = array.get<float>(17);
+                  Serial.print("TDAnnealTime: ");
+                  Serial.println(TDAnnealTime);
+                  TDextendTemp = array.get<float>(18);
+                  Serial.print("TDextendTemp: ");
+                  Serial.println(TDextendTemp);
+                  TDextendTime = array.get<float>(19);
+                  Serial.print("TDextendTime: ");
+                  Serial.println(TDextendTime);
+                }
+                if (programType == 3){
+                  TDStartTemp = array.get<float>(20);
+                  Serial.print("TDStartTemp: ");
+                  Serial.println(TDStartTemp);
+                  TDEndTemp = array.get<float>(21);
+                  Serial.print("TDEndTemp: ");
+                  Serial.println(TDEndTemp);
+                }
+                if (programType == 4){
+                  TDLowStartTemp = array.get<float>(20);
+                  Serial.print("TDLowStartTemp: ");
+                  Serial.println(TDLowStartTemp);
+                  TDHighStartTemp = array.get<float>(21);
+                  Serial.print("TDHighStartTemp: ");
+                  Serial.println(TDHighStartTemp);
+                  TDLowEndTemp = array.get<float>(22);
+                  Serial.print("TDLowEndTemp: ");
+                  Serial.println(TDLowEndTemp);
+                  TDHighEndTemp = array.get<float>(23);
+                  Serial.print("TDHighEndTemp: ");
+                  Serial.println(TDHighEndTemp);
+                }
+                if (programType == 5 || programType == 6) {
+                  rampTime = array.get<float>(2);
+                  Serial.print("rampTime: ");
+                  Serial.println(rampTime);
+                }
+                if (programType == 5) {
+                  startRampTemp = array.get<float>(3);
+                  Serial.print("startRampTemp: ");
+                  Serial.println(startRampTemp);
+                  endRampTemp = array.get<float>(4);
+                  Serial.print("endRampTemp: ");
+                  Serial.println(endRampTemp);
+                }
+                if (programType == 6) {
+                  lowstartRampTemp = array.get<float>(3);
+                  Serial.print("lowstartRampTemp: ");
+                  Serial.println(lowstartRampTemp);
+                  highstartRampTemp = array.get<float>(4);
+                  Serial.print("highstartRampTemp: ");
+                  Serial.println(highstartRampTemp);
+                  lowendRampTemp = array.get<float>(5);
+                  Serial.print("lowendRampTemp: ");
+                  Serial.println(lowendRampTemp);
+                  highendRampTemp = array.get<float>(6);
+                  Serial.print("highendRampTemp: ");
+                  Serial.println(highendRampTemp);
+                }
+                if (programType == 7 || programType == 8) {
+                  heatBlockTime = array.get<float>(2);
+                  Serial.print("heatBlockTime: ");
+                  Serial.println(heatBlockTime);
+                }
+                if (programType == 7){
+                  heatBlockTemp = array.get<float>(3);
+                  Serial.print("heatBlockTemp: ");
+                  Serial.println(heatBlockTemp);
+                }
+                if (programType == 8){
+                  lowheatBlockTemp = array.get<float>(3);
+                  Serial.print("lowheatBlockTemp: ");
+                  Serial.println(lowheatBlockTemp);
+                  highheatBlockTemp = array.get<float>(4);
+                  Serial.print("highheatBlockTemp: ");
+                  Serial.println(highheatBlockTemp);
+                }
+                //
+                // setLidTemp = array[0];
+                // Serial.print("Lid temp: ");
+                // Serial.println(setLidTemp);
+                // initDenatureTemp = array[1];
+                // Serial.print("initDenatureTemp: ");
+                // Serial.println(initDenatureTemp);
+                // initDenatureTime = array.get<float>(2);
+                // initDenatureTimeSec = initDenatureTime;
+                // initDenatureTime *= 1000;
+                // Serial.print("initDenatureTime: ");
+                // Serial.println(initDenatureTime);
+                // cycleNum = array.get<float>(3);
+                // Serial.print("cycleNum: ");
+                // Serial.println(cycleNum);
+                // denatureTemp = array.get<float>(4);
+                // Serial.print("denatureTemp: ");
+                // Serial.println(denatureTemp);
+                // denatureTime = array.get<float>(5);
+                // denatureTimeSec = denatureTime;
+                // denatureTime *= 1000;
+                // Serial.print("denatureTime: ");
+                // Serial.println(denatureTime);
+                // programIsGradient = array.get<float>(6);
+                // Serial.print("programIsGradient: ");
+                // Serial.println(programIsGradient);
+                // annealTemp = array.get<float>(7);
+                // annealTempLow = array.get<float>(8);
+                // annealTempHigh = array.get<float>(9);
+                // annealTime = array.get<float>(10);
+                // annealTimeSec = annealTime;
+                // annealTime *= 1000;
+                // Serial.print("annealTime: ");
+                // Serial.println(annealTime);
+                // extendTemp = array.get<float>(11);
+                // extendTime = array.get<float>(12);
+                // extendTimeSec = extendTime;
+                // extendTime *= 1000;
+                // finalExtendTemp = array.get<float>(13);
+                // finalExtendTime = array.get<float>(14);
+                // finalExtendTimeSec = finalExtendTime;
+                // finalExtendTime *= 1000;
+                // Serial.print("finalExtendTime: ");
+                // Serial.println(finalExtendTime);
                 PCRon = true;
         }
 

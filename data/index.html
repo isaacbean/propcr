@@ -59,7 +59,7 @@
     input[type='button']:hover,
     input[type='submit']:hover {
       color: white;
-      background-color: #111;
+      background-color: #111 !important;
       border: 1px solid #111;
     }
 
@@ -123,7 +123,7 @@
     .container {
       width: 95%;
       margin: auto;
-      margin-top: 120px;
+      margin-top: 100px;
       margin-bottom: 50px;
 
     }
@@ -162,12 +162,12 @@
 
     #programpcr h3{
       text-align: center;
-      margin-top: 30px;
+      margin-top: 50px;
     }
 
     #programpcr h2{
       text-align: center;
-      margin-top: 50px;
+      margin-top: 40px;
     }
 
     #preheat {
@@ -1503,6 +1503,7 @@ if (programType === "hr" || programType === "hg") {
       if (programType === "pr" || programType === "ptd") {
         p += ",";
         p += ge("annealTemp").value.toString();
+        p += ",0";
       }
       if (programType === "pg" || programType === "ptdg") {
         p += ",";
@@ -2231,7 +2232,7 @@ function programTDG(){
     <div id="programpcr">
 
       <div id="selectprogram">
-        <h3 style="text-align:center">Please Select PCR Program Type:</h3>
+        <h3 style="margin-top:15px">Please Select PCR Program Type:</h3>
         <input type="button" class="button16" id="regularButton" onclick="programRegular()" value="Regular PCR" />
         <input type="button" class="button16" id="gradientButton" onclick="programGradient()" value="Gradient PCR" />
         <input type="button" class="button16" id="TDButton" onclick="programTD()" value="Touchdown PCR" />
@@ -2297,7 +2298,7 @@ function programTDG(){
 
     <div id="TDdiv" style="display:none">
       <h3 style="text-align:center">Touchdown (TD) Phase</h3>
-      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Phase Number of Cycles' id="TDCycleNum" name='TDCycleNum' maxlength="2"/><span>TD Phase Number of Cycles</span></label>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Number of Cycles' id="TDCycleNum" name='TDCycleNum' maxlength="2"/><span>TD Number of Cycles</span></label>
         <p id="pTDCycleNum"></p>
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Denature Temp (&deg;C)' id="TDdenatureTemp" name='TDdenatureTemp' maxlength="2"/><span>TD Denature Temp (&deg;C)</span></label>
