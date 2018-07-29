@@ -1016,7 +1016,7 @@
       "finalExtendTime", "programName"
     ];
     var formalerts = ["psetLidTemp", "pinitDenatureTemp", "pinitDenatureTime", "pcycleNum", "pdenatureTemp", "pdenatureTime", "pannealTemp", "pannealTime", "pannealTemp", "pannealTempHigh", "pannealTempLow", "pextendTemp", "pextendTime",
-      "pfinalExtendTemp", "pfinalExtendTime", "pprogramName"
+      "pfinalExtendTemp", "pfinalExtendTime", "pprogramName", "pTDCycleNum", "pTDdenatureTemp", "pTDdenatureTime", "pTDLowStartTemp", "pTDHighStartTemp", "pTDLowEndTemp", "pTDHighEndTemp", "pTDAnnealTime", "pTDextendTemp", "pTDextendTime", "pTDStartTemp", "pTDEndTemp", "pstartRampTemp", "pendRampTemp", "prampTime", "plowstartRampTemp", "phighstartRampTemp", "plowendRampTemp", "phighendRampTemp", "pheatBlockTime", "pheatBlockTemp", "plowheatBlockTemp", "phighheatBlockTemp"
     ];
 
     function clearform() {
@@ -1035,47 +1035,59 @@
     function validate() {
       clearalerts();
       var aok = true;
-      if (ge("finalExtendTime").value == "" ||
-        isNaN(ge("finalExtendTime").value) ||
-        ge("finalExtendTime").value < 0 || ge("finalExtendTime").value > 1200) {
+      if (ge("setLidTemp").value != ""){
+        if (isNaN(ge("setLidTemp").value) ||
+        ge("setLidTemp").value < 30 || ge("setLidTemp").value > 100) {
         aok = false;
-        ge("pfinalExtendTime").innerHTML = "Please enter a value between 0 and 1200";
-        ge("pfinalExtendTime").style.backgroundColor = "#FF7F7F";
-        ge("finalExtendTime").focus();
+        ge("psetLidTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("psetLidTemp").style.backgroundColor = "#FF7F7F";
+        ge("setLidTemp").focus();
+        }
       }
-      if (ge("finalExtendTemp").value == "" ||
-        isNaN(ge("finalExtendTemp").value) ||
-        ge("finalExtendTemp").value < 30 || ge("finalExtendTemp").value > 100) {
-        aok = false;
-        ge("pfinalExtendTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pfinalExtendTemp").style.backgroundColor = "#FF7F7F";
-        ge("finalExtendTemp").focus();
-      }
-      if (ge("extendTime").value == "" ||
-        isNaN(ge("extendTime").value) ||
-        ge("extendTime").value < 0 || ge("extendTime").value > 1200) {
-        aok = false;
-        ge("pextendTime").innerHTML = "Please enter a value between 0 and 1200";
-        ge("pextendTime").style.backgroundColor = "#FF7F7F";
-        ge("extendTime").focus();
-      }
-      if (ge("extendTemp").value == "" ||
-        isNaN(ge("extendTemp").value) ||
-        ge("extendTemp").value < 30 || ge("extendTemp").value > 100) {
-        aok = false;
-        ge("pextendTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pextendTemp").style.backgroundColor = "#FF7F7F";
-        ge("extendTemp").focus();
-      }
-      if (ge("annealTime").value == "" ||
-        isNaN(ge("annealTime").value) ||
-        ge("annealTime").value < 0 || ge("annealTime").value > 1200) {
-        aok = false;
-        ge("pannealTime").innerHTML = "Please enter a value between 0 and 1200";
-        ge("pannealTime").style.backgroundColor = "#FF7F7F";
-        ge("annealTime").focus();
-      }
-      if (ge("gradientswitch").checked) {
+      if (programType === "pr" || programType === "pg" || programType === "ptd" || programType === "ptdg") {
+
+        if (ge("finalExtendTime").value == "" ||
+          isNaN(ge("finalExtendTime").value) ||
+          ge("finalExtendTime").value < 0 || ge("finalExtendTime").value > 1200) {
+          aok = false;
+          ge("pfinalExtendTime").innerHTML = "Please enter a value between 0 and 1200";
+          ge("pfinalExtendTime").style.backgroundColor = "#FF7F7F";
+          ge("finalExtendTime").focus();
+        }
+        if (ge("finalExtendTemp").value == "" ||
+          isNaN(ge("finalExtendTemp").value) ||
+          ge("finalExtendTemp").value < 30 || ge("finalExtendTemp").value > 100) {
+          aok = false;
+          ge("pfinalExtendTemp").innerHTML = "Please enter a value between 30 and 100";
+          ge("pfinalExtendTemp").style.backgroundColor = "#FF7F7F";
+          ge("finalExtendTemp").focus();
+        }
+        if (ge("extendTime").value == "" ||
+          isNaN(ge("extendTime").value) ||
+          ge("extendTime").value < 0 || ge("extendTime").value > 1200) {
+          aok = false;
+          ge("pextendTime").innerHTML = "Please enter a value between 0 and 1200";
+          ge("pextendTime").style.backgroundColor = "#FF7F7F";
+          ge("extendTime").focus();
+        }
+        if (ge("extendTemp").value == "" ||
+          isNaN(ge("extendTemp").value) ||
+          ge("extendTemp").value < 30 || ge("extendTemp").value > 100) {
+          aok = false;
+          ge("pextendTemp").innerHTML = "Please enter a value between 30 and 100";
+          ge("pextendTemp").style.backgroundColor = "#FF7F7F";
+          ge("extendTemp").focus();
+        }
+        if (ge("annealTime").value == "" ||
+          isNaN(ge("annealTime").value) ||
+          ge("annealTime").value < 0 || ge("annealTime").value > 1200) {
+          aok = false;
+          ge("pannealTime").innerHTML = "Please enter a value between 0 and 1200";
+          ge("pannealTime").style.backgroundColor = "#FF7F7F";
+          ge("annealTime").focus();
+        }
+
+      if (programType === "pg" || programType === "ptdg") {
         if (
           isNaN(ge("annealTempLow").value) ||
           ge("annealTempLow").value < 30 || ge("annealTempLow").value > 100) {
@@ -1099,7 +1111,7 @@
           ge("annealTempLow").focus();
         }
       }
-      if (!ge("gradientswitch").checked) {
+      if (programType === "pr" || programType === "ptd") {
 
         if (
           isNaN(ge("annealTemp").value) ||
@@ -1150,15 +1162,223 @@
         ge("pinitDenatureTemp").style.backgroundColor = "#FF7F7F";
         ge("initDenatureTemp").focus();
       }
-      if (ge("setLidTemp").value != ""){
-        if (isNaN(ge("setLidTemp").value) ||
-        ge("setLidTemp").value < 30 || ge("setLidTemp").value > 100) {
+    }
+    if (programType === "ptd" || programType === "ptdg") {
+      if (ge("TDextendTime").value == "" ||
+        isNaN(ge("TDextendTime").value) ||
+        ge("TDextendTime").value < 0 || ge("TDextendTime").value > 1200) {
         aok = false;
-        ge("psetLidTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("psetLidTemp").style.backgroundColor = "#FF7F7F";
-        ge("setLidTemp").focus();
+        ge("pTDextendTime").innerHTML = "Please enter a value between 0 and 1200";
+        ge("pTDextendTime").style.backgroundColor = "#FF7F7F";
+        ge("TDextendTime").focus();
+      }
+      if (ge("TDextendTemp").value == "" ||
+        isNaN(ge("TDextendTemp").value) ||
+        ge("TDextendTemp").value < 30 || ge("TDextendTemp").value > 100) {
+        aok = false;
+        ge("pTDextendTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pTDextendTemp").style.backgroundColor = "#FF7F7F";
+        ge("TDextendTemp").focus();
+      }
+      if (ge("TDAnnealTime").value == "" ||
+        isNaN(ge("TDAnnealTime").value) ||
+        ge("TDAnnealTime").value < 0 || ge("TDAnnealTime").value > 1200) {
+        aok = false;
+        ge("pTDAnnealTime").innerHTML = "Please enter a value between 0 and 1200";
+        ge("pTDAnnealTime").style.backgroundColor = "#FF7F7F";
+        ge("TDAnnealTime").focus();
+      }
+
+    if (programType === "ptd") {
+      if (
+        isNaN(ge("TDEndTemp").value) ||
+        ge("TDEndTemp").value < 30 || ge("TDEndTemp").value > 100) {
+        aok = false;
+        ge("pTDEndTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pTDEndTemp").style.backgroundColor = "#FF7F7F";
+        ge("TDEndTemp").focus();
+      }
+      if (
+        isNaN(ge("TDStartTemp").value) ||
+        ge("TDStartTemp").value < 30 || ge("TDStartTemp").value > 100) {
+        aok = false;
+        ge("pTDStartTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pTDStartTemp").style.backgroundColor = "#FF7F7F";
+        ge("TDStartTemp").focus();
       }
     }
+    if (programType === "ptdg") {
+      if (
+        isNaN(ge("TDHighEndTemp").value) ||
+        ge("TDHighEndTemp").value < 30 || ge("TDHighEndTemp").value > 100) {
+        aok = false;
+        ge("pTDHighEndTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pTDHighEndTemp").style.backgroundColor = "#FF7F7F";
+        ge("TDHighEndTemp").focus();
+      }
+      if (
+        isNaN(ge("TDLowEndTemp").value) ||
+        ge("TDLowEndTemp").value < 30 || ge("TDLowEndTemp").value > 100) {
+        aok = false;
+        ge("pTDLowEndTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pTDLowEndTemp").style.backgroundColor = "#FF7F7F";
+        ge("TDLowEndTemp").focus();
+      }
+      if (ge("TDHighEndTemp").value - ge("TDLowEndTemp").value > 8) {
+        aok = false;
+        ge("pTDHighEndTemp").innerHTML = "Please enter temperatures with an 8 degree range or less";
+        ge("pTDHighEndTemp").style.backgroundColor = "#FF7F7F";
+        ge("TDHighEndTemp").focus();
+      }
+      if (
+        isNaN(ge("TDHighStartTemp").value) ||
+        ge("TDHighStartTemp").value < 30 || ge("TDHighStartTemp").value > 100) {
+        aok = false;
+        ge("pTDHighStartTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pTDHighStartTemp").style.backgroundColor = "#FF7F7F";
+        ge("TDHighStartTemp").focus();
+      }
+      if (
+        isNaN(ge("TDLowStartTemp").value) ||
+        ge("TDLowStartTemp").value < 30 || ge("TDLowStartTemp").value > 100) {
+        aok = false;
+        ge("pTDLowStartTemp").innerHTML = "Please enter a value between 30 and 100";
+        ge("pTDLowStartTemp").style.backgroundColor = "#FF7F7F";
+        ge("TDLowStartTemp").focus();
+      }
+      if (ge("TDHighStartTemp").value - ge("TDLowStartTemp").value > 8) {
+        aok = false;
+        ge("pTDHighStartTemp").innerHTML = "Please enter temperatures with an 8 degree range or less";
+        ge("pTDHighStartTemp").style.backgroundColor = "#FF7F7F";
+        ge("TDHighStartTemp").focus();
+      }
+    }
+    if (ge("TDdenatureTime").value == "" ||
+      isNaN(ge("TDdenatureTime").value) ||
+      ge("TDdenatureTime").value < 0 || ge("TDdenatureTime").value > 1200) {
+      aok = false;
+      ge("pTDdenatureTime").innerHTML = "Please enter a value between 0 and 1200";
+      ge("pTDdenatureTime").style.backgroundColor = "#FF7F7F";
+      ge("TDdenatureTime").focus();
+    }
+    if (ge("TDdenatureTemp").value == "" ||
+      isNaN(ge("TDdenatureTemp").value) ||
+      ge("TDdenatureTemp").value < 30 || ge("TDdenatureTemp").value > 100) {
+      aok = false;
+      ge("pTDdenatureTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("pTDdenatureTemp").style.backgroundColor = "#FF7F7F";
+      ge("TDdenatureTemp").focus();
+    }
+    if (ge("TDCycleNum").value == "" ||
+      isNaN(ge("TDCycleNum").value) ||
+      ge("TDCycleNum").value < 1 || ge("TDCycleNum").value > 100) {
+      aok = false;
+      ge("pTDCycleNum").innerHTML = "Please enter a value between 1 and 100";
+      ge("pTDCycleNum").style.backgroundColor = "#FF7F7F";
+      ge("TDCycleNum").focus();
+    }
+  }
+  if (programType === "rr" || programType === "rg") {
+    if (ge("rampTime").value == "" ||
+      isNaN(ge("rampTime").value) ||
+      ge("rampTime").value < 0 || ge("rampTime").value > 1440) {
+      aok = false;
+      ge("prampTime").innerHTML = "Please enter a value between 0 and 1440";
+      ge("prampTime").style.backgroundColor = "#FF7F7F";
+      ge("rampTime").focus();
+    }
+  if (programType === "rr"){
+    if (ge("endRampTemp").value == "" ||
+      isNaN(ge("endRampTemp").value) ||
+      ge("endRampTemp").value < 30 || ge("endRampTemp").value > 100) {
+      aok = false;
+      ge("pendRampTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("pendRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("endRampTemp").focus();
+    }
+    if (ge("startRampTemp").value == "" ||
+      isNaN(ge("startRampTemp").value) ||
+      ge("startRampTemp").value < 30 || ge("startRampTemp").value > 100) {
+      aok = false;
+      ge("pstartRampTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("pstartRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("startRampTemp").focus();
+    }
+  }
+  if (programType === "rg"){
+    if (ge("highendRampTemp").value == "" ||
+      isNaN(ge("highendRampTemp").value) ||
+      ge("highendRampTemp").value < 30 || ge("highendRampTemp").value > 100) {
+      aok = false;
+      ge("phighendRampTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("phighendRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("highendRampTemp").focus();
+    }
+    if (ge("lowendRampTemp").value == "" ||
+      isNaN(ge("lowendRampTemp").value) ||
+      ge("lowendRampTemp").value < 30 || ge("lowendRampTemp").value > 100) {
+      aok = false;
+      ge("plowendRampTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("plowendRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("lowendRampTemp").focus();
+    }
+    if (ge("highstartRampTemp").value == "" ||
+      isNaN(ge("highstartRampTemp").value) ||
+      ge("highstartRampTemp").value < 30 || ge("highstartRampTemp").value > 100) {
+      aok = false;
+      ge("phighstartRampTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("phighstartRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("highstartRampTemp").focus();
+    }
+    if (ge("lowstartRampTemp").value == "" ||
+      isNaN(ge("lowstartRampTemp").value) ||
+      ge("lowstartRampTemp").value < 30 || ge("lowstartRampTemp").value > 100) {
+      aok = false;
+      ge("plowstartRampTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("plowstartRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("lowstartRampTemp").focus();
+    }
+  }
+}
+if (programType === "hr" || programType === "hg") {
+  if (ge("heatBlockTime").value == "" ||
+    isNaN(ge("heatBlockTime").value) ||
+    ge("heatBlockTime").value < 0 || ge("heatBlockTime").value > 1440) {
+    aok = false;
+    ge("pheatBlockTime").innerHTML = "Please enter a value between 0 and 1440";
+    ge("pheatBlockTime").style.backgroundColor = "#FF7F7F";
+    ge("heatBlockTime").focus();
+  }
+  if (programType === "hr"){
+    if (ge("heatBlockTemp").value == "" ||
+      isNaN(ge("heatBlockTemp").value) ||
+      ge("heatBlockTemp").value < 30 || ge("heatBlockTemp").value > 100) {
+      aok = false;
+      ge("pheatBlockTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("pheatBlockTemp").style.backgroundColor = "#FF7F7F";
+      ge("heatBlockTemp").focus();
+    }
+  }
+  if (programType === "hg"){
+    if (ge("highheatBlockTemp").value == "" ||
+      isNaN(ge("highheatBlockTemp").value) ||
+      ge("highheatBlockTemp").value < 30 || ge("highheatBlockTemp").value > 100) {
+      aok = false;
+      ge("phighheatBlockTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("phighheatBlockTemp").style.backgroundColor = "#FF7F7F";
+      ge("highheatBlockTemp").focus();
+    }
+    if (ge("lowheatBlockTemp").value == "" ||
+      isNaN(ge("lowheatBlockTemp").value) ||
+      ge("lowheatBlockTemp").value < 30 || ge("lowheatBlockTemp").value > 100) {
+      aok = false;
+      ge("plowheatBlockTemp").innerHTML = "Please enter a value between 30 and 100";
+      ge("plowheatBlockTemp").style.backgroundColor = "#FF7F7F";
+      ge("lowheatBlockTemp").focus();
+    }
+  }
+}
+
       if (Boolean(aok)) {
         return true;
       } else {
@@ -1229,28 +1449,28 @@
     function getData() {
       p = "[";
       if (programType === "pr") {
-        p += "r";
+        p += "1";
       }
       if (programType === "pg") {
-        p += "g";
+        p += "2";
       }
       if (programType === "ptd") {
-        p += "td";
+        p += "3";
       }
       if (programType === "ptdg") {
-        p += "tdg";
+        p += "4";
       }
       if (programType === "rr") {
-        p += "rr";
+        p += "5";
       }
       if (programType === "rg") {
-        p += "rg";
+        p += "6";
       }
       if (programType === "hr") {
-        p += "hr";
+        p += "7";
       }
       if (programType === "hg") {
-        p += "hg";
+        p += "8";
       }
       if (ge("setLidTemp").value == "") {
         p += ",0"
@@ -1977,7 +2197,7 @@ function programTDG(){
             <p id="phighendRampTemp"></p>
           </div>
         </div>
-        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Ramp Time (minutes)' id="rampTime" name='rampTime' maxlength="3"/><span>Ramp Time (minutes)</span></label>
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Ramp Time (minutes)' id="rampTime" name='rampTime' maxlength="4"/><span>Ramp Time (minutes)</span></label>
           <p id="prampTime"></p>
         </div>
 
@@ -2001,7 +2221,7 @@ function programTDG(){
             <p id="phighheatBlockTemp"></p>
           </div>
         </div>
-        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Heat Block Time (minutes)' id="heatBlockTime" name='heatBlockTime' maxlength="3"/><span>Heat Block Time (minutes)</span></label>
+        <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Heat Block Time (minutes)' id="heatBlockTime" name='heatBlockTime' maxlength="4"/><span>Heat Block Time (minutes)</span></label>
           <p id="pheatBlockTime"></p>
         </div>
       </div>
@@ -2067,10 +2287,6 @@ function programTDG(){
   </div>
 
 
-
-      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Lid Temp (&deg;C)' id="setLidTemp" name='setLidTemp' maxlength="3" /><span>Lid Temp (&deg;C)</span></label>
-        <p id="psetLidTemp"></p>
-      </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Initial Denature Temp (&deg;C)' id="initDenatureTemp" name='initDenatureTemp' maxlength="2"/><span>Initial Denature Temp (&deg;C)</span></label>
         <p id="pinitDenatureTemp"></p>
       </div>
