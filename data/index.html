@@ -56,12 +56,12 @@
       margin-top: 50px;
     }
 
-    input[type='button']:hover,
+    /* input[type='button']:hover,
     input[type='submit']:hover {
       color: white;
       background-color: #111 !important;
       border: 1px solid #111;
-    }
+    } */
 
     input[type='button']:active,
     input[type='submit']:active {
@@ -160,12 +160,12 @@
       font-size: 15px;
     }
 
-    #programpcr h3{
+    #programdiv h3{
       text-align: center;
       margin-top: 50px;
     }
 
-    #programpcr h2{
+    #programdiv h2{
       text-align: center;
       margin-top: 40px;
     }
@@ -319,6 +319,10 @@
 
     #progselect>* {
       text-align: center;
+    }
+
+    #progselect h4 {
+      cursor: pointer;
     }
 
     .setting {
@@ -668,6 +672,10 @@
       return document.getElementById(s).style.backgroundColor = "#ff9d2e";
     }
 
+    function isOrange(s) {
+      document.getElementById(s).style.backgroundColor == "#ff9d2e";
+    }
+
     function turnWhite(s) {
       return document.getElementById(s).style.backgroundColor = "white";
     }
@@ -729,27 +737,86 @@
     }
 
     function editLoad(keydata, datadata){
-      ge("setLidTemp").value = datadata[0];
-      ge("initDenatureTemp").value = datadata[1];
-      ge("initDenatureTime").value = datadata[2];
-      ge("cycleNum").value = datadata[3];
-      ge("denatureTemp").value = datadata[4];
-      ge("denatureTime").value = datadata[5];
-      if (datadata[6] == true) {
-        ge("gradientswitch").checked = true;
-         ge("annealTempLow").value = datadata[8];
-         ge("annealTempHigh").value = datadata[9];
-      } else {
-        ge("gradientswitch").checked = false;
-        ge("annealTemp").value = datadata[7];
+      clearform();
+      clearalerts();
+      ge("setLidTemp").value = datadata[1];
+      if (datadata[0] === 1 || datadata[0] === 2 || datadata[0] === 3 || datadata[0] === 4) {
+        ge("initDenatureTemp").value = datadata[2];
+        ge("initDenatureTime").value = datadata[3];
+        ge("cycleNum").value = datadata[4];
+        ge("denatureTemp").value = datadata[5];
+        ge("denatureTime").value = datadata[6];
+        ge("annealTime").value = datadata[7];
+        ge("extendTemp").value = datadata[8];
+        ge("extendTime").value = datadata[9];
+        ge("finalExtendTemp").value = datadata[10];
+        ge("finalExtendTime").value = datadata[11];
+        showTab('programpcr', 'tabpcr');
       }
-       ge("annealTime").value = datadata[10];
-       ge("extendTemp").value = datadata[11];
-       ge("extendTime").value = datadata[12];
-       ge("finalExtendTemp").value = datadata[13];
-       ge("finalExtendTime").value = datadata[14];
-       ge("programName").value = keydata;
-       showProgram();
+      if (datadata[0] === 1 || datadata[0] === 3) {
+        ge("annealTemp").value = datadata[12];
+      }
+      if (datadata[0] === 2 || datadata[0] === 4) {
+        ge("annealTempLow").value = datadata[12];
+        ge("annealTempHigh").value = datadata[13];
+      }
+      if (datadata[0] === 3 || datadata[0] === 4) {
+        ge("TDCycleNum").value = datadata[14];
+        ge("TDdenatureTemp").value = datadata[15];
+        ge("TDdenatureTime").value = datadata[16];
+        ge("TDAnnealTime").value = datadata[17];
+        ge("TDextendTemp").value = datadata[18];
+        ge("TDextendTime").value = datadata[19];
+      }
+      if (datadata[0] === 3) {
+        ge("TDStartTemp").value = datadata[20];
+        ge("TDEndTemp").value = datadata[21];
+        programTD();
+      }
+      if (datadata[0] === 4) {
+        ge("TDLowStartTemp").value = datadata[20];
+        ge("TDHighStartTemp").value = datadata[21];
+        ge("TDLowEndTemp").value = datadata[22];
+        ge("TDHighEndTemp").value = datadata[23];
+        programTDG();
+      }
+      if (datadata[0] === 5 || datadata[0] === 6) {
+        ge("rampTime").value = datadata[2];
+        showTab('programramp', 'tabramp');
+      }
+      if (datadata[0] === 5) {
+        ge("startRampTemp").value = datadata[3];
+        ge("endRampTemp").value = datadata[4];
+        regularRampButton();
+      }
+      if (datadata[0] === 6) {
+        ge("lowstartRampTemp").value = datadata[3];
+        ge("highstartRampTemp").value = datadata[4];
+        ge("lowendRampTemp").value = datadata[5];
+        ge("highendRampTemp").value = datadata[6];
+        gradientRampButton();
+      }
+      if (datadata[0] === 7 || datadata[0] === 8) {
+        ge("heatBlockTime").value = datadata[2];
+        showTab('programheat', 'tabheat');
+      }
+      if (datadata[0] === 7) {
+        ge("heatBlockTemp").value = datadata[3];
+        regularHeatButton();
+      }
+      if (datadata[0] === 8) {
+        ge("lowheatBlockTemp").value = datadata[3];
+        ge("highheatBlockTemp").value = datadata[4];
+        gradientHeatButton();
+      }
+     ge("programName").value = keydata;
+     if (datadata[0] === 1) {
+       programRegular();
+     }
+     if (datadata[0] === 2) {
+       programGradient();
+     }
+     showProgram();
     }
 
     function deleteLoad(keydata){
@@ -828,84 +895,87 @@
 
 
     function loadData() {
-      ge("loaddiv").innerHTML = "";
-      ge("progselect").innerHTML = "";
-      var loaddiv = ge("loaddiv");
-      var progselect = ge("progselect");
-      var h1 = ce("h1");
-      h1.setAttribute('id', 'loadalert');
-      var h3 = ce("h3");
-      h3.setAttribute('id', 'selectalert');
-      progselect.appendChild(h3);
-      loaddiv.appendChild(h1);
-      ge("loadalert").innerHTML = "Loading...";
-      ge("selectalert").innerHTML = "Loading...";
+  ge("loaddiv").innerHTML = "";
+  ge("progselect").innerHTML = "";
+  var loaddiv = ge("loaddiv");
+  var progselect = ge("progselect");
+  var h1 = ce("h1");
+  h1.setAttribute("id", "loadalert");
+  var h3 = ce("h3");
+  h3.setAttribute("id", "selectalert");
+  progselect.appendChild(h3);
+  loaddiv.appendChild(h1);
+  ge("loadalert").innerHTML = "Loading...";
+  ge("selectalert").innerHTML = "Loading...";
+  readTextFile("/programs.json", function(text) {
+    var data = JSON.parse(text);
 
+    if (Object.keys(data).length === 0 && data.constructor === Object) {
+      ge("loadalert").innerHTML = "No Programs Saved";
+      ge("selectalert").innerHTML = "No Programs Saved";
+    } else {
+      ge("loadalert").innerHTML = "";
+      ge("selectalert").innerHTML = "";
 
-      readTextFile("/programs.json", function(text) {
-        var data = JSON.parse(text);
-        if (Object.keys(data).length === 0 && data.constructor === Object){
-          ge("loadalert").innerHTML = "No Programs Saved";
-          ge("selectalert").innerHTML = "No Programs Saved";
-        }else{
-          ge("loadalert").innerHTML = "";
-          ge("selectalert").innerHTML = "";
-        for (var key in data) {
-          if (data.hasOwnProperty(key)) {
-            let keydata = key;
-            let datadata = data[key];
+      for (var key in data) {
+        if (data.hasOwnProperty(key)) {
+          var loaddiv;
+          var progselect;
+          var selectdiv;
+          var h4;
+          var t2;
+          var progdiv;
+          var h1;
+          var t;
+          var buttondiv;
+          var run;
+          var edit;
+          var loaddelete;
 
-            var loaddiv = ge("loaddiv");
-            var progselect = ge("progselect");
-
-            var selectdiv = ce("div");
-            selectdiv.setAttribute('id', keydata);
+          (function() {
+            var keydata = key;
+            var datadata = data[key];
+            loaddiv = ge("loaddiv");
+            progselect = ge("progselect");
+            selectdiv = ce("div");
+            selectdiv.setAttribute("id", keydata);
             selectdiv.addEventListener("click", function(event) {
               selectLoad(keydata, datadata);
             });
-
-            var h4 = ce("h4");
-            h4.setAttribute('class', 'selectprogname');
-            var t2 = document.createTextNode(key);
-
-            var progdiv = ce("div");
-            progdiv.setAttribute('id', keydata);
-
-            var h1 = ce("h1");
-            h1.setAttribute('class', 'loadprogname');
-            var t = document.createTextNode(key);
-
-            var buttondiv = ce("div");
-            buttondiv.setAttribute('class', 'buttondiv');
-
-            var run = ce("input");
-            run.setAttribute('type', 'button');
-            run.setAttribute('value', 'run');
-            run.setAttribute('class', 'loadbutton');
+            h4 = ce("h4");
+            h4.setAttribute("class", "selectprogname");
+            t2 = document.createTextNode(key);
+            progdiv = ce("div");
+            progdiv.setAttribute("id", keydata);
+            h1 = ce("h1");
+            h1.setAttribute("class", "loadprogname");
+            t = document.createTextNode(key);
+            buttondiv = ce("div");
+            buttondiv.setAttribute("class", "buttondiv");
+            run = ce("input");
+            run.setAttribute("type", "button");
+            run.setAttribute("value", "run");
+            run.setAttribute("class", "loadbutton");
             run.addEventListener("click", function(event) {
               runLoad(keydata, datadata);
             });
-
-            var edit = ce("input");
-            edit.setAttribute('type', 'button');
-            edit.setAttribute('value', 'edit');
-            edit.setAttribute('class', 'loadbutton');
+            edit = ce("input");
+            edit.setAttribute("type", "button");
+            edit.setAttribute("value", "edit");
+            edit.setAttribute("class", "loadbutton");
             edit.addEventListener("click", function(event) {
               editLoad(keydata, datadata);
             });
-
-            var loaddelete = ce("input");
-            loaddelete.setAttribute('type', 'button');
-            loaddelete.setAttribute('value', 'delete');
-            loaddelete.setAttribute('class', 'loadbutton');
+            loaddelete = ce("input");
+            loaddelete.setAttribute("type", "button");
+            loaddelete.setAttribute("value", "delete");
+            loaddelete.setAttribute("class", "loadbutton");
             loaddelete.addEventListener("click", function(event) {
               deleteLoad(keydata);
             });
-
             h4.appendChild(t2);
             selectdiv.appendChild(h4);
             progselect.appendChild(selectdiv);
-
             h1.appendChild(t);
             buttondiv.appendChild(run);
             buttondiv.appendChild(edit);
@@ -914,12 +984,13 @@
             progdiv.appendChild(buttondiv);
             loaddiv.appendChild(progdiv);
             console.log(key + " -> " + data[key]);
-
-          }
+          })();
         }
       }
-      });
-  }
+    }
+  });
+}
+
 
     function gradientCheck() {
       ge("pgradient").style.display = "block";
@@ -1013,7 +1084,7 @@
     }
 
     var formfields = ["setLidTemp", "initDenatureTemp", "initDenatureTime", "cycleNum", "denatureTemp", "denatureTime", "annealTemp", "annealTime", "annealTemp", "annealTempHigh", "annealTempLow", "extendTemp", "extendTime", "finalExtendTemp",
-      "finalExtendTime", "programName"
+      "finalExtendTime", "programName", "TDCycleNum", "TDdenatureTemp", "TDdenatureTime", "TDLowStartTemp", "TDHighStartTemp", "TDLowEndTemp", "TDHighEndTemp", "TDAnnealTime", "TDextendTemp", "TDextendTime", "TDStartTemp", "TDEndTemp", "startRampTemp", "endRampTemp", "rampTime", "lowstartRampTemp", "highstartRampTemp", "lowendRampTemp", "highendRampTemp", "heatBlockTime", "heatBlockTemp", "lowheatBlockTemp", "highheatBlockTemp"
     ];
     var formalerts = ["psetLidTemp", "pinitDenatureTemp", "pinitDenatureTime", "pcycleNum", "pdenatureTemp", "pdenatureTime", "pannealTemp", "pannealTime", "pannealTemp", "pannealTempHigh", "pannealTempLow", "pextendTemp", "pextendTime",
       "pfinalExtendTemp", "pfinalExtendTime", "pprogramName", "pTDCycleNum", "pTDdenatureTemp", "pTDdenatureTime", "pTDLowStartTemp", "pTDHighStartTemp", "pTDLowEndTemp", "pTDHighEndTemp", "pTDAnnealTime", "pTDextendTemp", "pTDextendTime", "pTDStartTemp", "pTDEndTemp", "pstartRampTemp", "pendRampTemp", "prampTime", "plowstartRampTemp", "phighstartRampTemp", "plowendRampTemp", "phighendRampTemp", "pheatBlockTime", "pheatBlockTemp", "plowheatBlockTemp", "phighheatBlockTemp"
@@ -1900,14 +1971,38 @@ function showTab(tab, tablink){
   ge(tablink).style.borderBottom = "none";
   if (tablink == "tabpcr") {
     programTab = "p";
+    if (isOrange("regularButton")) {
+      programButton = "r";
+    }
+    if (isOrange("gradientButton")) {
+      programButton = "g";
+    }
+    if (isOrange("TDButton")) {
+      programButton = "td";
+    }
+    if (isOrange("TDGButton")) {
+      programButton = "tdg";
+    }
     programType = programTab + programButton;
   }
   if (tablink == "tabramp") {
     programTab = "r";
+    if (isOrange("regularRampButton")) {
+      programButton = "r";
+    }
+    if (isOrange("gradientRampButton")) {
+      programButton = "g";
+    }
     programType = programTab + programButton;
   }
   if (tablink == "tabheat") {
     programTab = "h";
+    if (isOrange("regularHeatButton")) {
+      programButton = "r";
+    }
+    if (isOrange("gradientHeatButton")) {
+      programButton = "g";
+    }
     programType = programTab + programButton;
   }
 }
@@ -2020,8 +2115,12 @@ function programTDG(){
   </SCRIPT>
 </head>
 
-<body onload="onBodyLoad()">
-
+<body>
+<script type="text/javascript">
+window.onload = (function(){
+  onBodyLoad();
+});
+</script>
   <div class="navbar"><img class="logo" src="data:image/png;base64,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"
       alt="proPCR" width="200" height="38">
     <div id="mySidenav" class="sidenav" onclick="closeNav()"><a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a><a onclick="showProgram()">New Program</a><a onclick="showLoad()">Load Program</a><a onclick="showView()">PCR Status</a><a onclick="showSettings()">Settings</a></div>

@@ -90,7 +90,7 @@ boolean timerStarted = false;
 float tempreturn;
 float tempset;
 
-float tempthreshold = 3;
+float tempthreshold = 1;
 float setLidTemp;
 float initDenatureTemp;
 float initDenatureTime;
@@ -181,7 +181,8 @@ String localIPaddress = "";
 
 void setupAP(){
         Serial.println("Configuring access point...");
-        String chipID = String(ESP.getChipId()).substring(0,3);
+        Serial.println(ESP.getChipId());
+        String chipID = String(ESP.getChipId()).substring(3,6);
         Serial.println(chipID);
         chipIDint = chipID.toInt();
         while (chipIDint > 255 || chipIDint < 100) {
@@ -756,7 +757,6 @@ void gradientPCR(float &low, float &high){
 void thermocycler(){
         Setpointlid = setLidTemp;
         if (PCRon == true) {
-                Serial.print("PCR on");
                 if(isPaused == false) {
                         if (programIsGradient == false) {
 
