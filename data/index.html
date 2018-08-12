@@ -739,7 +739,12 @@
     function editLoad(keydata, datadata){
       clearform();
       clearalerts();
-      ge("setLidTemp").value = datadata[1];
+      if (datadata[1] != 0) {
+        ge("setLidTemp").value = datadata[1];
+      }else {
+        ge("setLidTemp").value = "";
+      }
+
       if (datadata[0] === 1 || datadata[0] === 2 || datadata[0] === 3 || datadata[0] === 4) {
         ge("initDenatureTemp").value = datadata[2];
         ge("initDenatureTime").value = datadata[3];
@@ -764,7 +769,7 @@
         ge("TDCycleNum").value = datadata[14];
         ge("TDdenatureTemp").value = datadata[15];
         ge("TDdenatureTime").value = datadata[16];
-        ge("TDAnnealTime").value = datadata[17];
+        ge("TDannealTime").value = datadata[17];
         ge("TDextendTemp").value = datadata[18];
         ge("TDextendTime").value = datadata[19];
       }
@@ -1084,10 +1089,10 @@
     }
 
     var formfields = ["setLidTemp", "initDenatureTemp", "initDenatureTime", "cycleNum", "denatureTemp", "denatureTime", "annealTemp", "annealTime", "annealTemp", "annealTempHigh", "annealTempLow", "extendTemp", "extendTime", "finalExtendTemp",
-      "finalExtendTime", "programName", "TDCycleNum", "TDdenatureTemp", "TDdenatureTime", "TDLowStartTemp", "TDHighStartTemp", "TDLowEndTemp", "TDHighEndTemp", "TDAnnealTime", "TDextendTemp", "TDextendTime", "TDStartTemp", "TDEndTemp", "startRampTemp", "endRampTemp", "rampTime", "lowstartRampTemp", "highstartRampTemp", "lowendRampTemp", "highendRampTemp", "heatBlockTime", "heatBlockTemp", "lowheatBlockTemp", "highheatBlockTemp"
+      "finalExtendTime", "programName", "TDCycleNum", "TDdenatureTemp", "TDdenatureTime", "TDLowStartTemp", "TDHighStartTemp", "TDLowEndTemp", "TDHighEndTemp", "TDannealTime", "TDextendTemp", "TDextendTime", "TDStartTemp", "TDEndTemp", "startRampTemp", "endRampTemp", "rampTime", "lowstartRampTemp", "highstartRampTemp", "lowendRampTemp", "highendRampTemp", "heatBlockTime", "heatBlockTemp", "lowheatBlockTemp", "highheatBlockTemp"
     ];
     var formalerts = ["psetLidTemp", "pinitDenatureTemp", "pinitDenatureTime", "pcycleNum", "pdenatureTemp", "pdenatureTime", "pannealTemp", "pannealTime", "pannealTemp", "pannealTempHigh", "pannealTempLow", "pextendTemp", "pextendTime",
-      "pfinalExtendTemp", "pfinalExtendTime", "pprogramName", "pTDCycleNum", "pTDdenatureTemp", "pTDdenatureTime", "pTDLowStartTemp", "pTDHighStartTemp", "pTDLowEndTemp", "pTDHighEndTemp", "pTDAnnealTime", "pTDextendTemp", "pTDextendTime", "pTDStartTemp", "pTDEndTemp", "pstartRampTemp", "pendRampTemp", "prampTime", "plowstartRampTemp", "phighstartRampTemp", "plowendRampTemp", "phighendRampTemp", "pheatBlockTime", "pheatBlockTemp", "plowheatBlockTemp", "phighheatBlockTemp"
+      "pfinalExtendTemp", "pfinalExtendTime", "pprogramName", "pTDCycleNum", "pTDdenatureTemp", "pTDdenatureTime", "pTDLowStartTemp", "pTDHighStartTemp", "pTDLowEndTemp", "pTDHighEndTemp", "pTDannealTime", "pTDextendTemp", "pTDextendTime", "pTDStartTemp", "pTDEndTemp", "pstartRampTemp", "pendRampTemp", "prampTime", "plowstartRampTemp", "phighstartRampTemp", "plowendRampTemp", "phighendRampTemp", "pheatBlockTime", "pheatBlockTemp", "plowheatBlockTemp", "phighheatBlockTemp"
     ];
 
     function clearform() {
@@ -1251,13 +1256,13 @@
         ge("pTDextendTemp").style.backgroundColor = "#FF7F7F";
         ge("TDextendTemp").focus();
       }
-      if (ge("TDAnnealTime").value == "" ||
-        isNaN(ge("TDAnnealTime").value) ||
-        ge("TDAnnealTime").value < 0 || ge("TDAnnealTime").value > 1200) {
+      if (ge("TDannealTime").value == "" ||
+        isNaN(ge("TDannealTime").value) ||
+        ge("TDannealTime").value < 0 || ge("TDannealTime").value > 1200) {
         aok = false;
-        ge("pTDAnnealTime").innerHTML = "Please enter a value between 0 and 1200";
-        ge("pTDAnnealTime").style.backgroundColor = "#FF7F7F";
-        ge("TDAnnealTime").focus();
+        ge("pTDannealTime").innerHTML = "Please enter a value between 0 and 1200";
+        ge("pTDannealTime").style.backgroundColor = "#FF7F7F";
+        ge("TDannealTime").focus();
       }
 
     if (programType === "ptd") {
@@ -1590,7 +1595,7 @@ if (programType === "hr" || programType === "hg") {
         p += ",";
         p += ge("TDdenatureTime").value.toString();
         p += ",";
-        p += ge("TDAnnealTime").value.toString();
+        p += ge("TDannealTime").value.toString();
         p += ",";
         p += ge("TDextendTemp").value.toString();
         p += ",";
@@ -1708,14 +1713,20 @@ if (programType === "hr" || programType === "hg") {
           ge('timer').innerHTML = JSONobj.timer;
           if (JSONobj.cycleState == "Initial Denature"){
             ge('cycleTime').innerHTML = JSONobj.initDenatureTime;}
+          if (JSONobj.cycleState == "Touchdown Phase Denature Step"){
+            ge('cycleTime').innerHTML = JSONobj.TDdenatureTime;}
+          if (JSONobj.cycleState == "Touchdown Phase Anneal Step"){
+            ge('cycleTime').innerHTML = JSONobj.TDannealTime;}
+          if (JSONobj.cycleState == "Touchdown Phase Extend Step"){
+            ge('cycleTime').innerHTML = JSONobj.TDextendTime;}
           if (JSONobj.cycleState == "Denature Step"){
-          ge('cycleTime').innerHTML = JSONobj.denatureTime;}
+            ge('cycleTime').innerHTML = JSONobj.denatureTime;}
           if (JSONobj.cycleState == "Anneal Step"){
-          ge('cycleTime').innerHTML = JSONobj.annealTime;}
+            ge('cycleTime').innerHTML = JSONobj.annealTime;}
           if (JSONobj.cycleState == "Extend Step"){
-          ge('cycleTime').innerHTML = JSONobj.extendTime;}
+            ge('cycleTime').innerHTML = JSONobj.extendTime;}
           if (JSONobj.cycleState == "Final Extend Step"){
-          ge('cycleTime').innerHTML = JSONobj.finalExtendTime;}
+            ge('cycleTime').innerHTML = JSONobj.finalExtendTime;}
           if (Number(JSONobj.isGradient)) {
             ge("gradienttemp").style.display = "block";
             ge('tempone').innerHTML = JSONobj.tempone;
@@ -2428,8 +2439,8 @@ window.onload = (function(){
           <p id="pTDHighEndTemp"></p>
         </div>
       </div>
-      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Anneal Time (sec)' id="TDAnnealTime" name='TDAnnealTime' maxlength="4"/><span>TD Anneal Time (sec)</span></label>
-        <p id="pTDAnnealTime"></p>
+      <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Anneal Time (sec)' id="TDannealTime" name='TDannealTime' maxlength="4"/><span>TD Anneal Time (sec)</span></label>
+        <p id="pTDannealTime"></p>
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Extend Temp (&deg;C)' id="TDextendTemp" name='TDextendTemp' maxlength="2"/><span>TD Extend Temp (&deg;C)</span></label>
         <p id="pTDextendTemp"></p>

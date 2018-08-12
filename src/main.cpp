@@ -85,13 +85,12 @@ float blockTemp;
 float preheatLidTemp;
 float preheatBlockTemp;
 
-boolean programIsGradient;
 boolean timerStarted = false;
 float tempreturn;
 float tempset;
 
 float tempthreshold = 1;
-float setLidTemp;
+float setLidTemp = 0;
 float initDenatureTemp;
 float initDenatureTime;
 float denatureTemp;
@@ -111,11 +110,15 @@ float heatHigh = 0;
 float heatMid;
 unsigned long timerSerial;
 float initDenatureTimeSec;
+float TDannealTimeSec;
+float TDextendTimeSec;
+float TDdenatureTimeSec;
 float annealTimeSec;
 float extendTimeSec;
 float denatureTimeSec;
 float finalExtendTimeSec;
-boolean isGradient = false;
+float rampTimeMin;
+float heatBlockTimeMin;
 boolean denatureStep = true;
 boolean annealStep = false;
 boolean extendStep = false;
@@ -126,7 +129,7 @@ unsigned long currentMillis;
 byte programState = 0;
 int  programType = 0;
 
-float TDCycleNum;
+float TDcycleNum;
 float TDdenatureTemp;
 float TDdenatureTime;
 float TDStartTemp;
@@ -135,7 +138,7 @@ float TDLowStartTemp;
 float TDHighStartTemp;
 float TDLowEndTemp;
 float TDHighEndTemp;
-float TDAnnealTime;
+float TDannealTime;
 float TDextendTemp;
 float TDextendTime;
 float startRampTemp;
@@ -419,182 +422,24 @@ void resetPCR() {
         finalExtendTemp = 0;
         finalExtendTime = 0;
         cycleNum = 0;
-        cycleCount = 0;
+        cycleCount = 1;
         PCRon = false;
         programState = 0;
         blockOn = false;
+        timerStarted = false;
         denatureStep = true;
         preheatBlock = false;
         preheatLid = false;
 }
 
-
-
-float regularPCR(){
+void runPCR(float &low, float &high){
 
         switch (programState) {
 
         //Lid Wait
         case 0:
-                if (Inputlid >= setLidTemp - tempthreshold) {
-                        programState = 1;
-                        blockOn = true;
-                        cycleState = "Initial Denature";
-                        Serial.println("Initial Denature");
-                }
-                break;
 
-        //Initial Denature
-        case 1:
-                Serial.println("Initial Denature");
-                tempset = initDenatureTemp;
-                if (Input >= tempset - tempthreshold) {
-                        Serial.print("Timer: ");
-                        Serial.print(timerSerial);
-                        Serial.print(" of ");
-                        Serial.println(initDenatureTimeSec);
-                        currentMillis = millis();
-                        if (timerStarted == false) {
-                                previousMillis = millis();
-                                timerStarted = true;
-                        }
-                        if (timerStarted == true && currentMillis - previousMillis > initDenatureTime) {
-                                Serial.println("Timer Stopped");
-                                timerStarted = false;
-                                programState = 2;
-                                cycleState = "Denature Step";
-                        }
-                }
-                return tempset;
-
-        //Cycles
-        case 2:
-
-                if (cycleCount < cycleNum) {
-                        Serial.print("Cycle ");
-                        Serial.print(cycleCount);
-                        Serial.print(" of ");
-                        Serial.println(cycleNum);
-                        //Denature step
-                        if (denatureStep == true) {
-                                Serial.println("Denature Step");
-
-                                tempset = denatureTemp;
-
-                                if (Input >= tempset - tempthreshold && Input <= tempset + tempthreshold) {
-                                        Serial.print("Timer: ");
-                                        Serial.print(timerSerial);
-                                        Serial.print(" of ");
-                                        Serial.println(denatureTimeSec);
-                                        currentMillis = millis();
-                                        if (timerStarted == false) {
-                                                previousMillis = millis();
-                                                timerStarted = true;
-                                        }
-                                }
-                                if (timerStarted == true && currentMillis - previousMillis > denatureTime) {
-                                        denatureStep = false;
-                                        annealStep = true;
-                                        timerStarted = false;
-                                        cycleState = "Anneal Step";
-                                }
-                        }
-                        //Anneal step
-                        if (annealStep == true) {
-                                Serial.println("Anneal Step");
-                                tempset = annealTemp;
-
-                                if (Input >= tempset - tempthreshold && Input <= tempset + tempthreshold) {
-                                        Serial.print("Timer: ");
-                                        Serial.print(timerSerial);
-                                        Serial.print(" of ");
-                                        Serial.println(annealTimeSec);
-                                        currentMillis = millis();
-
-                                        if (timerStarted == false) {
-                                                previousMillis = millis();
-                                                timerStarted = true;
-                                        }
-                                }
-                                if (timerStarted == true && currentMillis - previousMillis > annealTime) {
-                                        Serial.println("Timer Stopped");
-                                        annealStep = false;
-                                        extendStep = true;
-                                        timerStarted = false;
-                                        cycleState = "Extend Step";
-                                }
-                        }
-                        //Extend step
-                        if (extendStep == true) {
-                                Serial.println("Extend Step");
-                                tempset = extendTemp;
-                        }
-                        if (Input >= tempset - tempthreshold && Input <= tempset + tempthreshold) {
-                                Serial.print("Timer: ");
-                                Serial.print(timerSerial);
-                                Serial.print(" of ");
-                                Serial.println(extendTimeSec);
-                                currentMillis = millis();
-                                if (timerStarted == false) {
-                                        previousMillis = millis();
-                                        timerStarted = true;
-                                }
-                        }
-                        if (timerStarted == true && currentMillis - previousMillis > extendTime) {
-                                extendStep = false;
-                                denatureStep = true;
-                                timerStarted = false;
-                                cycleState = "Denature Step";
-                                cycleCount++;
-                        }
-                }
-
-                if (cycleCount == cycleNum) {
-                        programState = 3;
-                        cycleState = "Final Extend Step";
-                }
-                return tempset;
-
-        //Final extend
-        case 3:
-                Serial.println("Final Extend Step");
-
-                tempset = finalExtendTemp;
-
-                if (Input >= tempset - tempthreshold && Input <= tempset + tempthreshold) {
-                        Serial.print("Timer: ");
-                        Serial.print(timerSerial);
-                        Serial.print(" of ");
-                        Serial.println(finalExtendTimeSec);
-                        currentMillis = millis();
-                        if (timerStarted == false) {
-                                previousMillis = millis();
-                                timerStarted = true;
-                        }
-                        if (timerStarted == true && currentMillis - previousMillis > finalExtendTime) {
-                                timerStarted = false;
-                                programState = 4;
-                                cycleState = "Program Done!";
-                        }
-                }
-
-                return tempset;
-
-        //Program done
-        case 4:
-                resetPCR();
-                Serial.println("Program done!");
-                break;
-        }
-}
-
-void gradientPCR(float &low, float &high){
-
-        switch (programState) {
-
-        //Lid Wait
-        case 0:
-                if (Inputlid >= setLidTemp - tempthreshold) {
+                if (Inputlid >= setLidTemp - tempthreshold || setLidTemp == 0) {
                         programState = 1;
                         blockOn = true;
                         cycleState = "Initial Denature";
@@ -603,7 +448,6 @@ void gradientPCR(float &low, float &high){
 
         //Initial Denature
         case 1:
-                Serial.println("Initial Denature");
                 low = initDenatureTemp;
                 high = initDenatureTemp;
                 if (Input1 >= low - tempthreshold) {
@@ -618,15 +462,169 @@ void gradientPCR(float &low, float &high){
                         }
                         if (timerStarted == true && currentMillis - previousMillis > initDenatureTime) {
                                 timerStarted = false;
-                                programState = 2;
-                                cycleState = "Denature Step";
-                        }
+                                if (programType == 3 || programType == 4) {
+                                  programState = 2;
+                                  cycleState = "Touchdown Phase Denature Step";
+                                }else{
+                                  programState = 3;
+                                  cycleState = "Denature Step";
+                                }
+                              }
                 }
                 break;
 
         //Cycles
         case 2:
+        if (cycleCount <= TDcycleNum) {
+                Serial.print("Touchdown Cycle ");
+                Serial.print(cycleCount);
+                Serial.print(" of ");
+                Serial.println(TDcycleNum);
 
+                //Denature step
+                if (denatureStep == true) {
+                        Serial.println("TD Denature Step");
+
+                        low = TDdenatureTemp;
+                        high = TDdenatureTemp;
+
+                        if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
+                                Serial.print("Timer: ");
+                                Serial.print(timerSerial);
+                                Serial.print(" of ");
+                                Serial.println(TDdenatureTimeSec);
+                                currentMillis = millis();
+                                if (timerStarted == false) {
+                                        previousMillis = millis();
+                                        timerStarted = true;
+                                }
+                        }
+                        if (timerStarted == true && currentMillis - previousMillis > TDdenatureTime) {
+                                denatureStep = false;
+                                annealStep = true;
+                                timerStarted = false;
+                                cycleState = "Touchdown Phase Anneal Step";
+                        }
+                }
+
+                //Anneal step
+                if (annealStep == true) {
+                        Serial.println("Touchdown Phase Anneal Step");
+
+                        if (programType == 3) {
+                          float tempStep;
+                          float TDannealTemp;
+                          tempStep = TDStartTemp - TDEndTemp;
+                          tempStep = abs(tempStep);
+                          tempStep /= TDcycleNum;
+                          if (TDStartTemp > TDEndTemp) {
+                            TDannealTemp = TDStartTemp;
+                            TDannealTemp += tempStep;
+                            tempStep *= cycleCount;
+                            TDannealTemp -= tempStep;
+                          }else{
+                            TDannealTemp = TDStartTemp;
+                            TDannealTemp -= tempStep;
+                            tempStep *= cycleCount;
+                            TDannealTemp += tempStep;
+                          }
+
+                          low = TDannealTemp;
+                          high = TDannealTemp;
+                        }
+                        if (programType == 4) {
+                          float lowtempStep;
+                          float hightempStep;
+                          float lowTDannealTemp;
+                          float highTDannealTemp;
+                          lowtempStep = TDLowStartTemp - TDLowEndTemp;
+                          lowtempStep = abs(lowtempStep);
+                          lowtempStep /= TDcycleNum;
+                          hightempStep = TDHighStartTemp - TDHighEndTemp;
+                          hightempStep = abs(hightempStep);
+                          hightempStep /= TDcycleNum;
+                          if (TDLowStartTemp > TDLowEndTemp) {
+                            lowTDannealTemp = TDLowStartTemp;
+                            lowTDannealTemp += lowtempStep;
+                            lowtempStep *= cycleCount;
+                            lowTDannealTemp -= lowtempStep;
+                          }else{
+                            lowTDannealTemp = TDLowStartTemp;
+                            lowTDannealTemp -= lowtempStep;
+                            lowtempStep *= cycleCount;
+                            lowTDannealTemp += lowtempStep;
+                          }
+                          if (TDHighStartTemp > TDHighEndTemp) {
+                            highTDannealTemp = TDHighStartTemp;
+                            highTDannealTemp += hightempStep;
+                            hightempStep *= cycleCount;
+                            highTDannealTemp -= hightempStep;
+                          }else{
+                            highTDannealTemp = TDHighStartTemp;
+                            highTDannealTemp -= hightempStep;
+                            hightempStep *= cycleCount;
+                            highTDannealTemp += hightempStep;
+                          }
+                        low = lowTDannealTemp;
+                        high = highTDannealTemp;
+                        }
+
+                        if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
+                                Serial.print("Timer: ");
+                                Serial.print(timerSerial);
+                                Serial.print(" of ");
+                                Serial.println(TDannealTimeSec);
+                                currentMillis = millis();
+
+                                if (timerStarted == false) {
+                                        previousMillis = millis();
+                                        timerStarted = true;
+                                }
+                        }
+                        if (timerStarted == true && currentMillis - previousMillis > TDannealTime) {
+                                Serial.println("Timer Stopped");
+                                annealStep = false;
+                                extendStep = true;
+                                timerStarted = false;
+                                cycleState = "Touchdown Phase Extend Step";
+                        }
+                }
+                //Extend step
+                if (extendStep == true) {
+                        Serial.println("TD Extend Step");
+
+                        low = TDextendTemp;
+                        high = TDextendTemp;
+
+                        if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
+                                Serial.print("Timer: ");
+                                Serial.print(timerSerial);
+                                Serial.print(" of ");
+                                Serial.println(TDextendTimeSec);
+                                currentMillis = millis();
+
+                                if (timerStarted == false) {
+                                        previousMillis = millis();
+                                        timerStarted = true;
+                                }
+                        }
+                        if (timerStarted == true && currentMillis - previousMillis > TDextendTime) {
+                                extendStep = false;
+                                denatureStep = true;
+                                timerStarted = false;
+                                cycleState = "Touchdown Phase Denature Step";
+                                cycleCount++;
+                        }
+                }
+        }
+        if (cycleCount == TDcycleNum) {
+                cycleCount = 1;
+                programState = 3;
+                cycleState = "Denature Step";
+        }
+        break;
+
+        case 3:
                 if (cycleCount <= cycleNum) {
                         Serial.print("Cycle ");
                         Serial.print(cycleCount);
@@ -663,8 +661,15 @@ void gradientPCR(float &low, float &high){
                         if (annealStep == true) {
                                 Serial.println("Anneal Step");
 
-                                low = annealTempLow;
-                                high = annealTempHigh;
+                                if (programType == 1 || programType == 3) {
+                                  low = annealTemp;
+                                  high = annealTemp;
+                                }
+                                if (programType == 2 || programType == 4) {
+                                  low = annealTempLow;
+                                  high = annealTempHigh;
+                                }
+
 
                                 if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
                                         Serial.print("Timer: ");
@@ -715,13 +720,13 @@ void gradientPCR(float &low, float &high){
                         }
                 }
                 if (cycleCount == cycleNum) {
-                        programState = 3;
+                        programState = 4;
                         cycleState = "Final Extend Step";
                 }
                 break;
 
         //Final extend
-        case 3:
+        case 4:
                 Serial.println("Final Extend Step");
 
                 low = finalExtendTemp;
@@ -739,7 +744,7 @@ void gradientPCR(float &low, float &high){
                         }
                         if (timerStarted == true && currentMillis - previousMillis > finalExtendTime) {
                                 timerStarted = false;
-                                programState = 4;
+                                programState = 5;
                                 cycleState = "Program Done!";
                         }
                 }
@@ -747,44 +752,162 @@ void gradientPCR(float &low, float &high){
                 break;
 
         //Program done
-        case 4:
+        case 5:
                 resetPCR();
                 Serial.println("Program done!");
                 break;
         }
 }
 
+void runRamp(float &low, float &high){
+
+        switch (programState) {
+
+        //Lid Wait
+        case 0:
+
+                if (Inputlid >= setLidTemp - tempthreshold || setLidTemp == 0) {
+                        programState = 1;
+                        blockOn = true;
+                        cycleState = "Heating Block";
+                }
+                break;
+
+        //Initial Denature
+        case 1:
+                Serial.println("Heating to Start Temp");
+                if (programType == 5) {
+                  low = startRampTemp;
+                  high = startRampTemp;
+                }
+                if (programType == 6) {
+                  low = lowstartRampTemp;
+                  high = highstartRampTemp;
+                }
+
+                if (Input3 >= high - tempthreshold) {
+                                cycleState = "Running Ramp";
+                                programState = 2;
+                        }
+                break;
+
+        case 2:
+        // Serial.print("Timer: ");
+        // Serial.print(timerSerial);
+        // Serial.print(" of ");
+        // Serial.println(TDdenatureTimeSec);
+        currentMillis = millis();
+        if (timerStarted == false) {
+                previousMillis = millis();
+                timerStarted = true;
+        }
+
+        if (programType == 5) {
+          float tempStep;
+          tempStep = startRampTemp - endRampTemp;
+          tempStep /= rampTime;
+          tempStep *= currentMillis;
+          tempStep += startRampTemp;
+          low = tempStep;
+          high = tempStep;
+        }
+        if (programType == 6) {
+          float lowtempStep;
+          float hightempStep;
+          lowtempStep = lowstartRampTemp - lowendRampTemp;
+          lowtempStep /= rampTime;
+          lowtempStep *= currentMillis;
+          lowtempStep += lowstartRampTemp;
+          hightempStep = highstartRampTemp - highendRampTemp;
+          hightempStep /= rampTime;
+          hightempStep *= currentMillis;
+          hightempStep += highstartRampTemp;
+          low = lowtempStep;
+          high = hightempStep;
+        }
+        if (timerStarted == true && currentMillis - previousMillis > rampTime) {
+                programState = 3;
+                timerStarted = false;
+                cycleState = "Program Done!";
+        }
+        break;
+
+        case 3:
+                resetPCR();
+                Serial.println("Program done!");
+                break;
+        }
+}
+
+void runHeat(float &low, float &high){
+
+        switch (programState) {
+
+        //Lid Wait
+        case 0:
+                cycleState = "Heating Lid";
+                if (Inputlid >= setLidTemp - tempthreshold || setLidTemp == 0) {
+                        programState = 1;
+                        blockOn = true;
+                        cycleState = "Heating Block";
+                }
+                break;
+
+        case 1:
+                Serial.println("Heating to Start Temp");
+                if (programType == 7) {
+                  low = heatBlockTemp;
+                  high = heatBlockTemp;
+                }
+                if (programType == 8) {
+                  low = lowheatBlockTemp;
+                  high = highheatBlockTemp;
+                }
+
+                if (Input3 >= high - tempthreshold) {
+                                cycleState = "Running Ramp";
+                                programState = 2;
+                        }
+                break;
+
+        case 2:
+                if (programType == 7) {
+                  low = heatBlockTemp;
+                  high = heatBlockTemp;
+                }
+                if (programType == 8) {
+                  low = lowheatBlockTemp;
+                  high = highheatBlockTemp;
+                }
+                currentMillis = millis();
+                if (timerStarted == false) {
+                        previousMillis = millis();
+                        timerStarted = true;
+                }
+                if (timerStarted == true && currentMillis - previousMillis > heatBlockTime) {
+                        programState = 3;
+                        timerStarted = false;
+                        cycleState = "Program Done!";
+                }
+                break;
+
+                case 3:
+                        resetPCR();
+                        Serial.println("Program done!");
+                        break;
+              }
+            }
+
 void thermocycler(){
-        Setpointlid = setLidTemp;
+        if (setLidTemp != 0) {
+          Setpointlid = setLidTemp;
+        }
+
         if (PCRon == true) {
                 if(isPaused == false) {
-                        if (programIsGradient == false) {
+                        if (programType == 1 || programType == 2 || programType == 3 || programType == 4) {
 
-                                tempreturn = regularPCR();
-
-                                Setpoint1 = tempreturn;
-                                Setpoint2 = tempreturn;
-                                Setpoint3 = tempreturn;
-                                Setpointfan = tempreturn;
-
-                                // Serial.print("Setpoint Lid: ");
-                                // Serial.println(setLidTemp);
-                                // Serial.print("Setpoint: ");
-                                // Serial.println(tempreturn);
-                                // Serial.print("Temp 1: ");
-                                // Serial.println(tempone);
-                                // Serial.print("Temp 2: ");
-                                // Serial.println(temptwo);
-                                // Serial.print("Temp 3: ");
-                                // Serial.println(tempthree);
-                                // Serial.print("Temp Lid: ");
-                                // Serial.println(templid);
-
-                        }
-
-                        if (programIsGradient == true) {
-
-                                gradientPCR(heatLow, heatHigh);
+                                runPCR(heatLow, heatHigh);
 
                                 heatMid = heatLow + heatHigh;
                                 heatMid /= 2;
@@ -808,6 +931,28 @@ void thermocycler(){
                                 // Serial.print("Temp Lid: ");
                                 // Serial.println(templid);
                         }
+                      if (programType == 5 || programType == 6){
+                        runRamp(heatLow, heatHigh);
+
+                        heatMid = heatLow + heatHigh;
+                        heatMid /= 2;
+
+                        Setpoint1 = heatLow;
+                        Setpoint2 = heatMid;
+                        Setpoint3 = heatHigh;
+                        Setpointfan = heatLow;
+                      }
+                      if (programType == 7 || programType == 8){
+                        runHeat(heatLow, heatHigh);
+
+                        heatMid = heatLow + heatHigh;
+                        heatMid /= 2;
+
+                        Setpoint1 = heatLow;
+                        Setpoint2 = heatMid;
+                        Setpoint3 = heatHigh;
+                        Setpointfan = heatLow;
+                      }
                 }else{
                         Setpoint1 = tempone;
                         Setpoint2 = temptwo;
@@ -826,11 +971,11 @@ void thermocycler(){
         Input3 = tempthree;
         Inputlid = templid;
 
-        if (programIsGradient == false) {
+        if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
                 Inputfan = Input;
         }
 
-        if (programIsGradient == true) {
+        if (programType == 2 || programType == 4 || programType == 6 || programType == 8) {
                 Inputfan = Input1;
         }
 
@@ -1159,9 +1304,9 @@ void runAutoStart(){
         denatureTime *= 1000;
         Serial.print("denatureTime: ");
         Serial.println(denatureTime);
-        programIsGradient = array.get<float>(6);
-        Serial.print("programIsGradient: ");
-        Serial.println(programIsGradient);
+        // programIsGradient = array.get<float>(6);
+        // Serial.print("programIsGradient: ");
+        // Serial.println(programIsGradient);
         annealTemp = array.get<float>(7);
         annealTempLow = array.get<float>(8);
         annealTempHigh = array.get<float>(9);
@@ -1387,6 +1532,8 @@ void handleWS(String msg){
         Serial.println(data);
 
         if (command == "run") {
+                preheatLid = false;
+                preheatBlock = false;
                 programName = msg.substring(separator3+1);
                 Serial.print("programName: ");
                 Serial.println(programName);
@@ -1453,24 +1600,30 @@ void handleWS(String msg){
                   Serial.println(annealTempHigh);
                 }
                 if (programType == 3 || programType == 4) {
-                  TDCycleNum = array.get<float>(14);
-                  Serial.print("TDCycleNum: ");
-                  Serial.println(TDCycleNum);
+                  TDcycleNum = array.get<float>(14);
+                  Serial.print("TDcycleNum: ");
+                  Serial.println(TDcycleNum);
                   TDdenatureTemp = array.get<float>(15);
                   Serial.print("TDdenatureTemp: ");
                   Serial.println(TDdenatureTemp);
                   TDdenatureTime = array.get<float>(16);
                   Serial.print("TDdenatureTime: ");
                   Serial.println(TDdenatureTime);
-                  TDAnnealTime = array.get<float>(17);
-                  Serial.print("TDAnnealTime: ");
-                  Serial.println(TDAnnealTime);
+                  TDdenatureTimeSec = TDdenatureTime;
+                  TDdenatureTime *= 1000;
+                  TDannealTime = array.get<float>(17);
+                  Serial.print("TDannealTime: ");
+                  Serial.println(TDannealTime);
+                  TDannealTimeSec = TDannealTime;
+                  TDannealTime *= 1000;
                   TDextendTemp = array.get<float>(18);
                   Serial.print("TDextendTemp: ");
                   Serial.println(TDextendTemp);
                   TDextendTime = array.get<float>(19);
                   Serial.print("TDextendTime: ");
                   Serial.println(TDextendTime);
+                  TDextendTimeSec = TDextendTime;
+                  TDextendTime *= 1000;
                 }
                 if (programType == 3){
                   TDStartTemp = array.get<float>(20);
@@ -1498,6 +1651,8 @@ void handleWS(String msg){
                   rampTime = array.get<float>(2);
                   Serial.print("rampTime: ");
                   Serial.println(rampTime);
+                  rampTimeMin = rampTime;
+                  rampTime *= 60000;
                 }
                 if (programType == 5) {
                   startRampTemp = array.get<float>(3);
@@ -1525,6 +1680,8 @@ void handleWS(String msg){
                   heatBlockTime = array.get<float>(2);
                   Serial.print("heatBlockTime: ");
                   Serial.println(heatBlockTime);
+                  heatBlockTimeMin = heatBlockTime;
+                  heatBlockTime *= 60000;
                 }
                 if (programType == 7){
                   heatBlockTemp = array.get<float>(3);
@@ -1699,7 +1856,6 @@ void sendJSON(){
                          "\"cycleState\":\""+cycleState+"\","+
                          "\"programName\":\""+programName+"\","+
                          "\"pcrOn\":\""+PCRon+"\","+
-                         "\"isGradient\":\""+programIsGradient+"\","+
                          "\"preheatBlockText\":\""+preheatBlockText+"\","+
                          "\"preheatBlockButton\":\""+preheatBlockButton+"\","+
                          "\"preheatLidText\":\""+preheatLidText+"\","+
