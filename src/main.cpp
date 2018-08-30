@@ -179,6 +179,7 @@ boolean APtimernew = true;
 unsigned long APtime;
 String connected = "false";
 String localIPaddress = "";
+String chipIDstring;
 
 //===> functions <--------------------------------------------------------------
 
@@ -196,7 +197,7 @@ void setupAP(){
                 Serial.println(chipIDint);
         }
         IPAddress apIP(1, 1, 1, chipIDint);
-        String chipIDstring = String(chipIDint);
+        chipIDstring = String(chipIDint);
         softAP_ssid = "proPCR." + chipIDstring;
         propcrChip = "propcr" + chipIDstring;
         WiFi.hostname(propcrChip);
@@ -230,21 +231,23 @@ String toStringIp(IPAddress ip) {
 void startWifi(){
 
         Serial.println("function: startWifi()");
-        int n = WiFi.scanNetworks();
-        Serial.print(n);
-    Serial.println(" networks found");
-    for (int i = 0; i < n; ++i)
-    {
-      // Print SSID and RSSI for each network found
-      Serial.print(i + 1);
-      Serial.print(": ");
-      Serial.print(WiFi.SSID(i));
-      Serial.print(" (");
-      Serial.print(WiFi.RSSI(i));
-      Serial.print(")");
-      Serial.println((WiFi.encryptionType(i) == ENC_TYPE_NONE)?" ":"*");
-      delay(10);
-    }
+
+    //     int n = WiFi.scanNetworks();
+    //     Serial.print(n);
+    // Serial.println(" networks found");
+    // for (int i = 0; i < n; ++i)
+    // {
+    //   // Print SSID and RSSI for each network found
+    //   Serial.print(i + 1);
+    //   Serial.print(": ");
+    //   Serial.print(WiFi.SSID(i));
+    //   Serial.print(" (");
+    //   Serial.print(WiFi.RSSI(i));
+    //   Serial.print(")");
+    //   Serial.println((WiFi.encryptionType(i) == ENC_TYPE_NONE)?" ":"*");
+    //   delay(10);
+    // }
+
         WiFi.mode(WIFI_STA);
         Serial.print("userssid: ");
         Serial.println(userssid);
@@ -784,8 +787,12 @@ void runRamp(float &low, float &high){
                   low = lowstartRampTemp;
                   high = highstartRampTemp;
                 }
+                Serial.print("Input3: ");
+                Serial.println(Input3);
 
                 if (Input3 >= high - tempthreshold) {
+                  Serial.println("Running Ramp");
+
                                 cycleState = "Running Ramp";
                                 programState = 2;
                         }
@@ -796,31 +803,50 @@ void runRamp(float &low, float &high){
         // Serial.print(timerSerial);
         // Serial.print(" of ");
         // Serial.println(TDdenatureTimeSec);
+        Serial.print("Input3: ");
+        Serial.println(Input3);
         currentMillis = millis();
         if (timerStarted == false) {
                 previousMillis = millis();
                 timerStarted = true;
         }
+        unsigned long elapsedMillis;
+        elapsedMillis = currentMillis - previousMillis;
+        Serial.print("elapsedMillis: ");
+        Serial.println(elapsedMillis);
 
         if (programType == 5) {
+          Serial.println("prog5");
           float tempStep;
-          tempStep = startRampTemp - endRampTemp;
+          tempStep = endRampTemp - startRampTemp;
+          Serial.print("startRampTemp - endRampTemp: ");
+          Serial.println(tempStep);
+          Serial.print("rampTimeMin: ");
+          Serial.println(rampTime);
           tempStep /= rampTime;
-          tempStep *= currentMillis;
+          Serial.print("tempStep /= rampTime; ");
+          Serial.println(tempStep, 6);
+
+
+          tempStep *= elapsedMillis;
+          Serial.print("tempStep *= elapsedMillis; ");
+          Serial.println(tempStep,8);
           tempStep += startRampTemp;
+          Serial.print("tempStep += startRampTemp;: ");
+          Serial.println(tempStep);
           low = tempStep;
           high = tempStep;
         }
         if (programType == 6) {
           float lowtempStep;
           float hightempStep;
-          lowtempStep = lowstartRampTemp - lowendRampTemp;
+          lowtempStep = lowendRampTemp - lowstartRampTemp;
           lowtempStep /= rampTime;
-          lowtempStep *= currentMillis;
+          lowtempStep *= elapsedMillis;
           lowtempStep += lowstartRampTemp;
-          hightempStep = highstartRampTemp - highendRampTemp;
+          hightempStep = highendRampTemp - highstartRampTemp;
           hightempStep /= rampTime;
-          hightempStep *= currentMillis;
+          hightempStep *= elapsedMillis;
           hightempStep += highstartRampTemp;
           low = lowtempStep;
           high = hightempStep;
@@ -912,9 +938,9 @@ void thermocycler(){
                                 heatMid = heatLow + heatHigh;
                                 heatMid /= 2;
 
-                                Setpoint1 = heatLow;
-                                Setpoint2 = heatMid;
-                                Setpoint3 = heatHigh;
+                                Setpoint1 = heatLow + .05;
+                                Setpoint2 = heatMid + .05;
+                                Setpoint3 = heatHigh + .05;
                                 Setpointfan = heatLow;
                                 // Serial.print("Setpoint Low: ");
                                 // Serial.println(heatLow);
@@ -941,6 +967,30 @@ void thermocycler(){
                         Setpoint2 = heatMid;
                         Setpoint3 = heatHigh;
                         Setpointfan = heatLow;
+                        Serial.print("Setpoint Low: ");
+                        Serial.println(heatLow);
+                        Serial.print("Setpoint Mid: ");
+                        Serial.println(heatMid);
+                        Serial.print("Setpoint High: ");
+                        Serial.println(heatHigh);
+                        Serial.print("Temp 1: ");
+                        Serial.println(tempone);
+                        Serial.print("Temp 2: ");
+                        Serial.println(temptwo);
+                        Serial.print("Temp 3: ");
+                        Serial.println(tempthree);
+                        Serial.print("Setpoint Fan: ");
+                        Serial.println(Setpointfan);
+                        Serial.print("Output1: ");
+                        Serial.println(Output1);
+                        Serial.print("Output 2: ");
+                        Serial.println(Output2);
+                        Serial.print("Output 3: ");
+                        Serial.println(Output3);
+                        Serial.print("Output Fan: ");
+                        Serial.println(Outputfan);
+
+
                       }
                       if (programType == 7 || programType == 8){
                         runHeat(heatLow, heatHigh);
@@ -948,9 +998,9 @@ void thermocycler(){
                         heatMid = heatLow + heatHigh;
                         heatMid /= 2;
 
-                        Setpoint1 = heatLow;
-                        Setpoint2 = heatMid;
-                        Setpoint3 = heatHigh;
+                        Setpoint1 = heatLow + .05;
+                        Setpoint2 = heatMid + .05;
+                        Setpoint3 = heatHigh + .05;
                         Setpointfan = heatLow;
                       }
                 }else{
@@ -1033,15 +1083,7 @@ void thermocycler(){
                 fanPID.SetTunings(aggKpfan, aggKifan, aggKdfan);
         }
 
-        if (Setpointfan > Input1) {
-                if (quietfan) {
-                        fanPID.SetOutputLimits(0, 800);
-                }else{fanPID.SetOutputLimits(0, 1023);}
 
-        }
-        else {
-                fanPID.SetOutputLimits(0, 0);
-        }
 
 
         if (PCRon == true) {
@@ -1056,8 +1098,38 @@ void thermocycler(){
                         analogWrite(mosfetPinTwo, Output2);
                         analogWrite(mosfetPinThree, Output3);
                         if(isPaused == false) {
+
                                 fanPID.Compute();
-                                analogWrite(fanPin, Outputfan);
+                                Serial.print("Output Fan: ");
+                                Serial.println(Outputfan);
+
+                                if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
+                                  if (Outputfan >= 100 && Outputfan < 350) {
+                                    Serial.println("Fan on");
+                                    analogWrite(fanPin, 350);
+                                  }else if (Outputfan > 0 && Outputfan < 100){
+                                    analogWrite(fanPin, 0);
+                                  }else{
+                                    Serial.println("Fan off");
+                                    analogWrite(fanPin, Outputfan);
+                                  }
+                                }
+                                if (programType == 2 || programType == 4 || programType == 6 || programType == 8) {
+                                  if (Outputfan >= 40 && Outputfan < 350) {
+                                    Serial.println("Fan on");
+                                    analogWrite(fanPin, 350);
+                                  }else if (Outputfan > 0 && Outputfan < 40){
+                                    analogWrite(fanPin, 0);
+                                  }else{
+                                    Serial.println("Fan off");
+                                    analogWrite(fanPin, Outputfan);
+                                  }
+                                }
+
+
+
+
+
                         }else{analogWrite(fanPin, 0);}
                 }
         }
@@ -1115,12 +1187,16 @@ void deleteProgram(){
 }
 
 void resetFiles(){
+        String resetalert;
         File config = SPIFFS.open("/config.json", "w");
-        config.print("{\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"\",\"apon\":\"true\",\"quietfan\":\"false\"}");
+
+        config.print("{\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"userssid\":\"\",\"connected\":\"false\",\"ip\":\"\",\"quietfan\":\"false\"}");
         config.close();
         File programfile = SPIFFS.open("/programs.json", "w");
         programfile.print("{}");
         programfile.close();
+        resetalert = "{\"resetalert\":\"PCR Reset\"}";
+        ws.textAll(resetalert);
 }
 
 void handleApon(){
@@ -1140,7 +1216,7 @@ void handleApon(){
           if (root["apon"] == "true") {
             root["apon"] = "false";
             aponalert = "{\"aponalert\":\"proPCR will not broadcast its own wifi network on start up\"}";
-          }else if (root["apon"] == "true") {
+          }else if (root["apon"] == "false") {
             root["apon"] = "true";
             aponalert = "{\"aponalert\":\"proPCR will broadcast its own wifi network on start up\"}";
           }
@@ -1155,11 +1231,75 @@ void handleApon(){
   }
 }
 
+void handleHelp(){
+  File file = SPIFFS.open("/config.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf (new char[size]);
+  file.readBytes(buf.get(), size);
+
+  StaticJsonBuffer<600> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject(buf.get());
+  file.close();
+
+  Serial.println("json root: ");
+  if (root.success()) {
+          String helpalert;
+          Serial.println("root success");
+          if (root["help"] == "true") {
+            root["help"] = "false";
+            helpalert = "{\"helpalert\":\"Info Boxes Turned Off\"}";
+          }else if (root["help"] == "false") {
+            root["help"] = "true";
+            helpalert = "{\"helpalert\":\"Info Boxes Turned On\"}";
+          }
+          root.printTo(Serial);
+          File file = SPIFFS.open("/config.json", "w");
+          root.printTo(file);
+          file.close();
+          ws.textAll(helpalert);
+  }else{
+          String savefail = "{\"helpalert\":\"Help settings could not be changed\"}";
+          ws.textAll(savefail);
+  }
+}
+
+void handleTheme(){
+  File file = SPIFFS.open("/config.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf (new char[size]);
+  file.readBytes(buf.get(), size);
+
+  StaticJsonBuffer<600> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject(buf.get());
+  file.close();
+
+  Serial.println("json root: ");
+  if (root.success()) {
+          String themealert;
+          Serial.println("root success");
+          if (root["theme"] == "true") {
+            root["theme"] = "false";
+            themealert = "{\"themealert\":\"Theme Switched To Dark\"}";
+          }else if (root["theme"] == "false") {
+            root["theme"] = "true";
+            themealert = "{\"themealert\":\"Theme Switched To Light\"}";
+          }
+          root.printTo(Serial);
+          File file = SPIFFS.open("/config.json", "w");
+          root.printTo(file);
+          file.close();
+          ws.textAll(themealert);
+  }else{
+          String savefail = "{\"themealert\":\"Theme settings could not be changed\"}";
+          ws.textAll(savefail);
+  }
+}
+
 void loadConfig(){
         if (!SPIFFS.exists("/config.json")) {
                 Serial.println("make file");
                 File file = SPIFFS.open("/programs.json", "w");
-                file.print("{\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"connectwifi\":\"false\",\"quietfan\":\"false\"}");
+                file.print("{\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"quietfan\":\"false\"}");
                 file.close();
         }
         File file = SPIFFS.open("/config.json", "r");
@@ -1358,7 +1498,7 @@ void handleLED(){
 bool shouldReboot = false;
 
 void onRequest(AsyncWebServerRequest *request){
-        request->redirect("/");
+        request->redirect("http://connect.propcr.com");
 }
 
 void handleAutostart(){
@@ -1795,6 +1935,18 @@ void handleWS(String msg){
           handleApon();
         }
 
+        if (command == "help") {
+          handleHelp();
+        }
+
+        if (command == "theme") {
+          handleTheme();
+        }
+        if (command == "reset") {
+          resetFiles();
+        }
+
+
         if(var=="isPaused") {
                 if(val=="true") isPaused=true;
                 if(val=="false") isPaused=false;
@@ -1838,6 +1990,7 @@ void sendJSON(){
                 JSONtxt="{\"runtime\":\""+runTime+"\","+  // JSON requires double quotes
                          "\"templid\":\""+(String)templid+"\","+
                          "\"connected\":\""+connected+"\","+
+                         "\"chipid\":\""+chipIDstring+"\","+
                          "\"localIPaddress\":\""+localIPaddress+"\","+
                          "\"userssid\":\""+userssid+"\","+
                          "\"tempone\":\""+(String)tempone+"\","+
@@ -1969,7 +2122,7 @@ void setup(){
         lidPID.SetMode(AUTOMATIC);
         lidPID.SetOutputLimits(0, 1023);
         fanPID.SetMode(AUTOMATIC);
-
+        fanPID.SetOutputLimits(0, 1023);
         ads.begin();
 
         // attach AsyncWebSocket
@@ -1995,6 +2148,10 @@ server.on("/fwlink", HTTP_GET, [](AsyncWebServerRequest * request) {
   request->redirect("/index.html");
 
 });
+
+server.onNotFound([](AsyncWebServerRequest * request) {
+    request->redirect("/index.html");
+  });
 //
 // // respond to GET requests on URL /heap
 // server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -2022,6 +2179,8 @@ server.on("/fwlink", HTTP_GET, [](AsyncWebServerRequest * request) {
 
 void loop(){
         if (WiFi.status() != 3 && APcatch) {
+                Serial.print("WiFi.status() = ");
+                Serial.println(WiFi.status());
                 Serial.println("APcatch started");
                 if (APtimernew) {
                         APtime = millis();

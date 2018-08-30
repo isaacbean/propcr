@@ -7,10 +7,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ff9d2e">
-<meta name="apple-mobile-web-app-title" content="proPCR">
-<meta name="application-name" content="proPCR">
-<meta name="msapplication-TileColor" content="#ff9d2e">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color=buttonSelected>
+<meta name="apple-mobile-web-app-title" id="appleTitle" content="proPCR">
+<meta name="application-name" id="appTitle" content="proPCR">
+<meta name="msapplication-TileColor" content=buttonSelected>
 <meta name="theme-color" content="#ffffff">
   <title>proPCR</title>
   <style>
@@ -21,6 +21,7 @@
     textarea {
       margin: 0;
       background: 0;
+      color: inherit;
       font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif
     }
 
@@ -38,8 +39,8 @@
       margin-bottom: 30px;
       padding: 7px;
       border: 1px solid black;
-      border-radius: 4px;
-      background-color: transparent;
+      /* border-radius: 4px; */
+      /* background-color: transparent; */
       outline: 0;
       text-transform: uppercase;
       font-size: 20px;
@@ -86,14 +87,14 @@
       top: 0;
       width: 100%;
 
-      background-color: white
+      background-color: inherit;
     }
 
     .sidenav {
       z-index: 3;
       position: fixed;
       top: 0;
-      left: 0;
+      right: 0;
       width: 0;
       height: 100%;
       padding-top: 60px;
@@ -121,7 +122,7 @@
 
 
     .container {
-      width: 95%;
+      width: 100%;
       margin: auto;
       margin-top: 100px;
       margin-bottom: 50px;
@@ -131,7 +132,7 @@
     .sidenav .closebtn {
       position: absolute;
       top: 1px;
-      left: 0;
+      right: 0;
       padding: 0;
       width: 60px;
       font-size: 40px
@@ -140,8 +141,8 @@
     .openbtn {
       z-index: 2;
       position: fixed;
-      top: 14px;
-      left: 3%;
+      top: 24px;
+      right: 3%;
 
       border: none;
       font-size: 25px;
@@ -179,11 +180,20 @@
       display: block;
       width: 95%;
       margin: auto;
-      padding-top: 5px
+      padding-top: 5px;
+      margin-bottom: 25px;
     }
 
     .inputNum p {
       margin-top: 1px;
+      margin-bottom: 0px;
+    }
+
+    .help{
+      background-color: #AED4FF;
+      border-left: 3px solid #2e90ff;
+      padding: 5px;
+      margin-bottom: 10px;
     }
 
     #runbutton,
@@ -221,10 +231,7 @@
     .tab {
       border: none;
       outline: none;
-      background-color: #ffffff;
       float: left;
-      border-top: 2px solid black;
-      border-left: 2px solid black;
       outline: none;
       cursor: pointer;
       padding: 14px 16px;
@@ -234,16 +241,13 @@
 
     }
 
-    .tab span {
+    .tabspan {
       font-size: 24px;
       display: inline-block;
       vertical-align: middle;
       line-height: normal;
     }
 
-    #tabheat {
-      border-right: 2px solid black;
-    }
 
     #programpcr{
       display: none;
@@ -265,7 +269,7 @@
         width: 40%;
       }
       .openbtn {
-        left: 30%;
+        right: 30%;
       }
       #runbutton,
       #pauseButton {
@@ -276,7 +280,7 @@
         width: 30%;
       }
       .sidenav .closebtn {
-        left: 30%;
+        right: 30%;
       }
       .menubtn {
         display: inline-block;
@@ -291,11 +295,11 @@
         width: 50%;
       }
       .openbtn {
-        left: 20%;
+        right: 30%;
       }
 
       .sidenav .closebtn {
-        left: 20%;
+        right: 30%;
       }
       .menubtn {
         display: inline-block;
@@ -307,7 +311,7 @@
 
 
 
-    #loaddiv, #settingsdiv, #viewdiv, #programdiv{
+    #loaddiv, #settingsdiv, #viewdiv{
       display: none
     }
 
@@ -325,16 +329,25 @@
       cursor: pointer;
     }
 
+    .stat {
+      float: right;
+      padding-right: 15px;
+    }
+
     .setting {
       border-top: 2px solid #818181;
       cursor: pointer;
+      padding-left: 5px;
+      padding-top: 10px;
+      padding-bottom: 10px;
     }
 
     .info {
-      background-color: #e5e5e5;
-      border-left: 3px solid #818181;
+      background-color: #AED4FF;
+      border-left: 3px solid #2e90ff;
       padding: 5px;
       margin-bottom: 10px;
+      width: 90%;
     }
 
     .settingsbutton {
@@ -361,7 +374,7 @@
       text-align: center;
     }
 
-    #autostartbutton, #aponbutton, #connectwifibutton, #userpswbutton, #updatewifibutton, #quietfanbutton{
+    #autostartbutton, #aponbutton, #helpbutton, #themebutton, #connectwifibutton, #userpswbutton, #updatewifibutton, #quietfanbutton{
       font-size: 15px;
       width: auto;
 
@@ -384,6 +397,11 @@
     #savealert {
       text-align: center;
       margin: 0;
+    }
+
+    #saverunbuttons{
+      display: flex;
+    justify-content: space-between;
     }
 
     #progstate1 {
@@ -412,7 +430,7 @@
       margin-top: 10px;
       margin-bottom: 10px;
       border-style: hidden;
-      border-radius: 4px;
+      /* border-radius: 4px; */
       text-align: center
     }
 
@@ -460,7 +478,7 @@
       border: 0;
       border-bottom: 2px solid #818181;
       border-radius: 0;
-      font-size: 150%
+      font-size: 120%
     }
 
     .has-float-label input::-webkit-input-placeholder,
@@ -515,135 +533,15 @@
     .has-float-label select:placeholder-shown:not(:focus)+* {
       top: 20px;
       opacity: .5;
-      font-size: 150%
+      font-size: 120%
     }
 
     .has-float-label input:focus,
     .has-float-label select:focus {
-      border-color: rgba(0, 0, 0, 0.5);
+
       outline: 0
     }
 
-    .onoffswitch {
-      display: block;
-      position: relative;
-      top: 10px;
-      width: 165px;
-      margin: auto;
-      margin-top: 40px;
-      margin-bottom: 40px;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      -webkit-user-select: none
-    }
-
-    .onoffswitch-checkbox {
-      display: none
-    }
-
-    .onoffswitch-label {
-      display: block;
-      overflow: hidden;
-      border: 2px solid #000;
-      border-radius: 11px;
-      cursor: pointer
-    }
-
-    .onoffswitch-inner {
-      display: block;
-      width: 200%;
-      margin-left: -100%;
-      transition: margin .3s ease-in 0s
-    }
-
-    .onoffswitch-inner:after,
-    .onoffswitch-inner:before {
-      display: block;
-      box-sizing: border-box;
-      width: 50%;
-      height: 30px;
-      float: left;
-      padding: 0;
-      color: white;
-      font-family: Trebuchet, Arial, sans-serif;
-      font-size: 14px;
-      font-weight: bold;
-      line-height: 30px
-    }
-
-    .onoffswitch-inner:before {
-      padding-left: 10px;
-      color: #000;
-      background-color: #fff
-    }
-
-    .onoffswitch-inner:after {
-      padding-right: 10px;
-      color: #000;
-      background-color: #fff;
-      text-align: right
-    }
-
-
-    #contentramp:before {
-      content: 'GRADIENT RAMP ON';
-    }
-
-    #contentramp:after {
-      content: 'GRADIENT RAMP OFF';
-    }
-
-
-    #contentlid:before {
-      content: 'PREHEAT LID';
-    }
-
-    #contentlid:after {
-      content: 'PREHEAT LID';
-    }
-
-    #contentgradient:before {
-      content: 'GRADIENT ON';
-      background-color: #ff9d2e;
-      color: #fff;
-    }
-
-    #contentgradient:after {
-      content: 'GRADIENT OFF';
-
-    }
-
-    #contentblock:before {
-      content: 'PREHEAT BLOCK';
-    }
-
-    #contentblock:after {
-      content: 'PREHEAT BLOCK';
-    }
-
-
-
-    .onoffswitch-switch {
-      display: block;
-      position: absolute;
-      top: 0;
-      right: 131px;
-      bottom: 0;
-      width: 18px;
-      margin: 6px;
-      border: 2px solid #000;
-      border-radius: 11px;
-      background: #fff;
-      transition: all .3s ease-in 0s
-    }
-
-    .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-inner {
-      margin-left: 0
-    }
-
-    .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-switch {
-      right: 0
-    }
   </style>
   <script>
     var pcrRunning = false;
@@ -651,6 +549,11 @@
     var programType = "";
     var programTab = "";
     var programButton = "";
+    var alertColor = "#cc7d24";
+    var buttonSelected = "#ff9d2e";
+    var buttonDeselected = "white";
+    var borderThin = "1px solid black";
+    var borderThick = "3px solid black";
 
     function ge(s) {
       return document.getElementById(s);
@@ -669,15 +572,15 @@
     }
 
     function turnOrange(s) {
-      return document.getElementById(s).style.backgroundColor = "#ff9d2e";
+      return document.getElementById(s).style.backgroundColor = buttonSelected;
     }
 
     function isOrange(s) {
-      document.getElementById(s).style.backgroundColor == "#ff9d2e";
+      document.getElementById(s).style.backgroundColor == buttonSelected;
     }
 
     function turnWhite(s) {
-      return document.getElementById(s).style.backgroundColor = "white";
+      return document.getElementById(s).style.backgroundColor = buttonDeselected;
     }
 
     function valueString(s){
@@ -857,39 +760,65 @@
       readTextFile("/config.json", function(text) {
         var data = JSON.parse(text);
         if (data.autostart == "true") {
-          ge("autostartstat").innerHTML = "&nbsp;Autostart: ON";
+          ge("autostartstat").innerHTML = "ON";
           ge("autostartbutton").value = "Turn Autostart Off";
           ge("autostartprog").innerHTML = data.programname;
         }
         if (data.autostart == "false") {
-          ge("autostartstat").innerHTML = "&nbsp;Autostart: OFF";
+          ge("autostartstat").innerHTML = "OFF";
           ge("autostartbutton").value = "Turn Autostart On";
           ge("autostartprog").innerHTML = "No Program Selected";
         }
         if (data.userpsw == "false") {
-          ge("userpswstat").innerHTML = "&nbsp;Custom proPCR password: OFF";
+          ge("userpswstat").innerHTML = "OFF";
           ge("userpswbutton").value = "Turn Custom Password On";
         }
         if (data.userpsw == "true") {
-          ge("userpswstat").innerHTML = "&nbsp;Custom proPCR password: ON";
+          ge("userpswstat").innerHTML = "ON";
           ge("userpswbutton").value = "Turn Custom Password Off";
         }
         if (data.apon == "true") {
-          ge("aponstat").innerHTML = "&nbsp;Broadcast proPCR Network: ON";
+          ge("aponstat").innerHTML = "ON";
           ge("aponbutton").value = "Turn proPCR Network Off";
         }
         if (data.apon == "false") {
-          ge("aponstat").innerHTML = "&nbsp;Broadcast proPCR Network: OFF";
+          ge("aponstat").innerHTML = "OFF";
           ge("aponbutton").value = "Turn proPCR Network On";
         }
+        if (data.help == "true") {
+          ge("helpstat").innerHTML = "ON";
+          ge("helpbutton").value = "Turn Info Boxes Off";
+          var helpDivs = document.getElementsByClassName("help"); //helpDivs is an array
+            for(var i = 0; i < helpDivs.length; i++){
+              helpDivs[i].style.display = "block"; // depending on what you're doing
+            }
+        }
+        if (data.help == "false") {
+          ge("helpstat").innerHTML = "OFF";
+          ge("helpbutton").value = "Turn Info Boxes On";
+          var helpDivs = document.getElementsByClassName("help"); //helpDivs is an array
+            for(var i = 0; i < helpDivs.length; i++){
+              helpDivs[i].style.display = "none"; // depending on what you're doing
+            }
+        }
+        if (data.theme == "true") {
+          changeTheme("light");
+          ge("themestat").innerHTML = "LIGHT";
+          ge("themebutton").value = "Switch Theme To Dark";
+        }
+        if (data.theme == "false") {
+          changeTheme("dark");
+          ge("themestat").innerHTML = "DARK";
+          ge("themebutton").value = "Switch Theme To Light";
+        }
         if (data.connectwifi == "true") {
-          ge("connectwifistat").innerHTML = "&nbsp;Connect to Wifi Network: ON";
+          ge("connectwifistat").innerHTML = "ON";
           ge("connectwifibutton").value = "Turn Wifi Connection Off";
           ge("connectnetworkmsg").innerHTML = "On startup proPCR will connect to the network:"
           ge("connectnetwork").innerHTML = data.userssid;
         }
         if (data.connectwifi == "false") {
-          ge("connectwifistat").innerHTML = "&nbsp;Connect to Wifi Network: OFF";
+          ge("connectwifistat").innerHTML = "OFF";
           ge("connectwifibutton").value = "Turn Wifi Connection On";
           ge("connectnetworkmsg").innerHTML = "On startup proPCR will only broadcast the proPCR network and will not connect to and existing network"
           ge("connectnetwork").innerHTML = "";
@@ -994,6 +923,7 @@
       }
     }
   });
+loadConfig();
 }
 
 
@@ -1116,7 +1046,7 @@
         ge("setLidTemp").value < 30 || ge("setLidTemp").value > 100) {
         aok = false;
         ge("psetLidTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("psetLidTemp").style.backgroundColor = "#FF7F7F";
+        ge("psetLidTemp").style.backgroundColor = alertColor;
         ge("setLidTemp").focus();
         }
       }
@@ -1127,7 +1057,7 @@
           ge("finalExtendTime").value < 0 || ge("finalExtendTime").value > 1200) {
           aok = false;
           ge("pfinalExtendTime").innerHTML = "Please enter a value between 0 and 1200";
-          ge("pfinalExtendTime").style.backgroundColor = "#FF7F7F";
+          ge("pfinalExtendTime").style.backgroundColor = alertColor;
           ge("finalExtendTime").focus();
         }
         if (ge("finalExtendTemp").value == "" ||
@@ -1135,7 +1065,7 @@
           ge("finalExtendTemp").value < 30 || ge("finalExtendTemp").value > 100) {
           aok = false;
           ge("pfinalExtendTemp").innerHTML = "Please enter a value between 30 and 100";
-          ge("pfinalExtendTemp").style.backgroundColor = "#FF7F7F";
+          ge("pfinalExtendTemp").style.backgroundColor = alertColor;
           ge("finalExtendTemp").focus();
         }
         if (ge("extendTime").value == "" ||
@@ -1143,7 +1073,7 @@
           ge("extendTime").value < 0 || ge("extendTime").value > 1200) {
           aok = false;
           ge("pextendTime").innerHTML = "Please enter a value between 0 and 1200";
-          ge("pextendTime").style.backgroundColor = "#FF7F7F";
+          ge("pextendTime").style.backgroundColor = alertColor;
           ge("extendTime").focus();
         }
         if (ge("extendTemp").value == "" ||
@@ -1151,7 +1081,7 @@
           ge("extendTemp").value < 30 || ge("extendTemp").value > 100) {
           aok = false;
           ge("pextendTemp").innerHTML = "Please enter a value between 30 and 100";
-          ge("pextendTemp").style.backgroundColor = "#FF7F7F";
+          ge("pextendTemp").style.backgroundColor = alertColor;
           ge("extendTemp").focus();
         }
         if (ge("annealTime").value == "" ||
@@ -1159,7 +1089,7 @@
           ge("annealTime").value < 0 || ge("annealTime").value > 1200) {
           aok = false;
           ge("pannealTime").innerHTML = "Please enter a value between 0 and 1200";
-          ge("pannealTime").style.backgroundColor = "#FF7F7F";
+          ge("pannealTime").style.backgroundColor = alertColor;
           ge("annealTime").focus();
         }
 
@@ -1169,7 +1099,7 @@
           ge("annealTempLow").value < 30 || ge("annealTempLow").value > 100) {
           aok = false;
           ge("pannealTempLow").innerHTML = "Please enter a value between 30 and 100";
-          ge("pannealTempLow").style.backgroundColor = "#FF7F7F";
+          ge("pannealTempLow").style.backgroundColor = alertColor;
           ge("annealTempLow").focus();
         }
         if (
@@ -1177,13 +1107,13 @@
           ge("annealTempHigh").value < 30 || ge("annealTempHigh").value > 100) {
           aok = false;
           ge("pannealTempHigh").innerHTML = "Please enter a value between 30 and 100";
-          ge("pannealTempHigh").style.backgroundColor = "#FF7F7F";
+          ge("pannealTempHigh").style.backgroundColor = alertColor;
           ge("annealTempHigh").focus();
         }
         if (ge("annealTempHigh").value - ge("annealTempLow").value > 8) {
           aok = false;
           ge("pannealTempHigh").innerHTML = "Please enter temperatures with an 8 degree range or less";
-          ge("pannealTempHigh").style.backgroundColor = "#FF7F7F";
+          ge("pannealTempHigh").style.backgroundColor = alertColor;
           ge("annealTempLow").focus();
         }
       }
@@ -1194,7 +1124,7 @@
           ge("annealTemp").value < 30 || ge("annealTemp").value > 100) {
           aok = false;
           ge("pannealTemp").innerHTML = "Please enter a value between 30 and 100";
-          ge("pannealTemp").style.backgroundColor = "#FF7F7F";
+          ge("pannealTemp").style.backgroundColor = alertColor;
           ge("annealTemp").focus();
         }
       }
@@ -1203,7 +1133,7 @@
         ge("denatureTime").value < 0 || ge("denatureTime").value > 1200) {
         aok = false;
         ge("pdenatureTime").innerHTML = "Please enter a value between 0 and 1200";
-        ge("pdenatureTime").style.backgroundColor = "#FF7F7F";
+        ge("pdenatureTime").style.backgroundColor = alertColor;
         ge("denatureTime").focus();
       }
       if (ge("denatureTemp").value == "" ||
@@ -1211,7 +1141,7 @@
         ge("denatureTemp").value < 30 || ge("denatureTemp").value > 100) {
         aok = false;
         ge("pdenatureTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pdenatureTemp").style.backgroundColor = "#FF7F7F";
+        ge("pdenatureTemp").style.backgroundColor = alertColor;
         ge("denatureTemp").focus();
       }
       if (ge("initDenatureTime").value == "" ||
@@ -1219,7 +1149,7 @@
         ge("initDenatureTime").value < 0 || ge("initDenatureTime").value > 1200) {
         aok = false;
         ge("pinitDenatureTime").innerHTML = "Please enter a value between 0 and 1200";
-        ge("pinitDenatureTime").style.backgroundColor = "#FF7F7F";
+        ge("pinitDenatureTime").style.backgroundColor = alertColor;
         ge("initDenatureTime").focus();
       }
       if (ge("cycleNum").value == "" ||
@@ -1227,7 +1157,7 @@
         ge("cycleNum").value < 1 || ge("cycleNum").value > 100) {
         aok = false;
         ge("pcycleNum").innerHTML = "Please enter a value between 1 and 100";
-        ge("pcycleNum").style.backgroundColor = "#FF7F7F";
+        ge("pcycleNum").style.backgroundColor = alertColor;
         ge("cycleNum").focus();
       }
       if (ge("initDenatureTemp").value == "" ||
@@ -1235,7 +1165,7 @@
         ge("initDenatureTemp").value < 30 || ge("initDenatureTemp").value > 100) {
         aok = false;
         ge("pinitDenatureTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pinitDenatureTemp").style.backgroundColor = "#FF7F7F";
+        ge("pinitDenatureTemp").style.backgroundColor = alertColor;
         ge("initDenatureTemp").focus();
       }
     }
@@ -1245,7 +1175,7 @@
         ge("TDextendTime").value < 0 || ge("TDextendTime").value > 1200) {
         aok = false;
         ge("pTDextendTime").innerHTML = "Please enter a value between 0 and 1200";
-        ge("pTDextendTime").style.backgroundColor = "#FF7F7F";
+        ge("pTDextendTime").style.backgroundColor = alertColor;
         ge("TDextendTime").focus();
       }
       if (ge("TDextendTemp").value == "" ||
@@ -1253,7 +1183,7 @@
         ge("TDextendTemp").value < 30 || ge("TDextendTemp").value > 100) {
         aok = false;
         ge("pTDextendTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pTDextendTemp").style.backgroundColor = "#FF7F7F";
+        ge("pTDextendTemp").style.backgroundColor = alertColor;
         ge("TDextendTemp").focus();
       }
       if (ge("TDannealTime").value == "" ||
@@ -1261,7 +1191,7 @@
         ge("TDannealTime").value < 0 || ge("TDannealTime").value > 1200) {
         aok = false;
         ge("pTDannealTime").innerHTML = "Please enter a value between 0 and 1200";
-        ge("pTDannealTime").style.backgroundColor = "#FF7F7F";
+        ge("pTDannealTime").style.backgroundColor = alertColor;
         ge("TDannealTime").focus();
       }
 
@@ -1271,7 +1201,7 @@
         ge("TDEndTemp").value < 30 || ge("TDEndTemp").value > 100) {
         aok = false;
         ge("pTDEndTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pTDEndTemp").style.backgroundColor = "#FF7F7F";
+        ge("pTDEndTemp").style.backgroundColor = alertColor;
         ge("TDEndTemp").focus();
       }
       if (
@@ -1279,7 +1209,7 @@
         ge("TDStartTemp").value < 30 || ge("TDStartTemp").value > 100) {
         aok = false;
         ge("pTDStartTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pTDStartTemp").style.backgroundColor = "#FF7F7F";
+        ge("pTDStartTemp").style.backgroundColor = alertColor;
         ge("TDStartTemp").focus();
       }
     }
@@ -1289,7 +1219,7 @@
         ge("TDHighEndTemp").value < 30 || ge("TDHighEndTemp").value > 100) {
         aok = false;
         ge("pTDHighEndTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pTDHighEndTemp").style.backgroundColor = "#FF7F7F";
+        ge("pTDHighEndTemp").style.backgroundColor = alertColor;
         ge("TDHighEndTemp").focus();
       }
       if (
@@ -1297,13 +1227,13 @@
         ge("TDLowEndTemp").value < 30 || ge("TDLowEndTemp").value > 100) {
         aok = false;
         ge("pTDLowEndTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pTDLowEndTemp").style.backgroundColor = "#FF7F7F";
+        ge("pTDLowEndTemp").style.backgroundColor = alertColor;
         ge("TDLowEndTemp").focus();
       }
       if (ge("TDHighEndTemp").value - ge("TDLowEndTemp").value > 8) {
         aok = false;
         ge("pTDHighEndTemp").innerHTML = "Please enter temperatures with an 8 degree range or less";
-        ge("pTDHighEndTemp").style.backgroundColor = "#FF7F7F";
+        ge("pTDHighEndTemp").style.backgroundColor = alertColor;
         ge("TDHighEndTemp").focus();
       }
       if (
@@ -1311,7 +1241,7 @@
         ge("TDHighStartTemp").value < 30 || ge("TDHighStartTemp").value > 100) {
         aok = false;
         ge("pTDHighStartTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pTDHighStartTemp").style.backgroundColor = "#FF7F7F";
+        ge("pTDHighStartTemp").style.backgroundColor = alertColor;
         ge("TDHighStartTemp").focus();
       }
       if (
@@ -1319,13 +1249,13 @@
         ge("TDLowStartTemp").value < 30 || ge("TDLowStartTemp").value > 100) {
         aok = false;
         ge("pTDLowStartTemp").innerHTML = "Please enter a value between 30 and 100";
-        ge("pTDLowStartTemp").style.backgroundColor = "#FF7F7F";
+        ge("pTDLowStartTemp").style.backgroundColor = alertColor;
         ge("TDLowStartTemp").focus();
       }
       if (ge("TDHighStartTemp").value - ge("TDLowStartTemp").value > 8) {
         aok = false;
         ge("pTDHighStartTemp").innerHTML = "Please enter temperatures with an 8 degree range or less";
-        ge("pTDHighStartTemp").style.backgroundColor = "#FF7F7F";
+        ge("pTDHighStartTemp").style.backgroundColor = alertColor;
         ge("TDHighStartTemp").focus();
       }
     }
@@ -1334,7 +1264,7 @@
       ge("TDdenatureTime").value < 0 || ge("TDdenatureTime").value > 1200) {
       aok = false;
       ge("pTDdenatureTime").innerHTML = "Please enter a value between 0 and 1200";
-      ge("pTDdenatureTime").style.backgroundColor = "#FF7F7F";
+      ge("pTDdenatureTime").style.backgroundColor = alertColor;
       ge("TDdenatureTime").focus();
     }
     if (ge("TDdenatureTemp").value == "" ||
@@ -1342,7 +1272,7 @@
       ge("TDdenatureTemp").value < 30 || ge("TDdenatureTemp").value > 100) {
       aok = false;
       ge("pTDdenatureTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("pTDdenatureTemp").style.backgroundColor = "#FF7F7F";
+      ge("pTDdenatureTemp").style.backgroundColor = alertColor;
       ge("TDdenatureTemp").focus();
     }
     if (ge("TDCycleNum").value == "" ||
@@ -1350,7 +1280,7 @@
       ge("TDCycleNum").value < 1 || ge("TDCycleNum").value > 100) {
       aok = false;
       ge("pTDCycleNum").innerHTML = "Please enter a value between 1 and 100";
-      ge("pTDCycleNum").style.backgroundColor = "#FF7F7F";
+      ge("pTDCycleNum").style.backgroundColor = alertColor;
       ge("TDCycleNum").focus();
     }
   }
@@ -1360,7 +1290,7 @@
       ge("rampTime").value < 0 || ge("rampTime").value > 1440) {
       aok = false;
       ge("prampTime").innerHTML = "Please enter a value between 0 and 1440";
-      ge("prampTime").style.backgroundColor = "#FF7F7F";
+      ge("prampTime").style.backgroundColor = alertColor;
       ge("rampTime").focus();
     }
   if (programType === "rr"){
@@ -1369,7 +1299,7 @@
       ge("endRampTemp").value < 30 || ge("endRampTemp").value > 100) {
       aok = false;
       ge("pendRampTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("pendRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("pendRampTemp").style.backgroundColor = alertColor;
       ge("endRampTemp").focus();
     }
     if (ge("startRampTemp").value == "" ||
@@ -1377,7 +1307,7 @@
       ge("startRampTemp").value < 30 || ge("startRampTemp").value > 100) {
       aok = false;
       ge("pstartRampTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("pstartRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("pstartRampTemp").style.backgroundColor = alertColor;
       ge("startRampTemp").focus();
     }
   }
@@ -1387,7 +1317,7 @@
       ge("highendRampTemp").value < 30 || ge("highendRampTemp").value > 100) {
       aok = false;
       ge("phighendRampTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("phighendRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("phighendRampTemp").style.backgroundColor = alertColor;
       ge("highendRampTemp").focus();
     }
     if (ge("lowendRampTemp").value == "" ||
@@ -1395,7 +1325,7 @@
       ge("lowendRampTemp").value < 30 || ge("lowendRampTemp").value > 100) {
       aok = false;
       ge("plowendRampTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("plowendRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("plowendRampTemp").style.backgroundColor = alertColor;
       ge("lowendRampTemp").focus();
     }
     if (ge("highstartRampTemp").value == "" ||
@@ -1403,7 +1333,7 @@
       ge("highstartRampTemp").value < 30 || ge("highstartRampTemp").value > 100) {
       aok = false;
       ge("phighstartRampTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("phighstartRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("phighstartRampTemp").style.backgroundColor = alertColor;
       ge("highstartRampTemp").focus();
     }
     if (ge("lowstartRampTemp").value == "" ||
@@ -1411,7 +1341,7 @@
       ge("lowstartRampTemp").value < 30 || ge("lowstartRampTemp").value > 100) {
       aok = false;
       ge("plowstartRampTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("plowstartRampTemp").style.backgroundColor = "#FF7F7F";
+      ge("plowstartRampTemp").style.backgroundColor = alertColor;
       ge("lowstartRampTemp").focus();
     }
   }
@@ -1422,7 +1352,7 @@ if (programType === "hr" || programType === "hg") {
     ge("heatBlockTime").value < 0 || ge("heatBlockTime").value > 1440) {
     aok = false;
     ge("pheatBlockTime").innerHTML = "Please enter a value between 0 and 1440";
-    ge("pheatBlockTime").style.backgroundColor = "#FF7F7F";
+    ge("pheatBlockTime").style.backgroundColor = alertColor;
     ge("heatBlockTime").focus();
   }
   if (programType === "hr"){
@@ -1431,7 +1361,7 @@ if (programType === "hr" || programType === "hg") {
       ge("heatBlockTemp").value < 30 || ge("heatBlockTemp").value > 100) {
       aok = false;
       ge("pheatBlockTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("pheatBlockTemp").style.backgroundColor = "#FF7F7F";
+      ge("pheatBlockTemp").style.backgroundColor = alertColor;
       ge("heatBlockTemp").focus();
     }
   }
@@ -1441,7 +1371,7 @@ if (programType === "hr" || programType === "hg") {
       ge("highheatBlockTemp").value < 30 || ge("highheatBlockTemp").value > 100) {
       aok = false;
       ge("phighheatBlockTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("phighheatBlockTemp").style.backgroundColor = "#FF7F7F";
+      ge("phighheatBlockTemp").style.backgroundColor = alertColor;
       ge("highheatBlockTemp").focus();
     }
     if (ge("lowheatBlockTemp").value == "" ||
@@ -1449,7 +1379,7 @@ if (programType === "hr" || programType === "hg") {
       ge("lowheatBlockTemp").value < 30 || ge("lowheatBlockTemp").value > 100) {
       aok = false;
       ge("plowheatBlockTemp").innerHTML = "Please enter a value between 30 and 100";
-      ge("plowheatBlockTemp").style.backgroundColor = "#FF7F7F";
+      ge("plowheatBlockTemp").style.backgroundColor = alertColor;
       ge("lowheatBlockTemp").focus();
     }
   }
@@ -1660,7 +1590,7 @@ if (programType === "hr" || programType === "hg") {
     function saveProgram() {
       if (ge("programName").value == "") {
         ge("pprogramName").innerHTML = "Please enter a program name";
-        ge("pprogramName").style.backgroundColor = "#FF7F7F";
+        ge("pprogramName").style.backgroundColor = alertColor;
         ge("programName").focus();
         return;
       }
@@ -1686,10 +1616,13 @@ if (programType === "hr" || programType === "hg") {
     var savechange = false;
     var deletechange = false;
     var autostartchange = false;
+    var helpchange = false;
+    var themechange = false;
     var aponchange = false;
     var connectchange = false;
     var userpswchange = false;
-
+    var resetchange = false;
+    var titleSet = true;
 
     function InitWebSocket() {
       ws = new WebSocket('ws://'+document.location.host+'/ws',['arduino']);
@@ -1697,6 +1630,13 @@ if (programType === "hr" || programType === "hg") {
 
       ws.onmessage = function(evt) {
         JSONobj = JSON.parse(evt.data);
+        if (Boolean(titleSet)) {
+          titleSet = false;
+          var titleName = "proPCR " + JSONobj.chipid;
+          document.title = titleName;
+          ge("appleTitle").setAttribute("content", titleName);
+          ge("appTitle").setAttribute("content", titleName);
+        }
         pcrRunning = Number(JSONobj.pcrOn)
         if (pcrRunning) {
           pcrRunning = true;
@@ -1768,25 +1708,25 @@ if (programType === "hr" || programType === "hg") {
         ge('templid').innerHTML = JSONobj.templid;
         ge('preheatLidText').innerHTML = JSONobj.preheatLidText;
         if (ge('preheatLidText').innerHTML == "Lid is On") {
-          ge('pretextlid').style.backgroundColor = "#ff9d2e";
-          ge('preheatLidset').style.backgroundColor = "#ff9d2e";
+          ge('pretextlid').style.backgroundColor = buttonSelected;
+          ge('preheatLidset').style.backgroundColor = buttonSelected;
           ge("preheatlidstat").innerHTML = "&nbsp;Preheat Lid: ON";
         } else {
-          ge('pretextlid').style.backgroundColor = "white";
-          ge('preheatLidset').style.backgroundColor = "white";
+          ge('pretextlid').style.backgroundColor = buttonDeselected;
+          ge('preheatLidset').style.backgroundColor = buttonDeselected;
           ge("preheatlidstat").innerHTML = "&nbsp;Preheat Lid: OFF";
         }
         ge('preheatBlockTemp').innerHTML = JSONobj.blockTemp;
         ge('blockTemp1').innerHTML = JSONobj.blockTemp;
         ge('preheatBlockText').innerHTML = JSONobj.preheatBlockText;
         if (ge('preheatBlockText').innerHTML == "Block is On") {
-          ge('preheatBlockset').style.backgroundColor = "#ff9d2e";
+          ge('preheatBlockset').style.backgroundColor = buttonSelected;
           ge("preheatblockstat").innerHTML = "&nbsp;Preheat Block: ON";
-          ge('pretextblock').style.backgroundColor = "#ff9d2e";
+          ge('pretextblock').style.backgroundColor = buttonSelected;
         } else {
-          ge('preheatBlockset').style.backgroundColor = "white";
+          ge('preheatBlockset').style.backgroundColor = buttonDeselected;
           ge("preheatblockstat").innerHTML = "&nbsp;Preheat Block: OFF";
-          ge('pretextblock').style.backgroundColor = "white";
+          ge('pretextblock').style.backgroundColor = buttonDeselected;
         }
         ge('preheatLidButton').value = JSONobj.preheatLidButton;
         ge('pauseButton').value = JSONobj.pauseSwitch;
@@ -1804,6 +1744,21 @@ if (programType === "hr" || programType === "hg") {
           ge('aponalert').innerHTML = JSONobj.aponalert;
           aponchange = false;
           loadConfig();
+        }
+        if (Boolean(helpchange) && Object.keys(JSONobj)[0] == "helpalert") {
+          ge('helpalert').innerHTML = JSONobj.helpalert;
+          helpchange = false;
+          loadConfig();
+        }
+        if (Boolean(themechange) && Object.keys(JSONobj)[0] == "themealert") {
+          ge('themealert').innerHTML = JSONobj.themealert;
+          themechange = false;
+          loadConfig();
+        }
+        if (Boolean(resetchange) && Object.keys(JSONobj)[0] == "resetalert") {
+          ge('resetalert').innerHTML = JSONobj.resetalert;
+          resetchange = false;
+
         }
         if (Boolean(connectchange) && Object.keys(JSONobj)[0] == "connectalert") {
           ge('connectalert').innerHTML = JSONobj.connectalert;
@@ -1840,11 +1795,16 @@ if (programType === "hr" || programType === "hg") {
 
 
     function onBodyLoad() {
+      loadConfig();
+      showProgram();
+      openNav();
       showTab('programpcr', 'tabpcr');
-      programRegular();
+      InitWebSocket();
+
       regularRampButton();
       regularHeatButton();
-      InitWebSocket();
+      programRegular();
+
     }
 
     function pauseButton() {
@@ -1904,7 +1864,7 @@ function userpswSend(){
     if (ge("userpswinput").value < 8 || ge("userpswinput").value > 63) {
       aok = false;
       ge("puserpswinput").innerHTML = "Please enter a password between 8 and 63 characters";
-      ge("puserpswinput").style.backgroundColor = "#FF7F7F";
+      ge("puserpswinput").style.backgroundColor = alertColor;
       ge("userpswinput").focus();
     }
 
@@ -1920,6 +1880,24 @@ function userpswSend(){
   }
 
 }
+var firstreset = true;
+function resetFiles(){
+  if (Boolean(firstreset)) {
+    ge("resetconfirm").innerHTML = "Are you sure you want to reset the PCR?";
+    ge("resetButton").value = "CONFIRM RESET";
+    firstreset = false;
+    return;
+  } else {
+    ge("resetconfirm").innerHTML = "";
+    ge("resetButton").value = "Reset";
+
+    firstreset = true;
+    p = 'reset:';
+    ws.send(p);
+  }
+}
+
+
 
 function quietfanSend(){
     p = "quietfan:";
@@ -1959,7 +1937,7 @@ function aponSend(){
 
     }else{
       ge("aponalert").innerHTML = "You must be connected to a wifi network to disable the proPCR wifi broadcast";
-      ge("aponalert").style.backgroundColor = "#FF7F7F";
+      ge("aponalert").style.backgroundColor = alertColor;
     }
   }
   if (ge("aponbutton").value == "Turn proPCR Network On") {
@@ -1970,16 +1948,50 @@ function aponSend(){
     }
   }
 
+  function helpSend(){
+    if (ge("helpbutton").value == "Turn Info Boxes Off") {
+      var helpDivs = document.getElementsByClassName("help"); //helpDivs is an array
+        for(var i = 0; i < helpDivs.length; i++){
+          helpDivs[i].style.display = "none"; // depending on what you're doing
+        }
+        helpchange = true;
+        p = "help:";
+        ws.send(p);
+    }
+    if (ge("helpbutton").value == "Turn Info Boxes On") {
+        helpchange = true;
+        p = "help:";
+        ws.send(p);
+
+      }
+    }
+
+    function themeSend(){
+          themechange = true;
+          p = "theme:";
+          ws.send(p);
+      }
+
 
 function showTab(tab, tablink){
   ge("programpcr").style.display = "none";
-  ge("tabpcr").style.borderBottom = "2px solid black";
   ge("programramp").style.display = "none";
-  ge("tabramp").style.borderBottom = "2px solid black";
   ge("programheat").style.display = "none";
-  ge("tabheat").style.borderBottom = "2px solid black";
+
+
+  ge("tabpcr").style.borderBottom = borderThin;
+  ge("tabpcr").style.borderTop = borderThin;
+  ge("tabramp").style.borderBottom = borderThin;
+  ge("tabramp").style.borderTop = borderThin;
+  ge("tabheat").style.borderBottom = borderThin;
+  ge("tabheat").style.borderTop = borderThin;
+  ge("tabheat").style.borderRight = borderThin;
+  ge(tablink).style.borderTop = borderThick;
   ge(tab).style.display = "block";
   ge(tablink).style.borderBottom = "none";
+
+
+
   if (tablink == "tabpcr") {
     programTab = "p";
     if (isOrange("regularButton")) {
@@ -2123,6 +2135,93 @@ function programTDG(){
   displayBlock("saverundiv");
 }
 
+function changeTheme(theme){
+  if (theme === "dark"){
+    borderThin = "1px solid #a7a7a7";
+    borderThick = "3px solid #a7a7a7";
+    alertColor = "#cc7d24";
+    buttonSelected = "#ff9d2e";
+    buttonDeselected = "#111";
+    ge("logo").style.filter = "invert(50%)";
+    ge("logo").style.WebkitFilter = "invert(50%)";
+    document.body.style.backgroundColor = "#111111";
+    document.body.style.color = "#818181";
+    ge("openbtn").style.color = "#818181";
+    var elements = document.getElementsByClassName("help");
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].style.backgroundColor= "#818181";
+        elements[i].style.borderLeft= borderThick;
+    }
+    var info = document.getElementsByClassName("info");
+    for (var i = 0; i < info.length; i++) {
+        info[i].style.backgroundColor= "#818181";
+        info[i].style.borderLeft= borderThick;
+    }
+    var tab = document.getElementsByClassName("tab");
+    for (var i = 0; i < tab.length; i++) {
+        tab[i].style.backgroundColor= "#111111";
+        tab[i].style.borderLeft= borderThin;
+    }
+    var tabspan = document.getElementsByClassName("tabspan");
+    for (var i = 0; i < tabspan.length; i++) {
+        tabspan[i].style.color= "#818181";
+    }
+    showTab('programpcr', 'tabpcr');
+    var inputs = document.getElementsByTagName('input');
+      for(var i = 0; i < inputs.length; i++) {
+        if(inputs[i].type.toLowerCase() == 'button') {
+        inputs[i].style.border = borderThin;
+        }
+      }
+    regularHeatButton();
+    regularRampButton();
+    programRegular();
+
+  }
+
+  if (theme === "light"){
+    borderThin = "1px solid black";
+    borderThick = "3px solid black";
+    alertColor = "#cc7d24";
+    buttonSelected = "#ff9d2e";
+    buttonDeselected = "white";
+    ge("logo").style.filter = "invert(0%)";
+    ge("logo").style.WebkitFilter = "invert(0%)";
+    document.body.style.backgroundColor = buttonDeselected;
+    document.body.style.color = "black";
+    ge("openbtn").style.color = "black";
+    var elements = document.getElementsByClassName("help");
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].style.backgroundColor= "#AED4FF";
+        elements[i].style.borderLeft= "3px solid #2e90ff";
+    }
+    var info = document.getElementsByClassName("info");
+    for (var i = 0; i < info.length; i++) {
+        info[i].style.backgroundColor= "#AED4FF";
+        info[i].style.borderLeft= "3px solid #2e90ff";
+    }
+    var tab = document.getElementsByClassName("tab");
+    for (var i = 0; i < tab.length; i++) {
+        tab[i].style.backgroundColor= "white";
+        tab[i].style.borderLeft= borderThin;
+    }
+    var tabspan = document.getElementsByClassName("tabspan");
+    for (var i = 0; i < tabspan.length; i++) {
+        tabspan[i].style.color= "black";
+    }
+    showTab('programpcr', 'tabpcr');
+    var inputs = document.getElementsByTagName('input');
+      for(var i = 0; i < inputs.length; i++) {
+        if(inputs[i].type.toLowerCase() == 'button') {
+        inputs[i].style.border = borderThin;
+        }
+      }
+      regularHeatButton();
+      regularRampButton();
+      programRegular();
+  }
+}
+
   </SCRIPT>
 </head>
 
@@ -2132,14 +2231,14 @@ window.onload = (function(){
   onBodyLoad();
 });
 </script>
-  <div class="navbar"><img class="logo" src="data:image/png;base64,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"
+  <div class="navbar"><img class="logo" id="logo" onclick="openNav()" src="data:image/png;base64,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"
       alt="proPCR" width="200" height="38">
     <div id="mySidenav" class="sidenav" onclick="closeNav()"><a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a><a onclick="showProgram()">New Program</a><a onclick="showLoad()">Load Program</a><a onclick="showView()">PCR Status</a><a onclick="showSettings()">Settings</a></div>
     <span id="openbtn" class="openbtn" onclick="openNav()">&#9776;<span class="menubtn">Menu</span></span>
   </div>
   <div class="container">
 
-    <div id="menudiv">
+    <div id="menudiv" style="display:none">
       <input type="button" onclick="showProgram()" value="New Program" />
       <input type="button" onclick="showLoad()" value="Load Program" />
       <input type="button" onclick="showView()" value="PCR Status" />
@@ -2152,7 +2251,15 @@ window.onload = (function(){
 
     <div id="settingsdiv">
 
-      <div id="autostartset" class="setting" onclick="expandShow('autostart','autostarticon')"><div id="autostarticon" class="settingsicon">+</div><div id="autostartstat">&nbsp;Autostart: OFF</div></div>
+      <div id="helpset" class="setting" onclick="expandShow('helpon','helpicon')"><div id="helpicon" class="settingsicon">+</div><div>&nbsp;Show Information Boxes: <span id="helpstat" class="stat">ON</span></div></div>
+      <div id="helpon" style="display:none">
+        <div class="info">This setting turns on and off the information boxes describe what perameter or setting is.</div>
+        <div id="helpalert">
+        </div>
+        <input type="button" id="helpbutton" onclick="helpSend()"value="Turn Info Boxes Off"/>
+      </div>
+
+      <div id="autostartset" class="setting" onclick="expandShow('autostart','autostarticon')"><div id="autostarticon" class="settingsicon">+</div><div>&nbsp;Autostart: <span id="autostartstat" class="stat">OFF</span></div></div>
       <div id="autostart" style="display:none">
         <div class="info">Autostart automatically runs a selected program when the machine powers on</div>
         <div id="autostartalert"></div>
@@ -2164,13 +2271,16 @@ window.onload = (function(){
         </div>
       </div>
 
-      <div id="connectwifiset" class="setting" onclick="expandShow('connectwifi','connectwifiicon')"><div id="connectwifiicon" class="settingsicon">+</div><div id="connectwifistat">&nbsp;Connect to Wifi Network: OFF</div></div>
+      <div id="connectwifiset" class="setting" onclick="expandShow('connectwifi','connectwifiicon')"><div id="connectwifiicon" class="settingsicon">+</div><div>&nbsp;Connect to Wifi Network: <span id="connectwifistat" class="stat">OFF</span></div></div>
       <div id="connectwifi" style="display:none">
         <div class="info">Connect to an existing wifi network. The machine will be accesible to any device connected to the same network.</div>
-        <div id="connectnetworkmsg">On startup proPCR will connect to the network:&nbsp;;</div>
+        <div id="connectnetworkmsg">On startup proPCR will connect to the network:&nbsp;</div>
         <h3 id="connectnetwork"></h3>
         <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Wifi Network Name' id="wifiname" maxlength="32"/><span>Wifi Network Name</span></label>
           <p id="pprogramName"></p>
+          <div class="help">
+            This is the name (SSID) of the network you would like the proPCR to join when it restarts next time.
+          </div>
         </div>
         <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Wifi Password' id="wifipass" maxlength="63"/><span>Wifi Password</span></label>
           <p id="pprogramName"></p>
@@ -2182,7 +2292,7 @@ window.onload = (function(){
 
       </div>
 
-      <div id="aponset" class="setting" onclick="expandShow('apon','aponicon')"><div id="aponicon" class="settingsicon">+</div><div id="aponstat" class="settingsname">&nbsp;Broadcast proPCR Network: ON</div></div>
+      <div id="aponset" class="setting" onclick="expandShow('apon','aponicon')"><div id="aponicon" class="settingsicon">+</div><div>&nbsp;Broadcast proPCR Network: <span id="aponstat" class="stat">ON</span></div></div>
       <div id="apon" style="display:none">
         <div class="info">This setting turns on and off the wifi network that the proPCR broadcasts. If you turn this off and have trouble connecting to another wifi network, you may have to reset the proPCR to connect to it.</div>
         <div id="aponalert">
@@ -2190,7 +2300,7 @@ window.onload = (function(){
         <input type="button" id="aponbutton" onclick="aponSend()"value="Turn Broadcast On"/>
       </div>
 
-      <div id="userpswset" class="setting" onclick="expandShow('userpsw','userpswicon')"><div id="userpswicon" class="settingsicon">+</div><div id="userpswstat" class="settingsname">&nbspCustom proPCR password: OFF</div></div>
+      <div id="userpswset" class="setting" onclick="expandShow('userpsw','userpswicon')"><div id="userpswicon" class="settingsicon">+</div><div>&nbspCustom proPCR password: <span id="userpswstat" class="stat">OFF</span></div></div>
       <div id="userpsw" style="display:none">
         <div class="info">Set a custom password for the proPCR wifi network.</div>
         <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='New Password' id="userpswinput" maxlength="63"/><span>New Password</span></label></div>
@@ -2199,7 +2309,27 @@ window.onload = (function(){
         <div id="userpswalert"></div>
         </div>
 
-        <!-- <div id="quietfanset" class="setting" onclick="quietfanShow()"><div id="quietfanicon" class="settingsicon">+</div><div id="quietfanstat" class="settingsname">&nbspCustom proPCR password: OFF</div></div>
+        <div id="themeset" class="setting" onclick="expandShow('themeon','themeicon')"><div id="themeicon" class="settingsicon">+</div><div>&nbsp;Theme Color: <span id="themestat" class="stat">LIGHT</span></div></div>
+        <div id="themeon" style="display:none">
+
+          <div id="themealert">
+          </div>
+          <input type="button" id="themebutton" onclick="themeSend()"value="Switch Theme To Dark"/>
+        </div>
+
+        <div id="resetset" class="setting" onclick="expandShow('reseton','reseticon')"><div id="reseticon" class="settingsicon">+</div><div>&nbsp;Advanced: </div></div>
+        <div id="reseton" style="display:none">
+
+          <div id="resetconfirm">
+          </div>
+          <div>
+            <p id="resetalert" style="text-align:center"></p>
+          </div>
+          <input type="button" id="resetButton" onclick="resetFiles()" value="Reset"/>
+        </div>
+
+
+        <!-- <div id="quietfanset" class="setting" onclick="quietfanShow()"><div id="quietfanicon" class="settingsicon">+</div><div id="quietfanstat">&nbspCustom proPCR password: OFF</div></div>
         <div id="quietfan" style="display:none">
           <div class="info">Set a custom password for the proPCR wifi network.</div>
           <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Custom proPCR network password' id="quietfaninput" maxlength="63"/><span>Custom proPCR network password</span></label></div>
@@ -2278,9 +2408,9 @@ window.onload = (function(){
 
     <div id="programdiv">
       <div id="tabs">
-        <button class="tab" id="tabpcr" onclick="showTab('programpcr', 'tabpcr')"><span>PCR</span></button>
-        <button class="tab" id="tabramp" onclick="showTab('programramp', 'tabramp')"><span>Ramp</span></button>
-        <button class="tab" id="tabheat" onclick="showTab('programheat', 'tabheat')"><span>Heat Block</span></button>
+        <button class="tab" id="tabpcr" onclick="showTab('programpcr', 'tabpcr')"><span class="tabspan">PCR</span></button>
+        <button class="tab" id="tabramp" onclick="showTab('programramp', 'tabramp')"><span class="tabspan">Ramp</span></button>
+        <button class="tab" id="tabheat" onclick="showTab('programheat', 'tabheat')"><span class="tabspan">Heat Block</span></button>
       </div>
       <div id="programramp">
         <input type="button" class="button16" id="regularRampButton" onclick="regularRampButton()" value="Regular Ramp" />
@@ -2351,7 +2481,7 @@ window.onload = (function(){
       <h2 id="progtype"></h2>
       <div id="initialdiv" style="display:none">
       <div id="preheat">
-      <div id="preheatLidset" class="setting" onclick="expandShow('preheatliddiv','preheatliddivicon')"><div id="preheatliddivicon" class="settingsicon">+</div><div id="preheatlidstat" class="settingsname">&nbspPreheat Lid: OFF</div></div>
+      <div id="preheatLidset" class="setting" onclick="expandShow('preheatliddiv','preheatliddivicon')"><div id="preheatliddivicon" class="settingsicon">+</div><div id="preheatlidstat">&nbspPreheat Lid: OFF</div></div>
       <div id="preheatliddiv" style="display:none;">
         <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Preheat Lid Temp &deg;C' id="preheatLidInput" name='preheatLidInput' maxlength="3" /><span>Preheat Lid Temp &deg;C</span></label>
           <p id="preheatLidInput"></p>
@@ -2374,7 +2504,7 @@ window.onload = (function(){
 
 
         <!-- <div class="onoffswitch"><input type="checkbox" class="onoffswitch-checkbox" id="preheatblockswitch" onclick="showPreheatBlock()"><label class="onoffswitch-label" for="preheatblockswitch"><span id="contentblock" class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label></div> -->
-      <div id="preheatBlockset" class="setting" onclick="expandShow('preheatblockdiv','preheatblockdivicon')"><div id="preheatblockdivicon" class="settingsicon">+</div><div id="preheatblockstat" class="settingsname">&nbspPreheat Block: OFF</div></div>
+      <div id="preheatBlockset" class="setting" onclick="expandShow('preheatblockdiv','preheatblockdivicon')"><div id="preheatblockdivicon" class="settingsicon">+</div><div id="preheatblockstat">&nbspPreheat Block: OFF</div></div>
       <div id="preheatblockdiv" style="display:none;">
 
         <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Preheat Block Temp (&deg;C)' id="preheatBlockInput" name='preheatBlockInput' maxlength="2"/><span>Preheat Block Temp (&deg;C)</span></label>
@@ -2508,7 +2638,11 @@ window.onload = (function(){
       <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Program Name (Optional)' id="programName" name='programName' maxlength="20"/><span>Program Name (Optional)</span></label>
         <p id="pprogramName"></p>
       </div>
+
+
       <p id="savealert"></p>
+      </div>
+      <div id="saverunbuttons">
       <input type='button' onclick="saveProgram()" id="savebutton" value="Save" />
       <input type='button' onclick="sendProgram()" id="runbutton" value="Run" />
     </div>
