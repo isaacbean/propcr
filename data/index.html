@@ -595,6 +595,36 @@
       ge('mySidenav').style.width = '0';
     }
 
+    function pushProgram(){
+      history.pushState("program",null,null);
+    }
+
+    function pushLoad(){
+      history.pushState("load",null,null);
+    }
+
+    function pushSettings(){
+      history.pushState("settings",null,null);
+    }
+
+    function pushView(){
+      history.pushState("view",null,null);
+    }
+
+    window.addEventListener('popstate', function(e){
+        if (e.state == "program") {
+          showProgram();
+        }
+        if (e.state == "load") {
+          showLoad();
+        }
+        if (e.state == "settings") {
+          showSettings();
+        }
+        if (e.state == "view") {
+          showView();
+        }
+      });
 
     function showProgram() {
       ge("menudiv").style.display = "none";
@@ -2233,7 +2263,13 @@ window.onload = (function(){
 </script>
   <div class="navbar"><img class="logo" id="logo" onclick="openNav()" src="data:image/png;base64,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"
       alt="proPCR" width="200" height="38">
-    <div id="mySidenav" class="sidenav" onclick="closeNav()"><a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a><a onclick="showProgram()">New Program</a><a onclick="showLoad()">Load Program</a><a onclick="showView()">PCR Status</a><a onclick="showSettings()">Settings</a></div>
+    <div id="mySidenav" class="sidenav" onclick="closeNav()">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+      <a onclick="showProgram(); pushProgram();">New Program</a>
+      <a onclick="showLoad(); pushLoad();">Load Program</a>
+      <a onclick="showView();pushView();">PCR Status</a>
+      <a onclick="showSettings();pushSettings();">Settings</a>
+    </div>
     <span id="openbtn" class="openbtn" onclick="openNav()">&#9776;<span class="menubtn">Menu</span></span>
   </div>
   <div class="container">
