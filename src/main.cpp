@@ -177,6 +177,9 @@ boolean openmdns = true;
 boolean APcatch = false;
 boolean APtimernew = true;
 unsigned long APtime;
+boolean doubleReset = true;
+unsigned long resetTime;
+boolean resetOn = true;
 String connected = "false";
 String localIPaddress = "";
 String chipIDstring;
@@ -1187,6 +1190,7 @@ void deleteProgram(){
 }
 
 void resetFiles(){
+        Serial.println("files reset");
         String resetalert;
         File config = SPIFFS.open("/config.json", "w");
 
@@ -1195,9 +1199,14 @@ void resetFiles(){
         File programfile = SPIFFS.open("/programs.json", "w");
         programfile.print("{}");
         programfile.close();
+        File wififile = SPIFFS.open("/wifi.json", "w");
+        wififile.print("{\"connect\":\"false\",\"userpsw\":\"\",\"userssid\":\"\",\"userpass\":\"\"}");
+        wififile.close();
         resetalert = "{\"resetalert\":\"PCR Reset\"}";
         ws.textAll(resetalert);
 }
+
+
 
 void handleApon(){
   File file = SPIFFS.open("/config.json", "r");
@@ -2077,7 +2086,14 @@ void setup(){
         delay(3000);
         Serial.begin(115200);
         Serial.setDebugOutput(true);
+
         SPIFFS.begin();
+        if (drd.detectDoubleReset()) {
+          Serial.println("Double reset detected");
+          resetFiles();
+        }
+
+
         loadConfig();
         setWifi();
         WiFi.disconnect(true);
@@ -2173,11 +2189,27 @@ server.onNotFound([](AsyncWebServerRequest * request) {
       //  server.onNotFound(onRequest);
 
         server.begin();
+
 }
 
 
 
 void loop(){
+      if (doubleReset) {
+        if (resetOn) {
+          resetTime = millis();
+          resetOn = false;
+        }
+
+        if (millis() - resetTime < 60000) {
+          // Serial.println("drd.loop");
+            drd.loop();
+        }
+        if (millis() - resetTime > 60001) {
+          Serial.println("drd.loop off");
+            doubleReset = false;
+        }
+      }
         if (WiFi.status() != 3 && APcatch) {
                 Serial.print("WiFi.status() = ");
                 Serial.println(WiFi.status());
