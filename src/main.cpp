@@ -91,6 +91,7 @@ float tempset;
 
 float tempthreshold = 1;
 float setLidTemp = 0;
+float totalTime;
 float initDenatureTemp;
 float initDenatureTime;
 float denatureTemp;
@@ -122,7 +123,7 @@ float heatBlockTimeMin;
 boolean denatureStep = true;
 boolean annealStep = false;
 boolean extendStep = false;
-String cycleState = "Lid Heating";
+String cycleState = "Heating Lid";
 unsigned long previousMillis;
 unsigned long currentMillis;
 
@@ -414,6 +415,9 @@ void readThermistors(){
 }
 
 void resetPCR() {
+        cycleState = "Heating Lid";
+        isPaused = false;
+        programName = "";
         setLidTemp = 0;
         initDenatureTemp = 0;
         initDenatureTime = 0;
@@ -446,6 +450,7 @@ void runPCR(float &low, float &high){
         case 0:
 
                 if (Inputlid >= setLidTemp - tempthreshold || setLidTemp == 0) {
+                        cycleState = "Heating Lid";
                         programState = 1;
                         blockOn = true;
                         cycleState = "Initial Denature";
@@ -456,6 +461,7 @@ void runPCR(float &low, float &high){
         case 1:
                 low = initDenatureTemp;
                 high = initDenatureTemp;
+                totalTime = initDenatureTime;
                 if (Input1 >= low - tempthreshold) {
                         Serial.print("Timer: ");
                         Serial.print(timerSerial);
@@ -489,6 +495,7 @@ void runPCR(float &low, float &high){
 
                 //Denature step
                 if (denatureStep == true) {
+                  totalTime = TDdenatureTime;
                         Serial.println("TD Denature Step");
 
                         low = TDdenatureTemp;
@@ -515,6 +522,7 @@ void runPCR(float &low, float &high){
 
                 //Anneal step
                 if (annealStep == true) {
+                    totalTime = TDannealTime;
                         Serial.println("Touchdown Phase Anneal Step");
 
                         if (programType == 3) {
@@ -597,6 +605,7 @@ void runPCR(float &low, float &high){
                 }
                 //Extend step
                 if (extendStep == true) {
+                  totalTime = TDextendTime;
                         Serial.println("TD Extend Step");
 
                         low = TDextendTemp;
@@ -639,6 +648,7 @@ void runPCR(float &low, float &high){
 
                         //Denature step
                         if (denatureStep == true) {
+                          totalTime = denatureTime;
                                 Serial.println("Denature Step");
 
                                 low = denatureTemp;
@@ -665,6 +675,7 @@ void runPCR(float &low, float &high){
 
                         //Anneal step
                         if (annealStep == true) {
+                          totalTime = annealTime;
                                 Serial.println("Anneal Step");
 
                                 if (programType == 1 || programType == 3) {
@@ -699,6 +710,7 @@ void runPCR(float &low, float &high){
                         }
                         //Extend step
                         if (extendStep == true) {
+                          totalTime = extendTime;
                                 Serial.println("Extend Step");
 
                                 low = extendTemp;
@@ -733,6 +745,7 @@ void runPCR(float &low, float &high){
 
         //Final extend
         case 4:
+          totalTime = finalExtendTime;
                 Serial.println("Final Extend Step");
 
                 low = finalExtendTemp;
@@ -894,7 +907,7 @@ void runHeat(float &low, float &high){
                 }
 
                 if (Input3 >= high - tempthreshold) {
-                                cycleState = "Running Ramp";
+                                cycleState = "Running Heat Block";
                                 programState = 2;
                         }
                 break;
@@ -937,6 +950,7 @@ void thermocycler(){
                         if (programType == 1 || programType == 2 || programType == 3 || programType == 4) {
 
                                 runPCR(heatLow, heatHigh);
+                                totalTime /= 1000;
 
                                 heatMid = heatLow + heatHigh;
                                 heatMid /= 2;
@@ -1986,8 +2000,13 @@ void sendJSON(){
                 int cycleNumInt;
                 int Setpointblockint;
                 cycleNumInt = (int) cycleNum;
-                Setpointlidint = (int)Setpointlid;
-                Setpointblockint = (int)Setpoint2;
+                Setpointlidint = (int) Setpointlid;
+                Setpointblockint = (int) Setpoint2;
+                Serial.print("totalTime before: ");
+                Serial.println(totalTime);
+                int totalTimeInt = (int) totalTime;
+                Serial.print("totalTime after: ");
+                Serial.println(totalTime);
                 String pauseSwitch="Pause";
                 String preheatLidText = "Lid is Off";
                 String preheatLidButton = "Start";
@@ -2007,18 +2026,16 @@ void sendJSON(){
                          "\"tempone\":\""+(String)tempone+"\","+
                          "\"temptwo\":\""+(String)temptwo+"\","+
                          "\"tempthree\":\""+(String)tempthree+"\","+
+                         "\"timerStarted\":\""+(String)timerStarted+"\","+
                          "\"timer\":\""+(String)timerSerial+"\","+
-                         "\"initDenatureTime\":\""+(String)initDenatureTimeSec+"\","+
-                         "\"denatureTime\":\""+(String)denatureTimeSec+"\","+
-                         "\"annealTime\":\""+(String)annealTimeSec+"\","+
-                         "\"extendTime\":\""+(String)extendTimeSec+"\","+
-                         "\"finalExtendTime\":\""+(String)finalExtendTimeSec+"\","+
+                         "\"totalTime\":\""+(String)totalTimeInt+"\","+
                          "\"cycleCount\":\""+(String)cycleCount+"\","+
                          "\"blockTemp\":\""+(String)blockTemp+"\","+
                          "\"Setpointlid\":\""+(String)Setpointlidint+"\","+
                          "\"Setpointblock\":\""+(String)Setpointblockint+"\","+
                          "\"cycleState\":\""+cycleState+"\","+
                          "\"programName\":\""+programName+"\","+
+                         "\"programType\":\""+(String)programType+"\","+
                          "\"pcrOn\":\""+PCRon+"\","+
                          "\"preheatBlockText\":\""+preheatBlockText+"\","+
                          "\"preheatBlockButton\":\""+preheatBlockButton+"\","+

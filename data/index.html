@@ -19,25 +19,11 @@
       src: url(muli-regular.ttf) format('truetype');
       font-weight: 400;
     }
-    @font-face {
-      font-family: muli;
-      src: url(muli-thin.ttf) format('truetype');
-      font-weight: 200;
-    }
+
     @font-face {
       font-family: muli;
       src: url(muli-bold.ttf) format('truetype');
       font-weight: 700;
-    }
-    @font-face {
-      font-family: muli;
-      src: url(muli-semibold.ttf) format('truetype');
-      font-weight: 600;
-    }
-    @font-face {
-      font-family: muli;
-      src: url(muli-extrabold.ttf) format('truetype');
-      font-weight: 800;
     }
 
     body,
@@ -305,6 +291,7 @@ input.loadbutton {
     text-align: center;
     text-transform: uppercase;
     font-weight: 700;
+    margin: 5px;
   }
 
     #programdiv {
@@ -421,6 +408,10 @@ input.loadbutton {
       display: none
     }
 
+    #loaddiv h1{
+      text-align: center;
+    }
+
     .setting > * {
       display: inline;
       font-size: 20px;
@@ -492,9 +483,23 @@ input.loadbutton {
       text-align: center;
       display: none;
     }
+    #progname{
+      margin-bottom: 5px;
+    }
+    #programtitle{
+      text-transform: uppercase;
+      margin: 5px;
+    }
 
-    #displaydiv h3 {
-      display: inline;
+    #cyclediv h3, #timerdiv h3 {
+      display: inline-block;
+      margin-top: 5px;
+      margin-bottom: 0px;
+    }
+
+    #cycleState{
+      margin-bottom: 0px;
+      margin-top: 30px;
     }
 
     #savealert {
@@ -502,16 +507,24 @@ input.loadbutton {
       margin: 0;
     }
 
+    #displaydiv1{
+      margin-top: 30px;
+    }
 
-
-    #tempdiv {
-
+    #tempdiv, #gradienttemp {
+      margin-top: 30px;
       display: none;
     }
 
     #tempdiv h3,
     #gradienttemp h3 {
       display: inline-block;
+      margin-bottom: 0px;
+      margin-top: 5px;
+    }
+
+    .showtemp {
+      float: right;
     }
 
     .statustemp {
@@ -554,7 +567,7 @@ input.loadbutton {
       top: 0;
       left: 0;
       opacity: 1;
-      font-size: 90%;
+      font-size: 100%;
       -webkit-transition: all .2s;
       transition: all .2s;
       cursor: text
@@ -1794,6 +1807,8 @@ if (programType === "hr" || programType === "hg") {
     var titleSet = true;
 
     function InitWebSocket() {
+      var progtitle;
+      var progtype;
       ws = new WebSocket('ws://'+document.location.host+'/ws',['arduino']);
       ws.binaryType = "arraybuffer";
 
@@ -1821,26 +1836,70 @@ if (programType === "hr" || programType === "hg") {
           }else {
             ge("progname").innerHTML = "";
           }
-          ge('cycleNumber').innerHTML = JSONobj.cycleNum;
+          progtitle = JSONobj.programType;
+          if (progtitle == 1) {
+            progtype = "Regular PCR"
+          }
+          if (progtitle == 2) {
+            progtype = "Gradient PCR"
+          }
+          if (progtitle == 3) {
+            progtype = "Touchdown PCR"
+          }
+          if (progtitle == 4) {
+            progtype = "Touchdown Gradient PCR"
+          }
+          if (progtitle == 5) {
+            progtype = "Regular Ramp"
+          }
+          if (progtitle == 6) {
+            progtype = "Gradient Ramp"
+          }
+          if (progtitle == 7) {
+            progtype = "Regular Heat Block"
+          }
+          if (progtitle == 8) {
+            progtype = "Gradient Heat Block"
+          }
+          ge("progtitle").innerHTML = progtype;
           ge('cycleState').innerHTML = JSONobj.cycleState;
-          ge('cycleCount').innerHTML = JSONobj.cycleCount;
+          if (progtitle == 1 || progtitle == 2 ||progtitle == 3 ||progtitle == 4) {
+
+            if (JSONobj.cycleState == "Initial Denature"){
+              ge('cycleTime').innerHTML = JSONobj.totalTime;}
+            if (JSONobj.cycleState == "Touchdown Phase Denature Step"){
+              ge('cyclediv').style.display = "block";
+            }
+            if (JSONobj.cycleState == "Touchdown Phase Anneal Step"){
+              ge('cyclediv').style.display = "block";
+              ge('cycleTime').innerHTML = JSONobj.totalTime;}
+            if (JSONobj.cycleState == "Touchdown Phase Extend Step"){
+              ge('cyclediv').style.display = "block";
+              ge('cycleTime').innerHTML = JSONobj.totalTime;}
+            if (JSONobj.cycleState == "Denature Step"){
+              ge('cyclediv').style.display = "block";
+              ge('cycleTime').innerHTML = JSONobj.totalTime;}
+            if (JSONobj.cycleState == "Anneal Step"){
+              ge('cyclediv').style.display = "block";
+              ge('cycleTime').innerHTML = JSONobj.totalTime;}
+            if (JSONobj.cycleState == "Extend Step"){
+              ge('cyclediv').style.display = "block";
+              ge('cycleTime').innerHTML = JSONobj.totalTime;}
+            if (JSONobj.cycleState == "Final Extend Step"){
+              ge('cyclediv').style.display = "none";
+              ge('cycleTime').innerHTML = JSONobj.totalTime;}
+              ge('cycleNumber').innerHTML = JSONobj.cycleNum;
+              ge('cycleCount').innerHTML = JSONobj.cycleCount;
+          }else {
+            ge('cyclediv').style.display = "none";
+          }
           ge('timer').innerHTML = JSONobj.timer;
-          if (JSONobj.cycleState == "Initial Denature"){
-            ge('cycleTime').innerHTML = JSONobj.initDenatureTime;}
-          if (JSONobj.cycleState == "Touchdown Phase Denature Step"){
-            ge('cycleTime').innerHTML = JSONobj.TDdenatureTime;}
-          if (JSONobj.cycleState == "Touchdown Phase Anneal Step"){
-            ge('cycleTime').innerHTML = JSONobj.TDannealTime;}
-          if (JSONobj.cycleState == "Touchdown Phase Extend Step"){
-            ge('cycleTime').innerHTML = JSONobj.TDextendTime;}
-          if (JSONobj.cycleState == "Denature Step"){
-            ge('cycleTime').innerHTML = JSONobj.denatureTime;}
-          if (JSONobj.cycleState == "Anneal Step"){
-            ge('cycleTime').innerHTML = JSONobj.annealTime;}
-          if (JSONobj.cycleState == "Extend Step"){
-            ge('cycleTime').innerHTML = JSONobj.extendTime;}
-          if (JSONobj.cycleState == "Final Extend Step"){
-            ge('cycleTime').innerHTML = JSONobj.finalExtendTime;}
+          if (Boolean(Number(JSONobj.timerStarted))) {
+            ge("timerdiv").style.display = "block";
+          }else{
+            ge("timerdiv").style.display = "none";
+          }
+
           if (Number(JSONobj.isGradient)) {
             ge("gradienttemp").style.display = "block";
             ge('tempone').innerHTML = JSONobj.tempone;
@@ -2551,29 +2610,30 @@ window.onload = (function(){
 
 
       <div id="displaydiv">
-        <h3 id="progtitle"></h3>
+
         <h2 id="progname"></h2>
-        <div>
-          <h3 id='cycleState'></h3>&nbsp;
-          <h3>in cycle</h3>&nbsp;
+        <h4 id="progtitle"></h4>
+        <h3 id='cycleState'></h3>
+        <div id="cyclediv">
+          <h3>Cycle</h3>&nbsp;
           <h3 id='cycleCount'></h3>&nbsp;
           <h3>of</h3>&nbsp;
           <h3 id='cycleNumber'></h3>
         </div>
-        <div>
+        <div id="timerdiv">
           <h3 id='timer'></h3>
           <h3>seconds of</h3>&nbsp;
           <h3 id='cycleTime'></h3>
         </div>
       </div>
       <div id="tempdiv" class="statustemp">
-        <div id="displaytemp">
-          <h3>Lid Temp =</h3>&nbsp;
-          <h3 id='templid'></h3>
-          <h3>&deg;C</h3>
-        </div>
-        <div id="blocktemp">
-          <h3>Block Temp =</h3>&nbsp;
+          <h3 class="templabel">Lid Temp =</h3>
+          <div class="showtemp">
+            <h3 id='templid'></h3>
+            <h3>&deg;C</h3>
+          </div>
+          <h3 class="templabel">Block Temp =</h3>
+        <div class="showtemp">
           <h3 id='blockTemp1'></h3>
           <h3>&deg;C</h3>
         </div>
