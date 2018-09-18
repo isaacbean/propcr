@@ -1983,8 +1983,10 @@ void handleWS(String msg){
 void sendJSON(){
         if(millis()>wait001) {
                 int Setpointlidint;
-                Setpointlidint = (int)Setpointlid;
+                int cycleNumInt;
                 int Setpointblockint;
+                cycleNumInt = (int) cycleNum;
+                Setpointlidint = (int)Setpointlid;
                 Setpointblockint = (int)Setpoint2;
                 String pauseSwitch="Pause";
                 String preheatLidText = "Lid is Off";
@@ -2023,7 +2025,7 @@ void sendJSON(){
                          "\"preheatLidText\":\""+preheatLidText+"\","+
                          "\"preheatLidButton\":\""+preheatLidButton+"\","+
                          "\"pauseSwitch\":\""+pauseSwitch+"\","+
-                         "\"cycleNum\":\""+(String)cycleNum+"\"}";
+                         "\"cycleNum\":\""+(String)cycleNumInt+"\"}";
                 ws.textAll(JSONtxt);
                 wait001=millis()+websockMillis;
         }

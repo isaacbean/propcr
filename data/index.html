@@ -14,6 +14,32 @@
 <meta name="theme-color" content="#ffffff">
   <title>proPCR</title>
   <style>
+    @font-face {
+      font-family: muli;
+      src: url(muli-regular.ttf) format('truetype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: muli;
+      src: url(muli-thin.ttf) format('truetype');
+      font-weight: 200;
+    }
+    @font-face {
+      font-family: muli;
+      src: url(muli-bold.ttf) format('truetype');
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: muli;
+      src: url(muli-semibold.ttf) format('truetype');
+      font-weight: 600;
+    }
+    @font-face {
+      font-family: muli;
+      src: url(muli-extrabold.ttf) format('truetype');
+      font-weight: 800;
+    }
+
     body,
     input,
     label,
@@ -22,8 +48,10 @@
       margin: 0;
       background: 0;
       color: inherit;
-      font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif
+      font-family: 'muli', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+      font-weight: 400;
     }
+
 
     input[type='button'],
     input[type='submit'] {
@@ -86,6 +114,7 @@
       position: fixed;
       top: 0;
       width: 100%;
+      height: 80px;
       background-color: inherit;
     }
 
@@ -94,14 +123,13 @@
       position: fixed;
       top: 0;
       right: 0;
-      width: 100%;
+      width: 0%;
       height: 100%;
       padding-top: 60px;
       overflow-x: hidden;
       background-color: #111;
       text-align: center;
       text-transform: uppercase;
-
     }
 
     .sidenav a {
@@ -177,9 +205,48 @@
       margin-bottom: 0px;
     }
 
+    .modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+  text-align: center;
+  margin: auto;
+  width: 80%;
+}
+
+.closeModal {
+  padding-top: 2px;
+  padding-right: 10px;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+}
+#runbutton,
+#pauseButton,#savebutton,
+#stopButton  {
+  width: 40%;
+
+}
+
+input.loadbutton {
+    width: 100px;
+}
+
     @media(min-width:710px) {
 
-      .container {
+      .container, .modal-content {
         width: 600px;
       }
       .navbar{
@@ -187,7 +254,7 @@
         margin: auto;
         left: 0;
         right: 0;
-        height: 80px;
+
       }
       .openbtn {
         position: absolute;
@@ -204,10 +271,7 @@
       }
 
       #runbutton,
-      #pauseButton {
-        width: 30%;
-      }
-      #savebutton,
+      #pauseButton, #savebutton,
       #stopButton {
         width: 30%;
       }
@@ -218,6 +282,37 @@
       .inputNum {
         width: 65%;
       }
+    }
+/* End media query */
+
+  #progstate, #progname {
+    text-align: center;
+  }
+
+  .loadprogname {
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+  .progtitle{
+    text-transform: uppercase;
+    text-align: center;
+    margin: 5px;
+  }
+
+
+  #progtitle {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+    #programdiv {
+      border: solid 1px;
+    }
+
+    #preheatLidset, #preheatBlockset {
+      padding-left: 40px;
     }
 
     #programdiv h3{
@@ -244,19 +339,7 @@
       margin-bottom: 10px;
     }
 
-    #runbutton,
-    #pauseButton {
-      display: inline-block;
-      width: 40%;
-      float: right;
-    }
 
-    #savebutton,
-    #stopButton {
-      display: inline-block;
-      width: 40%;
-      float: left;
-    }
 
     body {
       -ms-overflow-style: none; // IE 10+
@@ -269,11 +352,8 @@
 
     .buttondiv {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
-    }
-
-    .buttondiv input[type=button] {
-      width: 30%
     }
 
     .tab {
@@ -294,6 +374,8 @@
       display: inline-block;
       vertical-align: middle;
       line-height: normal;
+      font-family: "muli";
+      font-weight: 700;
     }
 
 
@@ -356,6 +438,7 @@
     .stat {
       float: right;
       padding-right: 15px;
+      font-weight: 700;
     }
 
     .setting {
@@ -404,10 +487,6 @@
 
     }
 
-    #loaddiv h1{
-      text-align: center;
-    }
-
     #displaydiv {
       margin: auto;
       text-align: center;
@@ -423,14 +502,7 @@
       margin: 0;
     }
 
-    #saverunbuttons{
-      display: flex;
-    justify-content: space-between;
-    }
 
-    #progstate1 {
-      text-align: center;
-    }
 
     #tempdiv {
 
@@ -482,7 +554,7 @@
       top: 0;
       left: 0;
       opacity: 1;
-      font-size: 75%;
+      font-size: 90%;
       -webkit-transition: all .2s;
       transition: all .2s;
       cursor: text
@@ -502,7 +574,9 @@
       border: 0;
       border-bottom: 2px solid #818181;
       border-radius: 0;
-      font-size: 120%
+      font-size: 160%;
+      font-weight: 700;
+      text-align: center;
     }
 
     .has-float-label input::-webkit-input-placeholder,
@@ -573,12 +647,13 @@
     var programType = "";
     var programTab = "";
     var programButton = "";
-    var alertColor = "#cc7d24";
+    var alertColor = "#ff9d2e";
     var buttonSelected = "#ff9d2e";
     var buttonDeselected = "white";
     var borderThin = "1px solid black";
     var borderThick = "3px solid black";
     var themeColor = "light";
+    var firstload = false;
 
     function ge(s) {
       return document.getElementById(s);
@@ -659,7 +734,7 @@
       });
 
     function showProgram() {
-      ge("menudiv").style.display = "none";
+      // ge("menudiv").style.display = "none";
       ge("openbtn").style.display = "block";
       ge("programdiv").style.display = "block";
       ge("loaddiv").style.display = "none";
@@ -670,7 +745,7 @@
 
     function showLoad() {
       loadData();
-      ge("menudiv").style.display = "none";
+      // ge("menudiv").style.display = "none";
       ge("openbtn").style.display = "block";
       ge("programdiv").style.display = "none";
       ge("loaddiv").style.display = "block";
@@ -682,7 +757,7 @@
     function showSettings() {
       loadConfig();
       loadData();
-      ge("menudiv").style.display = "none";
+      // ge("menudiv").style.display = "none";
       ge("openbtn").style.display = "block";
       ge("programdiv").style.display = "none";
       ge("loaddiv").style.display = "none";
@@ -692,7 +767,7 @@
     }
 
     function showView() {
-      ge("menudiv").style.display = "none";
+      // ge("menudiv").style.display = "none";
       ge("openbtn").style.display = "block";
       ge("programdiv").style.display = "none";
       ge("loaddiv").style.display = "none";
@@ -927,6 +1002,9 @@
           var run;
           var edit;
           var loaddelete;
+          var h5;
+          var t3;
+          var progtype;
 
           (function() {
             var keydata = key;
@@ -946,6 +1024,33 @@
             h1 = ce("h1");
             h1.setAttribute("class", "loadprogname");
             t = document.createTextNode(key);
+            h5 = ce("h4");
+            h5.setAttribute("class", "progtitle");
+            if (datadata[0] == 1) {
+              progtype = "Regular PCR"
+            }
+            if (datadata[0] == 2) {
+              progtype = "Gradient PCR"
+            }
+            if (datadata[0] == 3) {
+              progtype = "Touchdown PCR"
+            }
+            if (datadata[0] == 4) {
+              progtype = "Touchdown Gradient PCR"
+            }
+            if (datadata[0] == 5) {
+              progtype = "Regular Ramp"
+            }
+            if (datadata[0] == 6) {
+              progtype = "Gradient Ramp"
+            }
+            if (datadata[0] == 7) {
+              progtype = "Regular Heat Block"
+            }
+            if (datadata[0] == 8) {
+              progtype = "Gradient Heat Block"
+            }
+            t3 = document.createTextNode(progtype);
             buttondiv = ce("div");
             buttondiv.setAttribute("class", "buttondiv");
             run = ce("input");
@@ -969,6 +1074,7 @@
             loaddelete.addEventListener("click", function(event) {
               deleteLoad(keydata);
             });
+            h5.appendChild(t3);
             h4.appendChild(t2);
             selectdiv.appendChild(h4);
             progselect.appendChild(selectdiv);
@@ -977,6 +1083,7 @@
             buttondiv.appendChild(edit);
             buttondiv.appendChild(loaddelete);
             progdiv.appendChild(h1);
+            progdiv.appendChild(h5);
             progdiv.appendChild(buttondiv);
             loaddiv.appendChild(progdiv);
             console.log(key + " -> " + data[key]);
@@ -1705,9 +1812,14 @@ if (programType === "hr" || programType === "hg") {
           ge('displaydiv').style.display = "block";
           ge('displaydiv1').style.display = "block";
           if (JSONobj.pauseSwitch == "Unpause") {
-            ge('progstate').innerHTML = "Paused " + JSONobj.programName;
+            ge('progstate').innerHTML = "Paused";
           } else {
-            ge('progstate').innerHTML = "Running " + JSONobj.programName;
+            ge('progstate').innerHTML = "Running";
+          }
+          if (JSONobj.programName != "") {
+            ge("progname").innerHTML = "\"" + JSONobj.programName + "\"";
+          }else {
+            ge("progname").innerHTML = "";
           }
           ge('cycleNumber').innerHTML = JSONobj.cycleNum;
           ge('cycleState').innerHTML = JSONobj.cycleState;
@@ -1740,6 +1852,7 @@ if (programType === "hr" || programType === "hg") {
           }
         } else {
           ge('progstate').innerHTML = "PCR Ready";
+          ge('progname').innerHTML = "";
           ge('displaydiv').style.display = "none";
           ge('displaydiv1').style.display = "none";
         }
@@ -1845,11 +1958,9 @@ if (programType === "hr" || programType === "hg") {
       }
       if (ws.readyState === ws.CLOSED) {
         ge('progstate').innerHTML = "PCR Not Connected";
-        ge('progstate1').style.display = "block";
         ge('tempdiv').style.display = "none";
       } else {
         ge('progstate').innerHTML = "PCR Ready";
-        ge('progstate1').style.display = "none";
         ge('tempdiv').style.display = "block";
       }
     }
@@ -1864,7 +1975,7 @@ if (programType === "hr" || programType === "hg") {
       regularRampButton();
       regularHeatButton();
       programRegular();
-
+      openNav();
     }
 
     function pauseButton() {
@@ -1878,23 +1989,28 @@ if (programType === "hr" || programType === "hg") {
       }
       ws.send(a);
     }
-    var firststop = true;
+
+    window.onclick = function(event) {
+      var modal = ge("stopModal");
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 
     function stopButton() {
-      if (Boolean(firststop)) {
-        ge("stopalert").innerHTML = "Are you sure you want to quit the program?";
-        ge("stopButton").value = "CONFIRM STOP";
-        firststop = false;
-        return;
-      } else {
-        ge("stopalert").innerHTML = "";
-        ge("stopButton").value = "STOP";
-        ge('progstate').innerHTML = "PCR Ready";
-        firststop = true;
-        a = 'stop:';
-        ws.send(a);
-      }
+      ge("stopModal").style.display = "block";
     }
+
+function confirmButton(){
+  ge('progstate').innerHTML = "PCR Ready";
+  a = 'stop:';
+  ws.send(a);
+  ge("stopModal").style.display = "none";
+}
+
+function cancelButton(){
+  ge("stopModal").style.display = "none";
+}
 
 function selectLoad(key, keydata){
   ge("autostartprog").innerHTML = key;
@@ -2040,12 +2156,12 @@ function showTab(tab, tablink){
 
 
   ge("tabpcr").style.borderBottom = borderThin;
-  ge("tabpcr").style.borderTop = borderThin;
+  ge("tabpcr").style.borderTop = "none";
   ge("tabramp").style.borderBottom = borderThin;
-  ge("tabramp").style.borderTop = borderThin;
+  ge("tabramp").style.borderTop = "none";
   ge("tabheat").style.borderBottom = borderThin;
-  ge("tabheat").style.borderTop = borderThin;
-  ge("tabheat").style.borderRight = borderThin;
+  ge("tabheat").style.borderTop = "none";
+  // ge("tabheat").style.borderRight = borderThin;
   ge(tablink).style.borderTop = borderThick;
   ge(tab).style.display = "block";
   ge(tablink).style.borderBottom = "none";
@@ -2200,12 +2316,14 @@ function changeTheme(theme){
     themeColor = "dark";
     borderThin = "1px solid #a7a7a7";
     borderThick = "3px solid #a7a7a7";
-    alertColor = "#cc7d24";
+    alertColor = "#ff9d2e";
     buttonSelected = "#ff9d2e";
     buttonDeselected = "#111";
-    ge("logo").style.filter = "invert(50%)";
+    if (Boolean(firstload)) {
+      ge("logo").style.filter = "invert(50%)";
+      ge("logo").style.WebkitFilter = "invert(50%)";
+    }
     ge("navbar").style.backgroundColor = "#111111";
-    ge("logo").style.WebkitFilter = "invert(50%)";
     document.body.style.backgroundColor = "#111111";
     document.body.style.color = "#818181";
     ge("openbtn").style.color = "#818181";
@@ -2213,6 +2331,10 @@ function changeTheme(theme){
     for (var i = 0; i < elements.length; i++) {
         elements[i].style.backgroundColor= "#818181";
         elements[i].style.borderLeft= borderThick;
+    }
+    var modal = document.getElementsByClassName("modal-content");
+    for (var i = 0; i < modal.length; i++) {
+        modal[i].style.backgroundColor= "#111111";
     }
     var info = document.getElementsByClassName("info");
     for (var i = 0; i < info.length; i++) {
@@ -2222,8 +2344,9 @@ function changeTheme(theme){
     var tab = document.getElementsByClassName("tab");
     for (var i = 0; i < tab.length; i++) {
         tab[i].style.backgroundColor= "#111111";
-        tab[i].style.borderLeft= borderThin;
     }
+    ge("tabramp").style.borderLeft = borderThin;
+    ge("tabramp").style.borderRight = borderThin;
     var tabspan = document.getElementsByClassName("tabspan");
     for (var i = 0; i < tabspan.length; i++) {
         tabspan[i].style.color= "#818181";
@@ -2245,11 +2368,13 @@ function changeTheme(theme){
     themeColor = "light";
     borderThin = "1px solid black";
     borderThick = "3px solid black";
-    alertColor = "#cc7d24";
+    alertColor = "#ff9d2e";
     buttonSelected = "#ff9d2e";
     buttonDeselected = "white";
-    ge("logo").style.filter = "invert(0%)";
-    ge("logo").style.WebkitFilter = "invert(0%)";
+    if (Boolean(firstload)) {
+      ge("logo").style.filter = "invert(0%)";
+      ge("logo").style.WebkitFilter = "invert(0%)";
+    }
     document.body.style.backgroundColor = buttonDeselected;
     ge("navbar").style.backgroundColor = "white";
     document.body.style.color = "black";
@@ -2259,6 +2384,10 @@ function changeTheme(theme){
         elements[i].style.backgroundColor= "#AED4FF";
         elements[i].style.borderLeft= "3px solid #2e90ff";
     }
+    var modal = document.getElementsByClassName("modal-content");
+    for (var i = 0; i < modal.length; i++) {
+        modal[i].style.backgroundColor= "white";
+    }
     var info = document.getElementsByClassName("info");
     for (var i = 0; i < info.length; i++) {
         info[i].style.backgroundColor= "#AED4FF";
@@ -2267,8 +2396,9 @@ function changeTheme(theme){
     var tab = document.getElementsByClassName("tab");
     for (var i = 0; i < tab.length; i++) {
         tab[i].style.backgroundColor= "white";
-        tab[i].style.borderLeft= borderThin;
     }
+    ge("tabramp").style.borderLeft = borderThin;
+    ge("tabramp").style.borderRight = borderThin;
     var tabspan = document.getElementsByClassName("tabspan");
     for (var i = 0; i < tabspan.length; i++) {
         tabspan[i].style.color= "black";
@@ -2284,6 +2414,7 @@ function changeTheme(theme){
       regularRampButton();
       programRegular();
   }
+  firstload = true;
 }
 
   </SCRIPT>
@@ -2295,28 +2426,29 @@ window.onload = (function(){
   onBodyLoad();
 });
 </script>
+<div id="overlay"></div>
   <div id="navbar" class="navbar"><img class="logo" id="logo" onclick="openNav()" src="data:image/png;base64,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"
       alt="proPCR" width="200" height="38">
     <div id="mySidenav" class="sidenav" onclick="closeNav()">
       <div class="spanbox">
       <span class="closebtn" onclick="closeNav()">&times;</span>
     </div>
-      <a onclick="showProgram(); pushProgram();">New Program</a>
-      <a onclick="showLoad(); pushLoad();">Load Program</a>
-      <a onclick="showView();pushView();">PCR Status</a>
+      <a onclick="showProgram(); pushProgram();">Program</a>
+      <a onclick="showLoad(); pushLoad();">Load</a>
+      <a onclick="showView();pushView();">Status</a>
       <a onclick="showSettings();pushSettings();">Settings</a>
     </div>
     <span id="openbtn" class="openbtn" onclick="openNav()"><span class="menubtn">Menu</span>&#9776;</span>
   </div>
   <div class="container">
 
-    <div id="menudiv" style="display:none">
+    <!-- <div id="menudiv" style="display:none">
       <input type="button" onclick="showProgram()" value="New Program" />
       <input type="button" onclick="showLoad()" value="Load Program" />
       <input type="button" onclick="showView()" value="PCR Status" />
       <input type="button" onclick="showSettings()" value="Settings" />
 
-    </div>
+    </div> -->
     <div id="loaddiv">
 
     </div>
@@ -2415,15 +2547,12 @@ window.onload = (function(){
 
     <div id="viewdiv">
 
-      <h1 id="progstate" style="text-align:center"></h1>
-      <div id="progstate1">
-        <p style="text-align:center">Please check the wifi connection and/or reload the page</p>
-        <h3>To Connect:</h3>
-        <h4>1. Plug in and turn on the PCR</h4>
-        <h4>2. Join the wifi network "proPCR-X" (X will be a unique number)</h4>
-        <h4>3. In a web browser navigate to connect.propcr.com or http://1.1.1.X (replace X with the unique number)</h4>
-      </div>
+      <h1 id="progstate"></h1>
+
+
       <div id="displaydiv">
+        <h3 id="progtitle"></h3>
+        <h2 id="progname"></h2>
         <div>
           <h3 id='cycleState'></h3>&nbsp;
           <h3>in cycle</h3>&nbsp;
@@ -2464,12 +2593,21 @@ window.onload = (function(){
           <h3>&deg;C</h3></div>
       </div>
       <div id="displaydiv1">
+        <div class="buttondiv">
         <input id='pauseButton' type="button" onclick="pauseButton();" value="Pause">
         <input id='stopButton' type="button" onclick="stopButton();" value="Stop">
-        <div>
-          <p id="stopalert" style="text-align:center"></p>
         </div>
+        <div id="stopModal" class="modal">
+          <div class="modal-content">
+            <span class="closeModal" onclick="cancelButton()">&times;</span>
+            <h3 style="clear:both">Please Confirm Stop</h3>
+            <div class="buttondiv">
+            <input id='confirmButton' type="button" onclick="confirmButton();" value="Confirm Stop">
+            <input id='cancelButton' type="button" onclick="cancelButton();" value="Keep Running">
 
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2714,7 +2852,7 @@ window.onload = (function(){
 
       <p id="savealert"></p>
       </div>
-      <div id="saverunbuttons">
+      <div class="buttondiv">
       <input type='button' onclick="saveProgram()" id="savebutton" value="Save" />
       <input type='button' onclick="sendProgram()" id="runbutton" value="Run" />
     </div>
