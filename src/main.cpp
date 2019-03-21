@@ -965,14 +965,14 @@ void thermocycler(){
                                 // Serial.println(heatMid);
                                 // Serial.print("Setpoint High: ");
                                 // Serial.println(heatHigh);
-                                // Serial.print("Temp 1: ");
-                                // Serial.println(tempone);
-                                // Serial.print("Temp 2: ");
-                                // Serial.println(temptwo);
-                                // Serial.print("Temp 3: ");
-                                // Serial.println(tempthree);
-                                // Serial.print("Temp Lid: ");
-                                // Serial.println(templid);
+                                Serial.print("Temp 1: ");
+                                Serial.println(tempone);
+                                Serial.print("Temp 2: ");
+                                Serial.println(temptwo);
+                                Serial.print("Temp 3: ");
+                                Serial.println(tempthree);
+                                Serial.print("Temp Lid: ");
+                                Serial.println(templid);
                         }
                       if (programType == 5 || programType == 6){
                         runRamp(heatLow, heatHigh);
@@ -1117,8 +1117,8 @@ void thermocycler(){
                         if(isPaused == false) {
 
                                 fanPID.Compute();
-                                Serial.print("Output Fan: ");
-                                Serial.println(Outputfan);
+                                // Serial.print("Output Fan: ");
+                                // Serial.println(Outputfan);
 
                                 if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
                                   if (Outputfan >= 100 && Outputfan < 350) {
@@ -1127,7 +1127,7 @@ void thermocycler(){
                                   }else if (Outputfan > 0 && Outputfan < 100){
                                     analogWrite(fanPin, 0);
                                   }else{
-                                    Serial.println("Fan off");
+                                    //Serial.println("Fan off");
                                     analogWrite(fanPin, Outputfan);
                                   }
                                 }
@@ -2002,11 +2002,11 @@ void sendJSON(){
                 cycleNumInt = (int) cycleNum;
                 Setpointlidint = (int) Setpointlid;
                 Setpointblockint = (int) Setpoint2;
-                Serial.print("totalTime before: ");
-                Serial.println(totalTime);
+                // Serial.print("totalTime before: ");
+                // Serial.println(totalTime);
                 int totalTimeInt = (int) totalTime;
-                Serial.print("totalTime after: ");
-                Serial.println(totalTime);
+                // Serial.print("totalTime after: ");
+                // Serial.println(totalTime);
                 String pauseSwitch="Pause";
                 String preheatLidText = "Lid is Off";
                 String preheatLidButton = "Start";
