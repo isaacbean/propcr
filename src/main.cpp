@@ -19,9 +19,9 @@
 #define DRD_TIMEOUT 10
 #define DRD_ADDRESS 0
 #define fanPin D8
-#define mosfetPinOne D5
+#define mosfetPinOne D7
 #define mosfetPinTwo D6
-#define mosfetPinThree D7
+#define mosfetPinThree D5
 #define mosfetPinLid D0
 #define LEDpin D4
 #define THERMISTORNOMINAL 100000
@@ -940,6 +940,9 @@ void runHeat(float &low, float &high){
               }
             }
 
+const long serialinterval = 200;
+unsigned long previousserialMillis = 0;
+
 void thermocycler(){
         if (setLidTemp != 0) {
           Setpointlid = setLidTemp;
@@ -1164,8 +1167,13 @@ void thermocycler(){
                 lidPID.Compute();
                 analogWrite(mosfetPinLid, Outputlid);
         }
-        if (preheatBlock == true) {
+        // else{
+        //         analogWrite(mosfetPinLid, 0);
+        // }
 
+        
+
+        if (preheatBlock == true) {
                 Setpoint1 = preheatBlockTemp;
                 Setpoint2 = preheatBlockTemp;
                 Setpoint3 = preheatBlockTemp;
@@ -1175,7 +1183,39 @@ void thermocycler(){
                 analogWrite(mosfetPinOne, Output1);
                 analogWrite(mosfetPinTwo, Output2);
                 analogWrite(mosfetPinThree, Output3);
+
+
+
+
+        unsigned long serialMillis = millis();
+        if (serialMillis - previousserialMillis >= serialinterval) {
+                previousserialMillis = serialMillis;
+                Serial.print("Setpoint Low: ");
+                Serial.println(Setpoint1);
+                Serial.print("Setpoint Mid: ");
+                Serial.println(Setpoint2);
+                Serial.print("Setpoint High: ");
+                Serial.println(Setpoint3);
+                Serial.print("Temp 1: ");
+                Serial.println(tempone);
+                Serial.print("Temp 2: ");
+                Serial.println(temptwo);
+                Serial.print("Temp 3: ");
+                Serial.println(tempthree);
+                Serial.print("Output1: ");
+                Serial.println(Output1);
+                Serial.print("Output 2: ");
+                Serial.println(Output2);
+                Serial.print("Output 3: ");
+                Serial.println(Output3);
         }
+                
+        }
+        //else{
+        //         analogWrite(mosfetPinOne, 0);
+        //         analogWrite(mosfetPinTwo, 0);
+        //         analogWrite(mosfetPinThree, 0);
+        // }
 }
 
 void deleteProgram(){
@@ -1211,7 +1251,7 @@ void resetFiles(){
         config.print("{\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"userssid\":\"\",\"connected\":\"false\",\"ip\":\"\",\"quietfan\":\"false\"}");
         config.close();
         File programfile = SPIFFS.open("/programs.json", "w");
-        programfile.print("{}");
+        programfile.print("{\"General\":[1,100,95,120,25,95,30,30,72,60,72,300,55,0]}");
         programfile.close();
         File wififile = SPIFFS.open("/wifi.json", "w");
         wififile.print("{\"connect\":\"false\",\"userpsw\":\"\",\"userssid\":\"\",\"userpass\":\"\"}");

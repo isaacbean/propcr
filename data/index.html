@@ -2027,6 +2027,7 @@ if (programType === "hr" || programType === "hg") {
 
 
     function onBodyLoad() {
+      document.body.style.visibility='visible';
       loadConfig();
       showProgram();
       showTab('programpcr', 'tabpcr');
@@ -2479,7 +2480,7 @@ function changeTheme(theme){
   </SCRIPT>
 </head>
 
-<body>
+<body style="visibility: hidden;">
 <script type="text/javascript">
 window.onload = (function(){
   onBodyLoad();
