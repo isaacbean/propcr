@@ -2134,6 +2134,20 @@ function resetFiles(){
 }
 
 
+function updateFirmware(){
+  
+    p = 'update1:';
+    ws.send(p);
+  }
+
+
+function updateSPIFFS(){
+  
+  p = 'update2:';
+  ws.send(p);
+}
+
+
 
 function quietfanSend(){
     p = "quietfan:";
@@ -2590,6 +2604,11 @@ window.onload = (function(){
             <p id="resetalert" style="text-align:center"></p>
           </div>
           <input type="button" id="resetButton" onclick="resetFiles()" value="Reset"/>
+          <input type="button" id="updateFirmware" onclick="updateFirmware()" value="Update Firmware"/>
+          <input type="button" id="updateSPIFFS" onclick="updateSPIFFS()" value="Update Interface"/>
+          
+          
+
         </div>
 
 

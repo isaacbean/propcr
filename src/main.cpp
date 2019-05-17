@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
+#include <ESP8266HTTPClient.h>
+#include <ESP8266httpUpdate.h>
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
 #include <EEPROM.h>
@@ -64,16 +66,18 @@ double Setpointfan, Inputfan, Outputfan;
 //Specify the links and initial tuning parameters
 //double Kp=600, Ki=0, Kd=.00001;
 //PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-double aggKp=400, aggKi=.01, aggKd=.0001;
-double consKp=2000, consKi=0.06, consKd=.001;
+double aggKp=600, aggKi=.5, aggKd=.001;
+double consKp=600, consKi=1, consKd=50;
+double alidKp=1000, alidKi=.01, alidKd=.5;
+double lidKp=1000, lidKi=1, lidKd=10;
 double aggKpfan=400, aggKifan=.01, aggKdfan=.0001;
 double consKpfan=100, consKifan=.1, consKdfan=.2;
 //Specify the links and initial tuning parameters
-PID heatPID1(&Input1, &Output1, &Setpoint1, consKp, consKi, consKd, DIRECT);
-PID heatPID2(&Input2, &Output2, &Setpoint2, consKp, consKi, consKd, DIRECT);
-PID heatPID3(&Input3, &Output3, &Setpoint3, consKp, consKi, consKd, DIRECT);
-PID lidPID(&Inputlid, &Outputlid, &Setpointlid, consKp, consKi, consKd, DIRECT);
-PID fanPID(&Inputfan, &Outputfan, &Setpointfan, consKpfan, consKifan, consKdfan, REVERSE);
+PID heatPID1(&Input1, &Output1, &Setpoint1, consKp, consKi, consKd, P_ON_E, DIRECT);
+PID heatPID2(&Input2, &Output2, &Setpoint2, consKp, consKi, consKd, P_ON_E, DIRECT);
+PID heatPID3(&Input3, &Output3, &Setpoint3, consKp, consKi, consKd, P_ON_E, DIRECT);
+PID lidPID(&Inputlid, &Outputlid, &Setpointlid, lidKp, lidKi, lidKd, P_ON_E, DIRECT);
+PID fanPID(&Inputfan, &Outputfan, &Setpointfan, consKpfan, consKifan, consKdfan, P_ON_E, REVERSE);
 
 boolean PCRon = false;
 boolean blockOn = false;
@@ -159,6 +163,7 @@ String programName;
 String programNameSave;
 String autostartName;
 String autostartProgram;
+boolean updatestart = false;
 boolean autostart = false;
 boolean quietfan = false;
 String configdata;
@@ -294,6 +299,7 @@ void startWifi(){
                 setupAP();
         }
 }
+
 
 
 void wifiScan(){
@@ -448,9 +454,9 @@ void runPCR(float &low, float &high){
 
         //Lid Wait
         case 0:
-
+                cycleState = "Heating Lid";
                 if (Inputlid >= setLidTemp - tempthreshold || setLidTemp == 0) {
-                        cycleState = "Heating Lid";
+                       
                         programState = 1;
                         blockOn = true;
                         cycleState = "Initial Denature";
@@ -1050,60 +1056,41 @@ void thermocycler(){
         }
 
 
-        double gap1 = abs(Setpoint1-Input1); //distance away from setpoint
-        if (gap1 < 3)
-        { //we're close to setpoint, use conservative tuning parameters
-                heatPID1.SetTunings(consKp, consKi, consKd);
-        }
-        else
-        {
-                //we're far from setpoint, use aggressive tuning parameters
-                heatPID1.SetTunings(aggKp, aggKi, aggKd);
-        }
+         double gap1 = abs(Setpoint1-Input1); 
+    if (gap1 < 10){ 
+            heatPID1.SetTunings(consKp, consKi, consKd, P_ON_E);
+    }else{
+            heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
+    }
 
-        double gap2 = abs(Setpoint2-Input2); //distance away from setpoint
-        if (gap2 < 3)
-        { //we're close to setpoint, use conservative tuning parameters
-                heatPID2.SetTunings(consKp, consKi, consKd);
-        }
-        else
-        {
-                //we're far from setpoint, use aggressive tuning parameters
-                heatPID2.SetTunings(aggKp, aggKi, aggKd);
-        }
+    double gap2 = abs(Setpoint2-Input2);
+    if (gap2 < 10){ 
+            heatPID2.SetTunings(consKp, consKi, consKd, P_ON_E);
+    }else{
+            heatPID2.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
+    }
 
-        double gap3 = abs(Setpoint3-Input3); //distance away from setpoint
-        if (gap3 < 3) { //we're close to setpoint, use conservative tuning parameters
-                heatPID3.SetTunings(consKp, consKi, consKd);
-        }
-        else{
-                //we're far from setpoint, use aggressive tuning parameters
-                heatPID3.SetTunings(aggKp, aggKi, aggKd);
-        }
+    double gap3 = abs(Setpoint3-Input3); 
+    if (gap3 < 10) { 
+            heatPID3.SetTunings(consKp, consKi, consKd, P_ON_E);
+    }else{
+            heatPID3.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
+    }
 
-        double gaplid = abs(Setpointlid-Inputlid); //distance away from setpoint
-        if (gaplid < 3)
-        { //we're close to setpoint, use conservative tuning parameters
-                lidPID.SetTunings(consKp, consKi, consKd);
-        }
-        else
-        {
-                //we're far from setpoint, use aggressive tuning parameters
-                lidPID.SetTunings(aggKp, aggKi, aggKd);
-        }
+    double gaplid = abs(Setpointlid-Inputlid); 
+    if (gaplid < 3){
+            lidPID.SetTunings(lidKp, lidKi, lidKd, P_ON_E);
+            
+    }else{
+            lidPID.SetTunings(alidKp, alidKi, alidKd, P_ON_E);
+    }
 
-        double gapfan = abs(Setpointfan-Inputfan); //distance away from setpoint
-        if (gapfan < 2)
-        { //we're close to setpoint, use conservative tuning parameters
-                fanPID.SetTunings(consKpfan, consKifan, consKdfan);
-        }
-        else
-        {
-                //we're far from setpoint, use aggressive tuning parameters
-                fanPID.SetTunings(aggKpfan, aggKifan, aggKdfan);
-        }
-
-
+    double gapfan = abs(Setpointfan-Inputfan);
+    if (gapfan < 1){ 
+            fanPID.SetTunings(consKpfan, consKifan, consKdfan);
+    }else{
+            fanPID.SetTunings(aggKpfan, aggKifan, aggKdfan);
+    }
 
 
         if (PCRon == true) {
@@ -1124,26 +1111,22 @@ void thermocycler(){
                                 // Serial.println(Outputfan);
 
                                 if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
-                                  if (Outputfan >= 100 && Outputfan < 350) {
-                                    Serial.println("Fan on");
-                                    analogWrite(fanPin, 350);
-                                  }else if (Outputfan > 0 && Outputfan < 100){
-                                    analogWrite(fanPin, 0);
-                                  }else{
-                                    //Serial.println("Fan off");
-                                    analogWrite(fanPin, Outputfan);
-                                  }
+                                  if (Outputfan >= 300 && Outputfan < 1023) {
+                                        analogWrite(fanPin, 1023);
+                                        }else if (Outputfan > 0 && Outputfan < 300){
+                                        analogWrite(fanPin, 0);
+                                        }else{
+                                        analogWrite(fanPin, Outputfan);
+                                        }
                                 }
                                 if (programType == 2 || programType == 4 || programType == 6 || programType == 8) {
-                                  if (Outputfan >= 40 && Outputfan < 350) {
-                                    Serial.println("Fan on");
-                                    analogWrite(fanPin, 350);
-                                  }else if (Outputfan > 0 && Outputfan < 40){
-                                    analogWrite(fanPin, 0);
-                                  }else{
-                                    Serial.println("Fan off");
-                                    analogWrite(fanPin, Outputfan);
-                                  }
+                                  if (Outputfan >= 300 && Outputfan < 1023) {
+                                        analogWrite(fanPin, 1023);
+                                        }else if (Outputfan > 0 && Outputfan < 300){
+                                        analogWrite(fanPin, 0);
+                                        }else{
+                                        analogWrite(fanPin, Outputfan);
+                                        }
                                 }
 
 
@@ -1241,6 +1224,7 @@ void deleteProgram(){
                 String deletefail = "{\"deletealert\":\"Program could not be deleted\"}";
                 ws.textAll(deletefail);
         }
+        jsonBuffer.clear();
 }
 
 void resetFiles(){
@@ -1292,6 +1276,7 @@ void handleApon(){
           String savefail = "{\"aponalert\":\"Network settings could not be changed\"}";
           ws.textAll(savefail);
   }
+  jsonBuffer.clear();
 }
 
 void handleHelp(){
@@ -1324,6 +1309,7 @@ void handleHelp(){
           String savefail = "{\"helpalert\":\"Help settings could not be changed\"}";
           ws.textAll(savefail);
   }
+  jsonBuffer.clear();
 }
 
 void handleTheme(){
@@ -1356,13 +1342,14 @@ void handleTheme(){
           String savefail = "{\"themealert\":\"Theme settings could not be changed\"}";
           ws.textAll(savefail);
   }
+  jsonBuffer.clear();
 }
 
 void loadConfig(){
         if (!SPIFFS.exists("/config.json")) {
                 Serial.println("make file");
-                File file = SPIFFS.open("/programs.json", "w");
-                file.print("{\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"quietfan\":\"false\"}");
+                File file = SPIFFS.open("/config.json", "w");
+                file.print("{\"update\":\"false\",\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"quietfan\":\"false\"}");
                 file.close();
         }
         File file = SPIFFS.open("/config.json", "r");
@@ -1376,6 +1363,7 @@ void loadConfig(){
         root.printTo(Serial);
         file.close();
         if (root.success()) {
+                Serial.println("root sucess");
                 if (root["autostart"] == "true") {
                         autostartName = root.get<String>("programname");
                         autostartProgram = "[";
@@ -1390,11 +1378,12 @@ void loadConfig(){
                         apon = false;
                 }
 
-                if (root["quietfan"] == "true") {
-                        quietfan = true;
+                if (root["update"] == "true") {
+                        updatestart = true;
                 }
         }
         jsonBuffer.clear();
+        Serial.println("load end");
 }
 
 void setWifi(){
@@ -1427,6 +1416,7 @@ void setWifi(){
   }else{
           Serial.println("wifi.json not parsed");
   }
+  jsonBuffer.clear();
 }
 
 void quietFanSave(){
@@ -1471,6 +1461,7 @@ void saveProgram(){
                 String savefail = "{\"savealert\":\"Program could not be saved\"}";
                 ws.textAll(savefail);
         }
+        jsonBuffer.clear();
 }
 
 
@@ -1530,6 +1521,7 @@ void runAutoStart(){
         Serial.println(finalExtendTime);
         PCRon = true;
         autostart = false;
+        jsonBuffer.clear();
 }
 
 const long LEDinterval = 1000;
@@ -1596,6 +1588,7 @@ void handleAutostart(){
           String savefail = "{\"autostartalert\":\"Autostart could not be set\"}";
           ws.textAll(savefail);
   }
+  jsonBuffer.clear();
 }
 
 void saveUserpsw(boolean userpsw){
@@ -1630,6 +1623,7 @@ void saveUserpsw(boolean userpsw){
           String savefail = "{\"userpswalert\":\"Password could not be set\"}";
           ws.textAll(savefail);
   }
+  jsonBuffer.clear();
 }
 
 
@@ -1639,8 +1633,8 @@ void saveUserpswConfig(boolean userpsw){
   size_t configsize = configfile.size();
   std::unique_ptr<char[]> configbuf (new char[configsize]);
   configfile.readBytes(configbuf.get(), configsize);
-  StaticJsonBuffer<600> jb;
-  JsonObject& config = jb.parseObject(configbuf.get());
+  StaticJsonBuffer<600> jsonBuffer;
+  JsonObject& config = jsonBuffer.parseObject(configbuf.get());
   configfile.close();
   Serial.println("json root config.json: ");
   config.printTo(Serial);
@@ -1655,6 +1649,7 @@ void saveUserpswConfig(boolean userpsw){
   File savefile = SPIFFS.open("/config.json", "w");
   config.printTo(savefile);
   savefile.close();
+  jsonBuffer.clear();
 }
 
 void saveWifi(boolean connect){
@@ -1697,8 +1692,8 @@ void saveWifiConfig(boolean connect){
   size_t configsize = configfile.size();
   std::unique_ptr<char[]> configbuf (new char[configsize]);
   configfile.readBytes(configbuf.get(), configsize);
-  StaticJsonBuffer<600> jb;
-  JsonObject& config = jb.parseObject(configbuf.get());
+  StaticJsonBuffer<600> jsonBuffer;
+  JsonObject& config = jsonBuffer.parseObject(configbuf.get());
   configfile.close();
   Serial.println("json root: ");
   if (config.success()) {
@@ -1715,8 +1710,31 @@ void saveWifiConfig(boolean connect){
   File savefile = SPIFFS.open("/config.json", "w");
   config.printTo(savefile);
   savefile.close();
-
+  jsonBuffer.clear();
 }
+
+void updateFirmware(){
+        File file = SPIFFS.open("/config.json", "r");
+        size_t size = file.size();
+        std::unique_ptr<char[]> buf (new char[size]);
+        file.readBytes(buf.get(), size);
+
+        StaticJsonBuffer<600> jsonBuffer;
+        JsonObject& root = jsonBuffer.parseObject(buf.get());
+        file.close();
+
+        Serial.println("json root: ");
+        if (root.success()) {
+                Serial.println("root success");
+                root["update"] = "true";
+                root.printTo(Serial);
+                File file = SPIFFS.open("/config.json", "w");
+                root.printTo(file);
+                file.close();
+                ESP.restart();
+        }
+}
+
 
 
 void handleWS(String msg){
@@ -1735,6 +1753,7 @@ void handleWS(String msg){
         Serial.println(data);
 
         if (command == "run") {
+                resetPCR();
                 preheatLid = false;
                 preheatBlock = false;
                 programName = msg.substring(separator3+1);
@@ -1944,6 +1963,7 @@ void handleWS(String msg){
                 // Serial.print("finalExtendTime: ");
                 // Serial.println(finalExtendTime);
                 PCRon = true;
+                jsonBuffer.clear();
         }
 
         if (command == "save") {
@@ -2008,6 +2028,12 @@ void handleWS(String msg){
         if (command == "reset") {
           resetFiles();
         }
+        if (command == "update1") {
+          updateFirmware();
+        }
+       
+
+
 
 
         if(var=="isPaused") {
@@ -2145,6 +2171,7 @@ void setup(){
         delay(3000);
         Serial.begin(115200);
         Serial.setDebugOutput(true);
+        Serial.println("Setup Start");
 
         SPIFFS.begin();
         if (drd.detectDoubleReset()) {
@@ -2155,6 +2182,66 @@ void setup(){
 
         loadConfig();
         setWifi();
+        if (updatestart == true)
+        {
+                Serial.println("Update Start");
+                File file = SPIFFS.open("/config.json", "r");
+                size_t size = file.size();
+                std::unique_ptr<char[]> buf (new char[size]);
+                file.readBytes(buf.get(), size);
+                StaticJsonBuffer<600> jsonBuffer;
+                JsonObject& root = jsonBuffer.parseObject(buf.get());
+                file.close();
+                Serial.println("json root: ");
+                if (root.success()) {
+                        Serial.println("root success");
+                        root["update"] = "false";
+                        root.printTo(Serial);
+                        File file = SPIFFS.open("/config.json", "w");
+                        root.printTo(file);
+                        file.close();
+                }
+                Serial.println();
+                WiFi.mode(WIFI_STA);
+                Serial.print("userssid: ");
+                Serial.println(userssid);
+                Serial.print("userpass: ");
+                Serial.println(userpass);
+                if (userpass == "") {
+                        WiFi.begin(userssid.c_str());
+                }else{
+                        WiFi.begin(userssid.c_str(), userpass.c_str());
+                }
+                while (WiFi.status() != WL_CONNECTED) {
+                        delay(1000);
+                        Serial.println("Connecting..");
+                }
+                WiFiClient client;
+                ESPhttpUpdate.setLedPin(LED_BUILTIN, LOW);
+                t_httpUpdate_return ret = ESPhttpUpdate.updateSpiffs(client, "http://propcr.com/spiffs.bin");
+                Serial.println(ret);
+                if (ret == 0) {
+                        Serial.println("Update sketch...");
+                        ret = ESPhttpUpdate.update(client, "http://propcr.com/firmware.bin");
+
+                        // switch (ret) {
+                        //         case HTTP_UPDATE_FAILED:
+                        //         USE_SERIAL.printf("HTTP_UPDATE_FAILED Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+                        //         break;
+
+                        //         case HTTP_UPDATE_NO_UPDATES:
+                        //         USE_SERIAL.println("HTTP_UPDATE_NO_UPDATES");
+                        //         break;
+
+                        //         case HTTP_UPDATE_OK:
+                        //         USE_SERIAL.println("HTTP_UPDATE_OK");
+                        //         break;
+                        // }
+                }
+
+
+        }else{
+        
         WiFi.disconnect(true);
         //WiFi.setAutoConnect(false);
         //WiFi.setAutoReconnect(false);
@@ -2248,7 +2335,7 @@ server.onNotFound([](AsyncWebServerRequest * request) {
       //  server.onNotFound(onRequest);
 
         server.begin();
-
+        }
 }
 
 
