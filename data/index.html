@@ -111,7 +111,7 @@
       right: 0;
       width: 0%;
       height: 100%;
-      padding-top: 60px;
+      padding-top: 110px;
       overflow-x: hidden;
       background-color: #111;
       text-align: center;
@@ -160,6 +160,45 @@
       cursor: pointer;
       display: none;
       line-height: 80%;
+    }
+
+    #connectview {
+        z-index: 7;
+        position: absolute;
+        top: 60px;
+        margin: auto;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 14px;
+        color: green;
+    }
+
+    #connectdot {
+      height: 10px;
+      width: 10px;
+      background-color: green;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    #ipaddress {
+      text-decoration: underline;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    #ipaddresstext {
+      z-index: -10;
+      top: -100px;
+      position: absolute;
+    }
+
+    #copyaddress {
+      border: 1px solid;
+      padding: 1px;
+      cursor: pointer;
+      font-size: 11px;
     }
 
     .menubtn {
@@ -247,6 +286,8 @@ input.loadbutton {
         right: 0;
       }
 
+      
+
       .spanbox {
         position: absolute;
         width: 600px;
@@ -320,8 +361,8 @@ input.loadbutton {
 
 
     .help{
-      background-color: #AED4FF;
-      border-left: 3px solid #2e90ff;
+      background-color: #e4e4e4;
+      /* border-left: 3px solid #2e90ff; */
       padding: 5px;
       margin-bottom: 10px;
     }
@@ -405,7 +446,8 @@ input.loadbutton {
 
 
     #loaddiv, #settingsdiv, #viewdiv{
-      display: none
+      display: none;
+      padding-top: 5px;
     }
 
     #loaddiv h1{
@@ -441,23 +483,21 @@ input.loadbutton {
     }
 
     .info {
-      background-color: #AED4FF;
-      border-left: 3px solid #2e90ff;
+      background-color: #e4e4e4;
+      /* border-left: 3px solid #2e90ff; */
       padding: 5px;
       margin-bottom: 10px;
       width: 90%;
+      margin: auto;
     }
 
-    .settingsbutton {
-
-    }
 
     .autostartprog{
       text-align: center;
     }
 
     #autostartprog{
-      border: 1px solid black;
+      border: 1px dotted black;
       text-align: center;
       display: inline-block;
       margin-top: 15px;
@@ -468,9 +508,24 @@ input.loadbutton {
       text-align: center;
     }
 
+    .alertmsg{
+      width: 90%;
+      padding: 10px;
+      margin: auto;
+      text-align: center;
+    }
+
+    #connectnetworkmsg{
+      width: 90%;
+      padding: 10px;
+      margin: auto;
+      text-align: center;
+    }
+
     #connectnetwork{
       text-align: center;
     }
+
 
     #autostartbutton, #aponbutton, #helpbutton, #themebutton, #connectwifibutton, #userpswbutton, #updatewifibutton, #quietfanbutton{
       font-size: 15px;
@@ -511,7 +566,11 @@ input.loadbutton {
       margin-top: 30px;
     }
 
-    #tempdiv, #gradienttemp {
+    #tempdiv {
+      margin-top: 30px;
+    }
+    
+    #gradienttemp {
       margin-top: 30px;
       display: none;
     }
@@ -964,13 +1023,13 @@ input.loadbutton {
         if (data.connectwifi == "true") {
           ge("connectwifistat").innerHTML = "ON";
           ge("connectwifibutton").value = "Turn Wifi Connection Off";
-          ge("connectnetworkmsg").innerHTML = "On startup proPCR will connect to the network:"
+          ge("connectnetworkmsg").innerHTML = "Connect to Wifi network is turned on: When the proPCR starts it will connect to the network:"
           ge("connectnetwork").innerHTML = data.userssid;
         }
         if (data.connectwifi == "false") {
           ge("connectwifistat").innerHTML = "OFF";
           ge("connectwifibutton").value = "Turn Wifi Connection On";
-          ge("connectnetworkmsg").innerHTML = "On startup proPCR will only broadcast the proPCR network and will not connect to and existing network"
+          ge("connectnetworkmsg").innerHTML = "Connect to Wifi network is turned off: When the proPCR starts it will only broadcast its own wifi network and will not connect to and another network"
           ge("connectnetwork").innerHTML = "";
         }
       });
@@ -1292,9 +1351,9 @@ loadConfig();
           ge("pannealTempHigh").style.backgroundColor = alertColor;
           ge("annealTempHigh").focus();
         }
-        if (ge("annealTempHigh").value - ge("annealTempLow").value > 8) {
+        if (ge("annealTempHigh").value - ge("annealTempLow").value > 20) {
           aok = false;
-          ge("pannealTempHigh").innerHTML = "Please enter temperatures with an 8 degree range or less";
+          ge("pannealTempHigh").innerHTML = "Please enter temperatures with a 10 degree range or less";
           ge("pannealTempHigh").style.backgroundColor = alertColor;
           ge("annealTempLow").focus();
         }
@@ -1805,6 +1864,34 @@ if (programType === "hr" || programType === "hg") {
     var userpswchange = false;
     var resetchange = false;
     var titleSet = true;
+    var WSdisconnected = false;
+    var intervalTimer;
+    var isgradient = false;
+    
+
+    function connectionCheck(){
+      intervalTimer = setInterval(disconnectCheck, 5000);
+    }
+
+    function disconnectCheck(){
+      if(WSdisconnected){
+      ge("connectstatus").innerHTML = "DISCONNECTED";
+      ge("connectionalert").innerHTML = "Please check wifi / refresh the browser window";
+      ge("navbar").style.height = "95px";
+      ge("machineid").innerHTML = "";
+      ge("connectview").style.color = "red";
+      ge("connectdot").style.backgroundColor = "red";
+      }
+      WSdisconnected = true;
+    }
+
+    function copyAddress(){
+      var copyText = document.getElementById("ipaddresstext");
+      copyText.select();
+      document.execCommand("copy");
+      ge("copyaddress").innerHTML = "Copied";
+    }
+    
 
     function InitWebSocket() {
       var progtitle;
@@ -1813,14 +1900,17 @@ if (programType === "hr" || programType === "hg") {
       ws.binaryType = "arraybuffer";
 
       ws.onmessage = function(evt) {
+        WSdisconnected = false;
         JSONobj = JSON.parse(evt.data);
         if (Boolean(titleSet)) {
           titleSet = false;
           var titleName = "proPCR " + JSONobj.chipid;
+          ge("machineid").innerHTML = JSONobj.chipid;
           document.title = titleName;
           ge("appleTitle").setAttribute("content", titleName);
           ge("appTitle").setAttribute("content", titleName);
         }
+        
         pcrRunning = Number(JSONobj.pcrOn)
         if (pcrRunning) {
           pcrRunning = true;
@@ -1838,28 +1928,36 @@ if (programType === "hr" || programType === "hg") {
           }
           progtitle = JSONobj.programType;
           if (progtitle == 1) {
-            progtype = "Regular PCR"
+            progtype = "Regular PCR";
+            isgradient = false;
           }
           if (progtitle == 2) {
-            progtype = "Gradient PCR"
+            progtype = "Gradient PCR";
+            isgradient = true;
           }
           if (progtitle == 3) {
-            progtype = "Touchdown PCR"
+            progtype = "Touchdown PCR";
+            isgradient = false;
           }
           if (progtitle == 4) {
-            progtype = "Touchdown Gradient PCR"
+            progtype = "Touchdown Gradient PCR";
+            isgradient = true;
           }
           if (progtitle == 5) {
-            progtype = "Regular Ramp"
+            progtype = "Regular Ramp";
+            isgradient = false;
           }
           if (progtitle == 6) {
-            progtype = "Gradient Ramp"
+            progtype = "Gradient Ramp";
+            isgradient = true;
           }
           if (progtitle == 7) {
-            progtype = "Regular Heat Block"
+            progtype = "Regular Heat Block";
+            isgradient = false;
           }
           if (progtitle == 8) {
-            progtype = "Gradient Heat Block"
+            progtype = "Gradient Heat Block";
+            isgradient = true;
           }
           ge("progtitle").innerHTML = progtype;
           ge('cycleState').innerHTML = JSONobj.cycleState;
@@ -1900,13 +1998,14 @@ if (programType === "hr" || programType === "hg") {
             ge("timerdiv").style.display = "none";
           }
 
-          if (Number(JSONobj.isGradient)) {
+          if (isgradient) {
             ge("gradienttemp").style.display = "block";
+            ge("singleblocktemp").style.display = "none";
             ge('tempone').innerHTML = JSONobj.tempone;
             ge('temptwo').innerHTML = JSONobj.temptwo;
             ge('tempthree').innerHTML = JSONobj.tempthree;
-            ge("blocktemp").style.display = "none";
           } else {
+            ge("singleblocktemp").style.display = "block";
             ge("gradienttemp").style.display = "none";
           }
         } else {
@@ -1918,13 +2017,17 @@ if (programType === "hr" || programType === "hg") {
         if (JSONobj.connected == "true") {
           connected = true;
           var stringip = "http://"+JSONobj.localIPaddress;
-          //ge("wifidiv").style.display = "block";
-          // ge("ssidname").innerHTML = JSONobj.userssid;
-          // ge("ssidspan").innerHTML = JSONobj.userssid;
-          // ge("ipaddress").value = stringip;
+          ge("ipinfo").style.display = "block";
+          ge("navbar").style.height = "110px";
+          document.querySelector(".container").style.marginTop = "115px";
+          ge("ssidname").innerHTML = JSONobj.userssid;
+          ge("ipaddress").innerHTML = stringip;
+          ge("ipaddress").href = stringip;
+          ge("ipaddresstext").value = stringip;
 
 
         }else{
+          ge("ipinfo").style.display = "none";
           connected = false;
         }
         if (JSONobj.Setpointlid == "0") {
@@ -2001,7 +2104,7 @@ if (programType === "hr" || programType === "hg") {
         }
         if (Boolean(userpswchange) && Object.keys(JSONobj)[0] == "userpswalert") {
           ge('userpswalert').innerHTML = JSONobj.userpswalert;
-          connectchange = false;
+          userpswchange = false;
           loadConfig();
         }
         if (Boolean(deletechange) && Object.keys(JSONobj)[0] == "deletealert") {
@@ -2015,17 +2118,7 @@ if (programType === "hr" || programType === "hg") {
         }
 
       }
-      if (ws.readyState === ws.CLOSED) {
-        ge('progstate').innerHTML = "PCR Not Connected";
-        ge('tempdiv').style.display = "none";
-      } else {
-        ge('progstate').innerHTML = "PCR Ready";
-        ge('tempdiv').style.display = "block";
-      }
     }
-
-
-
     function onBodyLoad() {
       document.body.style.visibility='visible';
       loadConfig();
@@ -2036,6 +2129,7 @@ if (programType === "hr" || programType === "hg") {
       regularHeatButton();
       programRegular();
       openNav();
+      connectionCheck();
     }
 
     function pauseButton() {
@@ -2169,7 +2263,7 @@ function connectWifi(){
     p += "*";
     p += ge("wifipass").value;
     ws.send(p);
-
+    ge("connectwifibutton").value == "Turn Wifi Connection Off";
   }
   if (ge("connectwifibutton").value == "Turn Wifi Connection Off") {
     p = "wifioff:";
@@ -2202,7 +2296,7 @@ function aponSend(){
     if (ge("helpbutton").value == "Turn Info Boxes Off") {
       var helpDivs = document.getElementsByClassName("help"); //helpDivs is an array
         for(var i = 0; i < helpDivs.length; i++){
-          helpDivs[i].style.display = "none"; // depending on what you're doing
+          helpDivs[i].style.display = "none"; 
         }
         helpchange = true;
         p = "help:";
@@ -2391,7 +2485,7 @@ function changeTheme(theme){
     borderThin = "1px solid #a7a7a7";
     borderThick = "3px solid #a7a7a7";
     alertColor = "#ff9d2e";
-    buttonSelected = "#ff9d2e";
+    buttonSelected = "#754106";
     buttonDeselected = "#111";
     if (Boolean(firstload)) {
       ge("logo").style.filter = "invert(50%)";
@@ -2403,8 +2497,8 @@ function changeTheme(theme){
     ge("openbtn").style.color = "#818181";
     var elements = document.getElementsByClassName("help");
     for (var i = 0; i < elements.length; i++) {
-        elements[i].style.backgroundColor= "#818181";
-        elements[i].style.borderLeft= borderThick;
+        elements[i].style.backgroundColor= "#3a3939";
+        // elements[i].style.borderLeft= borderThick;
     }
     var modal = document.getElementsByClassName("modal-content");
     for (var i = 0; i < modal.length; i++) {
@@ -2412,8 +2506,8 @@ function changeTheme(theme){
     }
     var info = document.getElementsByClassName("info");
     for (var i = 0; i < info.length; i++) {
-        info[i].style.backgroundColor= "#818181";
-        info[i].style.borderLeft= borderThick;
+        info[i].style.backgroundColor= "#3a3939";
+        // info[i].style.borderLeft= borderThick;
     }
     var tab = document.getElementsByClassName("tab");
     for (var i = 0; i < tab.length; i++) {
@@ -2455,8 +2549,8 @@ function changeTheme(theme){
     ge("openbtn").style.color = "black";
     var elements = document.getElementsByClassName("help");
     for (var i = 0; i < elements.length; i++) {
-        elements[i].style.backgroundColor= "#AED4FF";
-        elements[i].style.borderLeft= "3px solid #2e90ff";
+        elements[i].style.backgroundColor= "#e4e4e4";
+        // elements[i].style.borderLeft= "3px solid #2e90ff";
     }
     var modal = document.getElementsByClassName("modal-content");
     for (var i = 0; i < modal.length; i++) {
@@ -2464,8 +2558,8 @@ function changeTheme(theme){
     }
     var info = document.getElementsByClassName("info");
     for (var i = 0; i < info.length; i++) {
-        info[i].style.backgroundColor= "#AED4FF";
-        info[i].style.borderLeft= "3px solid #2e90ff";
+        info[i].style.backgroundColor= "#e4e4e4";
+        // info[i].style.borderLeft= "3px solid #2e90ff";
     }
     var tab = document.getElementsByClassName("tab");
     for (var i = 0; i < tab.length; i++) {
@@ -2513,6 +2607,24 @@ window.onload = (function(){
       <a onclick="showSettings();pushSettings();">Settings</a>
     </div>
     <span id="openbtn" class="openbtn" onclick="openNav()"><span class="menubtn">Menu</span>&#9776;</span>
+    <div id="connectview">
+      <div>
+        <span id="connectdot"></span>
+        <span id="connectstatus">CONNECTED TO PROPCR&nbsp;</span>
+        <span id="machineid"></span>
+      </div>
+      <div id="connectionalert">
+      </div>
+      <div id="ipinfo">
+        <span>Avaliable on wifi network:&nbsp;</span>
+        <span id="ssidname"></span>
+        <span>&nbsp;at&nbsp;</span>
+        <a href="" id="ipaddress"></a>
+        <a id="copyaddress" onclick="copyAddress()">Copy</a>
+        <textarea id="ipaddresstext"></textarea>
+      </div>
+    </div>
+
   </div>
   <div class="container">
 
@@ -2531,28 +2643,30 @@ window.onload = (function(){
 
       <div id="helpset" class="setting" onclick="expandShow('helpon','helpicon')"><div id="helpicon" class="settingsicon">+</div><div>&nbsp;Show Information Boxes: <span id="helpstat" class="stat">ON</span></div></div>
       <div id="helpon" style="display:none">
-        <div class="info">This setting turns on and off the information boxes describe what perameter or setting is.</div>
-        <div id="helpalert">
-        </div>
+          <div id="helpalert" class="alertmsg"></div>
+        <div class="info">This setting turns on and off the information boxes that describe what perameter or setting is.</div>
         <input type="button" id="helpbutton" onclick="helpSend()"value="Turn Info Boxes Off"/>
       </div>
 
       <div id="autostartset" class="setting" onclick="expandShow('autostart','autostarticon')"><div id="autostarticon" class="settingsicon">+</div><div>&nbsp;Autostart: <span id="autostartstat" class="stat">OFF</span></div></div>
       <div id="autostart" style="display:none">
-        <div class="info">Autostart automatically runs a selected program when the machine powers on</div>
-        <div id="autostartalert"></div>
-        <input type="button" onclick="autostartSend()" id="autostartbutton" class="settingsbutton" value="Turn Autostart On"/>
-        <div class="autostartprog"><h3>Autostart Program:</h3><div><div id="autostartprog">No Program Selected</div></div></div>
-        <p style="text-align:center">Select Program:</p>
-        <div id="progselect">
-
+        
+      <div class="info">Autostart will run a selected program automatically when the machine powers on</div>
+      <h3 style="text-align:center">Select Program to Autostart:</h3>
+      <div id="progselect"></div>
+        <div class="autostartprog">
+          <h4 style="text-align:center; margin-bottom: 0;">Current Autostart Program:</h4>
+          <div id="autostartprog">No Program Selected</div>
         </div>
+        
+        
+        <input type="button" onclick="autostartSend()" id="autostartbutton" class="settingsbutton" value="Turn Autostart On"/>
       </div>
 
       <div id="connectwifiset" class="setting" onclick="expandShow('connectwifi','connectwifiicon')"><div id="connectwifiicon" class="settingsicon">+</div><div>&nbsp;Connect to Wifi Network: <span id="connectwifistat" class="stat">OFF</span></div></div>
       <div id="connectwifi" style="display:none">
         <div class="info">Connect to an existing wifi network. The machine will be accesible to any device connected to the same network.</div>
-        <div id="connectnetworkmsg">On startup proPCR will connect to the network:&nbsp;</div>
+        <div id="connectnetworkmsg" class="alertmsg">On startup proPCR will connect to the network:&nbsp;</div>
         <h3 id="connectnetwork"></h3>
         <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Wifi Network Name' id="wifiname" maxlength="32"/><span>Wifi Network Name</span></label>
           <p id="pprogramName"></p>
@@ -2652,25 +2766,30 @@ window.onload = (function(){
             <h3 id='templid'></h3>
             <h3>&deg;C</h3>
           </div>
+        <div id="singleblocktemp">
           <h3 class="templabel">Block Temp =</h3>
-        <div class="showtemp">
-          <h3 id='blockTemp1'></h3>
-          <h3>&deg;C</h3>
+          <div class="showtemp">
+            <h3 id='blockTemp1'></h3>
+            <h3>&deg;C</h3>
+          </div>
         </div>
       </div>
-      <div id="gradienttemp" class="statustemp" style="display:none">
+      <div id="gradienttemp" class="statustemp">
         <div>
-          <h3>High Temp =</h3>&nbsp;
+          <h3>High Temp =</h3>
+          <div class="showtemp">
           <h3 id='tempthree'></h3>
-          <h3>&deg;C</h3></div>
+          <h3>&deg;C</h3></div></div>
         <div>
-          <h3>Mid Temp =</h3>&nbsp;
+          <h3>Mid Temp =</h3>
+          <div class="showtemp">
           <h3 id='temptwo'></h3>
-          <h3>&deg;C</h3></div>
+          <h3>&deg;C</h3></div></div>
         <div>
-          <h3>Low Temp =</h3>&nbsp;
+          <h3>Low Temp =</h3>
+          <div class="showtemp">
           <h3 id='tempone'></h3>
-          <h3>&deg;C</h3></div>
+          <h3>&deg;C</h3></div></div>
       </div>
       <div id="displaydiv1">
         <div class="buttondiv">
