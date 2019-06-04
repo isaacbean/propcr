@@ -62,12 +62,16 @@ double Setpoint3, Input3, Output3;
 double Setpointlid, Inputlid, Outputlid;
 double Setpointfan, Inputfan, Outputfan;
 
+bool resetOutput1 = true;
+bool resetOutput2 = true;
+bool resetOutput3 = true;
+
 //Normal PID
 //Specify the links and initial tuning parameters
 //double Kp=600, Ki=0, Kd=.00001;
 //PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-double aggKp=600, aggKi=.5, aggKd=.001;
-double consKp=600, consKi=1, consKd=50;
+double aggKp=300, aggKi=.5, aggKd=.001;
+double consKp=2000, consKi=2, consKd=500;
 double alidKp=1000, alidKi=.01, alidKd=.5;
 double lidKp=1000, lidKi=1, lidKd=10;
 double aggKpfan=400, aggKifan=.01, aggKdfan=.0001;
@@ -78,6 +82,10 @@ PID heatPID2(&Input2, &Output2, &Setpoint2, consKp, consKi, consKd, P_ON_E, DIRE
 PID heatPID3(&Input3, &Output3, &Setpoint3, consKp, consKi, consKd, P_ON_E, DIRECT);
 PID lidPID(&Inputlid, &Outputlid, &Setpointlid, lidKp, lidKi, lidKd, P_ON_E, DIRECT);
 PID fanPID(&Inputfan, &Outputfan, &Setpointfan, consKpfan, consKifan, consKdfan, P_ON_E, REVERSE);
+
+boolean initialize1;
+boolean initialize2;
+boolean initialize3;
 
 boolean PCRon = false;
 boolean blockOn = false;
@@ -161,6 +169,7 @@ float heatBlockTime;
 String data;
 String programName;
 String programNameSave;
+String autostartprogramName = "";
 String autostartName;
 String autostartProgram;
 boolean updatestart = false;
@@ -189,6 +198,9 @@ boolean resetOn = true;
 String connected = "false";
 String localIPaddress = "";
 String chipIDstring;
+
+const long serialinterval = 250;
+unsigned long previousserialMillis = 0;
 
 //===> functions <--------------------------------------------------------------
 
@@ -486,6 +498,34 @@ void resetPCR() {
         finalExtendTime = 0;
         cycleNum = 0;
         cycleCount = 1;
+        TDcycleNum = 0;
+        TDdenatureTemp = 0;
+        TDdenatureTime = 0;
+        TDdenatureTimeSec = 0;
+        TDannealTime = 0;
+        TDannealTimeSec = 0;
+        TDextendTemp = 0;
+        TDextendTime = 0;
+        TDextendTimeSec = 0;
+        TDStartTemp = 0;
+        TDEndTemp = 0;
+        TDLowStartTemp = 0;
+        TDHighStartTemp = 0;
+        TDLowEndTemp = 0;
+        TDHighEndTemp = 0;
+        rampTime = 0;
+        rampTimeMin = 0;
+        startRampTemp = 0;
+        endRampTemp = 0;
+        lowstartRampTemp = 0;
+        highstartRampTemp = 0;
+        lowendRampTemp = 0;
+        highendRampTemp = 0;
+        heatBlockTime = 0;
+        heatBlockTimeMin = 0;
+        heatBlockTemp = 0;
+        lowheatBlockTemp = 0;
+        highheatBlockTemp = 0;
         PCRon = false;
         programState = 0;
         blockOn = false;
@@ -512,14 +552,15 @@ void runPCR(float &low, float &high){
 
         //Initial Denature
         case 1:
+                cycleState = "Initial Denature";
                 low = initDenatureTemp;
                 high = initDenatureTemp;
                 totalTime = initDenatureTime;
                 if (Input1 >= low - tempthreshold) {
-                        Serial.print("Timer: ");
-                        Serial.print(timerSerial);
-                        Serial.print(" of ");
-                        Serial.println(initDenatureTimeSec);
+                        // Serial.print("Timer: ");
+                        // Serial.print(timerSerial);
+                        // Serial.print(" of ");
+                        // Serial.println(initDenatureTimeSec);
                         currentMillis = millis();
                         if (timerStarted == false) {
                                 previousMillis = millis();
@@ -538,7 +579,7 @@ void runPCR(float &low, float &high){
                 }
                 break;
 
-        //Cycles
+        //Touchdown Cycles
         case 2:
         if (cycleCount <= TDcycleNum) {
                 Serial.print("Touchdown Cycle ");
@@ -685,7 +726,7 @@ void runPCR(float &low, float &high){
                         }
                 }
         }
-        if (cycleCount == TDcycleNum) {
+        if (cycleCount >= TDcycleNum) {
                 cycleCount = 1;
                 programState = 3;
                 cycleState = "Denature Step";
@@ -694,24 +735,24 @@ void runPCR(float &low, float &high){
 
         case 3:
                 if (cycleCount <= cycleNum) {
-                        Serial.print("Cycle ");
-                        Serial.print(cycleCount);
-                        Serial.print(" of ");
-                        Serial.println(cycleNum);
+                        // Serial.print("Cycle ");
+                        // Serial.print(cycleCount);
+                        // Serial.print(" of ");
+                        // Serial.println(cycleNum);
 
                         //Denature step
                         if (denatureStep == true) {
                           totalTime = denatureTime;
-                                Serial.println("Denature Step");
+                                // Serial.println("Denature Step");
 
                                 low = denatureTemp;
                                 high = denatureTemp;
 
                                 if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                                        Serial.print("Timer: ");
-                                        Serial.print(timerSerial);
-                                        Serial.print(" of ");
-                                        Serial.println(denatureTimeSec);
+                                        // Serial.print("Timer: ");
+                                        // Serial.print(timerSerial);
+                                        // Serial.print(" of ");
+                                        // Serial.println(denatureTimeSec);
                                         currentMillis = millis();
                                         if (timerStarted == false) {
                                                 previousMillis = millis();
@@ -729,7 +770,7 @@ void runPCR(float &low, float &high){
                         //Anneal step
                         if (annealStep == true) {
                           totalTime = annealTime;
-                                Serial.println("Anneal Step");
+                                // Serial.println("Anneal Step");
 
                                 if (programType == 1 || programType == 3) {
                                   low = annealTemp;
@@ -742,10 +783,10 @@ void runPCR(float &low, float &high){
 
 
                                 if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                                        Serial.print("Timer: ");
-                                        Serial.print(timerSerial);
-                                        Serial.print(" of ");
-                                        Serial.println(annealTimeSec);
+                                        // Serial.print("Timer: ");
+                                        // Serial.print(timerSerial);
+                                        // Serial.print(" of ");
+                                        // Serial.println(annealTimeSec);
                                         currentMillis = millis();
 
                                         if (timerStarted == false) {
@@ -754,7 +795,7 @@ void runPCR(float &low, float &high){
                                         }
                                 }
                                 if (timerStarted == true && currentMillis - previousMillis > annealTime) {
-                                        Serial.println("Timer Stopped");
+                                        // Serial.println("Timer Stopped");
                                         annealStep = false;
                                         extendStep = true;
                                         timerStarted = false;
@@ -764,16 +805,16 @@ void runPCR(float &low, float &high){
                         //Extend step
                         if (extendStep == true) {
                           totalTime = extendTime;
-                                Serial.println("Extend Step");
+                                // Serial.println("Extend Step");
 
                                 low = extendTemp;
                                 high = extendTemp;
 
                                 if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                                        Serial.print("Timer: ");
-                                        Serial.print(timerSerial);
-                                        Serial.print(" of ");
-                                        Serial.println(extendTimeSec);
+                                        // Serial.print("Timer: ");
+                                        // Serial.print(timerSerial);
+                                        // Serial.print(" of ");
+                                        // Serial.println(extendTimeSec);
                                         currentMillis = millis();
 
                                         if (timerStarted == false) {
@@ -790,7 +831,7 @@ void runPCR(float &low, float &high){
                                 }
                         }
                 }
-                if (cycleCount == cycleNum) {
+                if (cycleCount >= cycleNum) {
                         programState = 4;
                         cycleState = "Final Extend Step";
                 }
@@ -845,7 +886,7 @@ void runRamp(float &low, float &high){
                 }
                 break;
 
-        //Initial Denature
+        
         case 1:
                 Serial.println("Heating to Start Temp");
                 if (programType == 5) {
@@ -993,8 +1034,7 @@ void runHeat(float &low, float &high){
               }
             }
 
-const long serialinterval = 200;
-unsigned long previousserialMillis = 0;
+
 
 void thermocycler(){
         if (setLidTemp != 0) {
@@ -1011,10 +1051,14 @@ void thermocycler(){
                                 heatMid = heatLow + heatHigh;
                                 heatMid /= 2;
 
-                                Setpoint1 = heatLow + .05;
-                                Setpoint2 = heatMid + .05;
-                                Setpoint3 = heatHigh + .05;
+                                Setpoint1 = heatLow;
+                                Setpoint2 = heatMid;
+                                Setpoint3 = heatHigh;
                                 Setpointfan = heatLow;
+
+                                unsigned long serialMillis = millis();
+                                if (serialMillis - previousserialMillis >= serialinterval) {
+                                previousserialMillis = serialMillis;
                                 // Serial.print("Setpoint Low: ");
                                 // Serial.println(heatLow);
                                 // Serial.print("Setpoint Mid: ");
@@ -1029,6 +1073,20 @@ void thermocycler(){
                                 Serial.println(tempthree);
                                 Serial.print("Temp Lid: ");
                                 Serial.println(templid);
+                                Serial.print("Output1: ");
+                                Serial.println(Output1);
+                                Serial.print("Output 2: ");
+                                Serial.println(Output2);
+                                Serial.print("Output 3: ");
+                                Serial.println(Output3);
+                                Serial.print("Output Lid: ");
+                                Serial.println(Outputlid);
+                                Serial.print("Output Fan: ");
+                                Serial.println(Outputfan);
+                                Serial.print("Mode: ");
+                                Serial.println(heatPID1.GetMode());
+                                Serial.println(" ");
+                                }
                         }
                       if (programType == 5 || programType == 6){
                         runRamp(heatLow, heatHigh);
@@ -1060,6 +1118,8 @@ void thermocycler(){
                         Serial.println(Output2);
                         Serial.print("Output 3: ");
                         Serial.println(Output3);
+                        Serial.print("Output Lid: ");
+                        Serial.println(Outputlid);
                         Serial.print("Output Fan: ");
                         Serial.println(Outputfan);
 
@@ -1071,9 +1131,9 @@ void thermocycler(){
                         heatMid = heatLow + heatHigh;
                         heatMid /= 2;
 
-                        Setpoint1 = heatLow + .05;
-                        Setpoint2 = heatMid + .05;
-                        Setpoint3 = heatHigh + .05;
+                        Setpoint1 = heatLow;
+                        Setpoint2 = heatMid;
+                        Setpoint3 = heatHigh;
                         Setpointfan = heatLow;
                       }
                 }else{
@@ -1095,49 +1155,104 @@ void thermocycler(){
         Inputlid = templid;
 
         if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
-                Inputfan = Input;
+                Inputfan = Input2;
         }
 
         if (programType == 2 || programType == 4 || programType == 6 || programType == 8) {
-                Inputfan = Input1;
+                Inputfan = Input1;         
         }
 
+        double gap1 = Setpoint1-Input1; 
+        if (gap1 > 14){ 
+                heatPID1.SetMode(MANUAL);
+                Output1 = 1023;
+                resetOutput1 = true;
+                // heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
+        }else if (gap1 <= 14 && gap1 >= 1){
+                Output1 = 0;
+                heatPID1.SetMode(AUTOMATIC);
+                heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
+                resetOutput1 = true;
+        }else if (gap1 < 1 && gap1 >= -1){
+                if (resetOutput1 == true)
+                {
+                       Output1 = 0;
+                       resetOutput1 = false;
+                }
+                heatPID1.SetMode(AUTOMATIC);
+                heatPID1.SetTunings(consKp, consKi, consKd, P_ON_E);
+        }else if (gap1 < -1){
+                heatPID1.SetMode(MANUAL);
+                Output1 = 0;
+                resetOutput1=true;
+        }
+        
+        
 
-         double gap1 = abs(Setpoint1-Input1); 
-    if (gap1 < 10){ 
-            heatPID1.SetTunings(consKp, consKi, consKd, P_ON_E);
-    }else{
-            heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
-    }
+        double gap2 = Setpoint2-Input2;
+        if (gap2 > 14){ 
+                heatPID2.SetMode(MANUAL);
+                Output2 = 1023;
+                resetOutput2=true;
+                // heatPID2.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
+        }else if (gap2 <= 14 && gap2 >= 1){
+                Output2 = 0;
+                heatPID2.SetMode(AUTOMATIC);
+                heatPID2.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
+                resetOutput2 = true;
+        }else if (gap2 < 1 && gap2 >= -1){
+                if (resetOutput2 == true)
+                {
+                       Output2 = 0;
+                       resetOutput2 = false;
+                }
+                heatPID2.SetMode(AUTOMATIC);
+                heatPID2.SetTunings(consKp, consKi, consKd, P_ON_E);
+        }else if (gap2 < -1){
+                heatPID2.SetMode(MANUAL);
+                Output2 = 0;
+                resetOutput2=true;
+        }
 
-    double gap2 = abs(Setpoint2-Input2);
-    if (gap2 < 10){ 
-            heatPID2.SetTunings(consKp, consKi, consKd, P_ON_E);
-    }else{
-            heatPID2.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
-    }
+        double gap3 = Setpoint3-Input3; 
+        if (gap3 > 14){ 
+                heatPID3.SetMode(MANUAL);
+                Output3 = 1023;
+                resetOutput3=true;
+                // heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
+        }else if (gap3 <= 14 && gap3 >= 2){
+                Output3 = 0;
+                heatPID3.SetMode(AUTOMATIC);
+                heatPID3.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
+                resetOutput3 = true;
+        }else if (gap3 < 2 && gap3 >= -1){
+                if (resetOutput3 == true)
+                {
+                       Output3 = 0;
+                       resetOutput3 = false;
+                }
+                heatPID3.SetMode(AUTOMATIC);
+                heatPID3.SetTunings(consKp, consKi, consKd, P_ON_E);
+        }else if (gap3 < -1){
+                heatPID3.SetMode(MANUAL);
+                Output3 = 0;
+                resetOutput3=true;
+        }
 
-    double gap3 = abs(Setpoint3-Input3); 
-    if (gap3 < 10) { 
-            heatPID3.SetTunings(consKp, consKi, consKd, P_ON_E);
-    }else{
-            heatPID3.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
-    }
+        double gaplid = abs(Setpointlid-Inputlid); 
+        if (gaplid < 3){
+                lidPID.SetTunings(lidKp, lidKi, lidKd, P_ON_E);
+                
+        }else{
+                lidPID.SetTunings(alidKp, alidKi, alidKd, P_ON_E);
+        }
 
-    double gaplid = abs(Setpointlid-Inputlid); 
-    if (gaplid < 3){
-            lidPID.SetTunings(lidKp, lidKi, lidKd, P_ON_E);
-            
-    }else{
-            lidPID.SetTunings(alidKp, alidKi, alidKd, P_ON_E);
-    }
-
-    double gapfan = abs(Setpointfan-Inputfan);
-    if (gapfan < 1){ 
-            fanPID.SetTunings(consKpfan, consKifan, consKdfan);
-    }else{
-            fanPID.SetTunings(aggKpfan, aggKifan, aggKdfan);
-    }
+        double gapfan = abs(Setpointfan-Inputfan);
+        if (gapfan < 1){ 
+                fanPID.SetTunings(consKpfan, consKifan, consKdfan);
+        }else{
+                fanPID.SetTunings(aggKpfan, aggKifan, aggKdfan);
+        }
 
 
         if (PCRon == true) {
@@ -1158,15 +1273,20 @@ void thermocycler(){
                                 // Serial.println(Outputfan);
 
                                 if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
-                                  if (Outputfan >= 300 && Outputfan < 1023) {
+                                  if (Outputfan >= 200 && Outputfan < 1023) {
                                         analogWrite(fanPin, 1023);
-                                        }else if (Outputfan > 0 && Outputfan < 300){
+                                        }else if (Outputfan > 0 && Outputfan < 200){
                                         analogWrite(fanPin, 0);
                                         }else{
                                         analogWrite(fanPin, Outputfan);
                                         }
                                 }
                                 if (programType == 2 || programType == 4 || programType == 6 || programType == 8) {
+                                  if (abs(Setpoint1 - Setpoint3) > 7)
+                                        {
+                                                Outputfan = 1023;
+                                                analogWrite(fanPin, Outputfan);
+                                        }else{      
                                   if (Outputfan >= 300 && Outputfan < 1023) {
                                         analogWrite(fanPin, 1023);
                                         }else if (Outputfan > 0 && Outputfan < 300){
@@ -1175,7 +1295,7 @@ void thermocycler(){
                                         analogWrite(fanPin, Outputfan);
                                         }
                                 }
-
+                                }
 
 
 
@@ -1279,10 +1399,10 @@ void resetFiles(){
         String resetalert;
         File config = SPIFFS.open("/config.json", "w");
 
-        config.print("{\"update\":\"false\",\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"userssid\":\"\",\"connected\":\"false\",\"ip\":\"\",\"quietfan\":\"false\"}");
+        config.print("{\"update\":\"false\",\"autostart\":\"true\",\"programname\":\"test\",\"programdata\":[2,0,95,10,5,95,40,45,72,30,72,20,50,60],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"userssid\":\"\",\"connected\":\"false\",\"ip\":\"\",\"quietfan\":\"false\"}");
         config.close();
         File programfile = SPIFFS.open("/programs.json", "w");
-        programfile.print("{\"General\":[1,100,95,120,25,95,30,30,72,60,72,300,55,0]}");
+        programfile.print("{\"General\":[1,100,95,180,25,95,30,45,72,60,72,300,55,0],\"test\":[2,0,95,10,5,95,40,45,72,30,72,20,50,65]}");
         programfile.close();
         File wififile = SPIFFS.open("/wifi.json", "w");
         wififile.print("{\"connect\":\"false\",\"userpsw\":\"\",\"userssid\":\"\",\"userpass\":\"\"}");
@@ -1412,10 +1532,12 @@ void loadConfig(){
         if (root.success()) {
                 Serial.println("root sucess");
                 if (root["autostart"] == "true") {
+                        Serial.println("autostart true");
                         autostartName = root.get<String>("programname");
-                        autostartProgram = "[";
-                        autostartProgram += root.get<String>("programdata");
-                        autostartProgram += "]";
+                        
+                        autostartProgram = root.get<String>("programdata");
+                        
+                        
                         autostart = true;
                 }
 
@@ -1515,6 +1637,7 @@ void saveProgram(){
 
 void runAutoStart(){
         programName = autostartName;
+        Serial.println(programName);
         StaticJsonBuffer<500> jsonBuffer;
         JsonArray& array = jsonBuffer.parseArray(autostartProgram);
         if (!array.success()) {
@@ -1732,9 +1855,9 @@ void handleAutostart(){
             autostartalert = "{\"autostartalert\":\"Autostart Turned Off\"}";
           }else if (root["autostart"] == "false") {
             root["autostart"] = "true";
-            root["programname"] = programName;
+            root["programname"] = autostartprogramName;
             root["programdata"] = data;
-            autostartalert = "{\"autostartalert\":\""+programName+" will autostart next next time the \"}";
+            autostartalert = "{\"autostartalert\":\""+autostartprogramName+" will autostart next next time this proPCR turns on\"}";
           }
           root.printTo(Serial);
           File file = SPIFFS.open("/config.json", "w");
@@ -2149,9 +2272,10 @@ void handleWS(String msg){
                 }
         }
         if (command == "autostart") {
-            programName = msg.substring(separator3+1);
+            autostartprogramName = msg.substring(separator3+1);
             handleAutostart();
         }
+        
         if (command == "quietfansave") {
                 quietFanSave();
         }
