@@ -506,6 +506,7 @@ input.loadbutton {
 
     #autostartalert{
       text-align: center;
+      padding-bottom: 25px;
     }
 
 
@@ -1363,7 +1364,7 @@ loadConfig();
           ge("pannealTempHigh").style.backgroundColor = alertColor;
           ge("annealTempHigh").focus();
         }
-        if (ge("annealTempHigh").value - ge("annealTempLow").value > 20) {
+        if (ge("annealTempHigh").value - ge("annealTempLow").value > 10) {
           aok = false;
           ge("pannealTempHigh").innerHTML = "Please enter temperatures with a 10 degree range or less";
           ge("pannealTempHigh").style.backgroundColor = alertColor;
@@ -1483,9 +1484,9 @@ loadConfig();
         ge("pTDLowEndTemp").style.backgroundColor = alertColor;
         ge("TDLowEndTemp").focus();
       }
-      if (ge("TDHighEndTemp").value - ge("TDLowEndTemp").value > 8) {
+      if (ge("TDHighEndTemp").value - ge("TDLowEndTemp").value > 10) {
         aok = false;
-        ge("pTDHighEndTemp").innerHTML = "Please enter temperatures with an 8 degree range or less";
+        ge("pTDHighEndTemp").innerHTML = "Please enter temperatures with a 10 degree range or less";
         ge("pTDHighEndTemp").style.backgroundColor = alertColor;
         ge("TDHighEndTemp").focus();
       }
@@ -1505,9 +1506,9 @@ loadConfig();
         ge("pTDLowStartTemp").style.backgroundColor = alertColor;
         ge("TDLowStartTemp").focus();
       }
-      if (ge("TDHighStartTemp").value - ge("TDLowStartTemp").value > 8) {
+      if (ge("TDHighStartTemp").value - ge("TDLowStartTemp").value > 10) {
         aok = false;
-        ge("pTDHighStartTemp").innerHTML = "Please enter temperatures with an 8 degree range or less";
+        ge("pTDHighStartTemp").innerHTML = "Please enter temperatures with a 10 degree range or less";
         ge("pTDHighStartTemp").style.backgroundColor = alertColor;
         ge("TDHighStartTemp").focus();
       }
@@ -1597,6 +1598,20 @@ loadConfig();
       ge("plowstartRampTemp").style.backgroundColor = alertColor;
       ge("lowstartRampTemp").focus();
     }
+
+    if (ge("highendRampTemp").value - ge("lowendRampTemp").value > 10) {
+        aok = false;
+        ge("phighendRampTemp").innerHTML = "Please enter temperatures with a 10 degree range or less";
+        ge("phighendRampTemp").style.backgroundColor = alertColor;
+        ge("phighendRampTemp").focus();
+      }
+      if (ge("highstartRampTemp").value - ge("lowstartRampTemp").value > 10) {
+        aok = false;
+        ge("phighstartRampTemp").innerHTML = "Please enter temperatures with a 10 degree range or less";
+        ge("phighstartRampTemp").style.backgroundColor = alertColor;
+        ge("phighstartRampTemp").focus();
+      }
+
   }
 }
 if (programType === "hr" || programType === "hg") {
@@ -1635,6 +1650,12 @@ if (programType === "hr" || programType === "hg") {
       ge("plowheatBlockTemp").style.backgroundColor = alertColor;
       ge("lowheatBlockTemp").focus();
     }
+    if (ge("highheatBlockTemp").value - ge("lowheatBlockTemp").value > 10) {
+        aok = false;
+        ge("phighheatBlockTemp").innerHTML = "Please enter temperatures with a 10 degree range or less";
+        ge("phighheatBlockTemp").style.backgroundColor = alertColor;
+        ge("phighheatBlockTemp").focus();
+      }
   }
 }
 
@@ -2006,6 +2027,7 @@ if (programType === "hr" || programType === "hg") {
           ge('timer').innerHTML = JSONobj.timer;
           if (Boolean(Number(JSONobj.timerStarted))) {
             ge("timerdiv").style.display = "block";
+            ge('cycleTime').innerHTML = JSONobj.totalTime;
           }else{
             ge("timerdiv").style.display = "none";
           }
@@ -2014,13 +2036,12 @@ if (programType === "hr" || programType === "hg") {
             ge("gradienttemp").style.display = "block";
             ge("singleblocktemp").style.display = "none";
             ge('tempone').innerHTML = JSONobj.tempone;
-            ge('temptwo').innerHTML = JSONobj.temptwo;
+            // ge('temptwo').innerHTML = JSONobj.temptwo;
             ge('tempthree').innerHTML = JSONobj.tempthree;
-          } else {
-            ge("singleblocktemp").style.display = "block";
-            ge("gradienttemp").style.display = "none";
-          }
+          } 
         } else {
+          ge("singleblocktemp").style.display = "block";
+          ge("gradienttemp").style.display = "none";
           ge('progstate').innerHTML = "PCR Ready";
           ge('progname').innerHTML = "";
           ge('displaydiv').style.display = "none";
@@ -2159,35 +2180,35 @@ if (programType === "hr" || programType === "hg") {
       ws.send(a);
     }
 
-function modal(modalmessage, leftbuttontext, leftbuttoncallback, rightbuttontext, rightbuttoncallback){
-  ge("modalId").style.display = "block";
-  ge("modalMessage").innerHTML = modalmessage;
-  ge("leftButton").value = leftbuttontext;
-  ge("rightButton").value = rightbuttontext;
-  ge("leftButton").onclick = leftbuttoncallback;
-  ge("rightButton").onclick = rightbuttoncallback;
-}
+// function modal(modalmessage, leftbuttontext, leftbuttoncallback, rightbuttontext, rightbuttoncallback){
+//   ge("modalId").style.display = "block";
+//   ge("modalMessage").innerHTML = modalmessage;
+//   ge("leftButton").value = leftbuttontext;
+//   ge("rightButton").value = rightbuttontext;
+//   ge("leftButton").onclick = leftbuttoncallback;
+//   ge("rightButton").onclick = rightbuttoncallback;
+// }
 
-    window.onclick = function(event) {
-      var modal = ge("modalId");
+window.onclick = function(event) {
+      var modal = ge("stopModal");
         if (event.target == modal) {
             modal.style.display = "none";
         }
     }
-
     function stopButton() {
-      modal("Please Confirm Stop", "Confirm Stop", confirmButton(), "Keep Running", cancelButton())
+      ge("stopModal").style.display = "block";
     }
-
 function confirmButton(){
   ge('progstate').innerHTML = "PCR Ready";
   a = 'stop:';
+  isgradient = false;
+  ge("singleblocktemp").style.display = "block";
+  ge("gradienttemp").style.display = "none";
   ws.send(a);
-  ge("modalId").style.display = "none";
+  ge("stopModal").style.display = "none";
 }
-
 function cancelButton(){
-  ge("modalId").style.display = "none";
+  ge("stopModal").style.display = "none";
 }
 
 function selectLoad(key, keydata){
@@ -2201,12 +2222,13 @@ function autostartSend(){
   autostartchange = true;
   var autostart = ge("autostartprog");
   var data = autostart.dataset.autostart;
-  p = "autostart:"
+  p = "autostart:["
   p += data;
-  p += "*"
+  p += "]*"
   p += ge("autostartprog").innerHTML;
   ws.send(p);
 }else{
+  ge("autostarterror").style.display = "block";
   ge("autostarterror").innerHTML = "Please select a program below before turning on autostart"
   ge("autostarterror").style.backgroundColor = alertColor;
   return;
@@ -2257,17 +2279,17 @@ function resetFiles(){
 
 function updateFirmware(){
   
+  if (Boolean(connected)) {
     p = 'update1:';
     ws.send(p);
+    }else{
+      ge("updatealert").innerHTML = "You must be connected to a wifi network to update the firmware";
+      ge("updatealert").style.backgroundColor = alertColor;
+    }
+
+
+    
   }
-
-
-function updateSPIFFS(){
-  
-  p = 'update2:';
-  ws.send(p);
-}
-
 
 
 function quietfanSend(){
@@ -2683,7 +2705,7 @@ window.onload = (function(){
       <p id="autostarterror"></p>
       <div id="progselect"></div>
         <div class="autostartprog">
-          <h4 style="text-align:center; margin-bottom: 0;">Current Autostart Program:</h4>
+          <h3 style="text-align:center; margin-bottom: 0;">Current Autostart Program:</h3>
           <div id="autostartprog">No Program Selected</div>
         </div>
         <input type="button" onclick="autostartSend()" id="autostartbutton" class="settingsbutton" value="Turn Autostart On"/>
@@ -2725,13 +2747,13 @@ window.onload = (function(){
         <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='New Password' id="userpswinput" maxlength="63"/><span>New Password</span></label></div>
           <div id="puserpswinput"></div>
           <input type="button" id="userpswbutton" onclick="userpswSend()" value="Turn Custom Password On"/>
-        <div id="userpswalert"></div>
+        <div id="userpswalert" style="text-align:center"></div>
         </div>
 
         <div id="themeset" class="setting" onclick="expandShow('themeon','themeicon')"><div id="themeicon" class="settingsicon">+</div><div>&nbsp;Theme Color: <span id="themestat" class="stat">LIGHT</span></div></div>
         <div id="themeon" style="display:none">
 
-          <div id="themealert">
+          <div id="themealert" style="text-align:center">
           </div>
           <input type="button" id="themebutton" onclick="themeSend()"value="Switch Theme To Dark"/>
         </div>
@@ -2745,8 +2767,9 @@ window.onload = (function(){
             <p id="resetalert" style="text-align:center"></p>
           </div>
           <input type="button" id="resetButton" onclick="resetFiles()" value="Reset"/>
+          <div id="updatealert" style="text-align:center"></div>
           <input type="button" id="updateFirmware" onclick="updateFirmware()" value="Update Firmware"/>
-          <input type="button" id="updateSPIFFS" onclick="updateSPIFFS()" value="Update Interface"/>
+          
           
           
 
@@ -2807,11 +2830,11 @@ window.onload = (function(){
           <div class="showtemp">
           <h3 id='tempthree'></h3>
           <h3>&deg;C</h3></div></div>
-        <div>
+        <!-- <div>
           <h3>Mid Temp =</h3>
           <div class="showtemp">
           <h3 id='temptwo'></h3>
-          <h3>&deg;C</h3></div></div>
+          <h3>&deg;C</h3></div></div> -->
         <div>
           <h3>Low Temp =</h3>
           <div class="showtemp">
@@ -2823,13 +2846,13 @@ window.onload = (function(){
         <input id='pauseButton' type="button" onclick="pauseButton();" value="Pause">
         <input id='stopButton' type="button" onclick="stopButton();" value="Stop">
         </div>
-        <div id="modalId" class="modal">
+        <div id="stopModal" class="modal">
           <div class="modal-content">
             <span class="closeModal" onclick="cancelButton()">&times;</span>
-            <h3 id="modalMessage" style="clear:both">Please Confirm Stop</h3>
+            <h3 style="clear:both">Please Confirm Stop</h3>
             <div class="buttondiv">
-            <input id='leftButton' type="button" onclick="confirmButton();" value="Confirm Stop">
-            <input id='rightButton' type="button" onclick="cancelButton();" value="Keep Running">
+            <input id='confirmButton' type="button" onclick="confirmButton();" value="Confirm Stop">
+            <input id='cancelButton' type="button" onclick="cancelButton();" value="Keep Running">
 
             </div>
           </div>
@@ -3130,7 +3153,7 @@ window.onload = (function(){
           </div>
           </div>
           <div id="gradientProg" style="display:none">
-          <p id="pgradient" style="display:none;text-align:center">Low and High temperatures can have an 8 degree range</p>
+          <p id="pgradient" style="display:none;text-align:center">Low and High temperatures can have a 12 degree range</p>
             <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Low Anneal Temp (&deg;C)' id="annealTempLow" name='annealTempLow' maxlength="2"/><span>Low Anneal Temp (&deg;C)</span></label>
               <p id="pannealTempLow"></p>
             </div>

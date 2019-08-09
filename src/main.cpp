@@ -101,7 +101,7 @@ boolean timerStarted = false;
 float tempreturn;
 float tempset;
 
-float tempthreshold = 1;
+float tempthreshold = 2;
 float setLidTemp = 0;
 float totalTime;
 float initDenatureTemp;
@@ -187,7 +187,6 @@ boolean apon = true;
 String userssid;
 String userpass = "";
 boolean connectwifi = false;
-String test = "test";
 boolean openmdns = true;
 boolean APcatch = false;
 boolean APtimernew = true;
@@ -443,7 +442,7 @@ float readTherm(int therm){
          */
         average = therm;
         // convert the value to resistance
-        average = 17830 / average - 1;
+        average = 25000 / average - 1;
         average = SERIESRESISTOR / average;
         //Serial.print("Thermistor ");
         //Serial.print(therm);
@@ -483,6 +482,7 @@ void resetPCR() {
         cycleState = "Heating Lid";
         isPaused = false;
         programName = "";
+        programType = 1;
         setLidTemp = 0;
         initDenatureTemp = 0;
         initDenatureTime = 0;
@@ -530,6 +530,7 @@ void resetPCR() {
         programState = 0;
         blockOn = false;
         timerStarted = false;
+        totalTime = 0;
         denatureStep = true;
         preheatBlock = false;
         preheatLid = false;
@@ -878,7 +879,7 @@ void runRamp(float &low, float &high){
 
         //Lid Wait
         case 0:
-
+                cycleState = "Heating Lid";
                 if (Inputlid >= setLidTemp - tempthreshold || setLidTemp == 0) {
                         programState = 1;
                         blockOn = true;
@@ -888,6 +889,7 @@ void runRamp(float &low, float &high){
 
         
         case 1:
+                
                 Serial.println("Heating to Start Temp");
                 if (programType == 5) {
                   low = startRampTemp;
@@ -900,7 +902,7 @@ void runRamp(float &low, float &high){
                 Serial.print("Input3: ");
                 Serial.println(Input3);
 
-                if (Input3 >= high - tempthreshold) {
+                if (Input3 >= high - 1) {
                   Serial.println("Running Ramp");
 
                                 cycleState = "Running Ramp";
@@ -909,6 +911,7 @@ void runRamp(float &low, float &high){
                 break;
 
         case 2:
+        totalTime = rampTime;
         // Serial.print("Timer: ");
         // Serial.print(timerSerial);
         // Serial.print(" of ");
@@ -1007,6 +1010,7 @@ void runHeat(float &low, float &high){
                 break;
 
         case 2:
+                totalTime = heatBlockTime;
                 if (programType == 7) {
                   low = heatBlockTemp;
                   high = heatBlockTemp;
@@ -1090,7 +1094,7 @@ void thermocycler(){
                         }
                       if (programType == 5 || programType == 6){
                         runRamp(heatLow, heatHigh);
-
+                        totalTime /= 1000;
                         heatMid = heatLow + heatHigh;
                         heatMid /= 2;
 
@@ -1127,7 +1131,7 @@ void thermocycler(){
                       }
                       if (programType == 7 || programType == 8){
                         runHeat(heatLow, heatHigh);
-
+                        totalTime /= 1000;
                         heatMid = heatLow + heatHigh;
                         heatMid /= 2;
 
@@ -1163,12 +1167,12 @@ void thermocycler(){
         }
 
         double gap1 = Setpoint1-Input1; 
-        if (gap1 > 14){ 
+        if (gap1 > 10){ 
                 heatPID1.SetMode(MANUAL);
                 Output1 = 1023;
                 resetOutput1 = true;
                 // heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
-        }else if (gap1 <= 14 && gap1 >= 1){
+        }else if (gap1 <= 10 && gap1 >= 1){
                 Output1 = 0;
                 heatPID1.SetMode(AUTOMATIC);
                 heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
@@ -1190,12 +1194,12 @@ void thermocycler(){
         
 
         double gap2 = Setpoint2-Input2;
-        if (gap2 > 14){ 
+        if (gap2 > 10){ 
                 heatPID2.SetMode(MANUAL);
                 Output2 = 1023;
                 resetOutput2=true;
                 // heatPID2.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
-        }else if (gap2 <= 14 && gap2 >= 1){
+        }else if (gap2 <= 10 && gap2 >= 1){
                 Output2 = 0;
                 heatPID2.SetMode(AUTOMATIC);
                 heatPID2.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
@@ -1215,12 +1219,12 @@ void thermocycler(){
         }
 
         double gap3 = Setpoint3-Input3; 
-        if (gap3 > 14){ 
+        if (gap3 > 10){ 
                 heatPID3.SetMode(MANUAL);
                 Output3 = 1023;
                 resetOutput3=true;
                 // heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
-        }else if (gap3 <= 14 && gap3 >= 2){
+        }else if (gap3 <= 10 && gap3 >= 2){
                 Output3 = 0;
                 heatPID3.SetMode(AUTOMATIC);
                 heatPID3.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
@@ -1282,7 +1286,7 @@ void thermocycler(){
                                         }
                                 }
                                 if (programType == 2 || programType == 4 || programType == 6 || programType == 8) {
-                                  if (abs(Setpoint1 - Setpoint3) > 7)
+                                  if (abs(Setpoint1 - Setpoint3) > 7 && (Setpoint3 - Input3)<2 )
                                         {
                                                 Outputfan = 1023;
                                                 analogWrite(fanPin, Outputfan);
@@ -1321,8 +1325,6 @@ void thermocycler(){
         //         analogWrite(mosfetPinLid, 0);
         // }
 
-        
-
         if (preheatBlock == true) {
                 Setpoint1 = preheatBlockTemp;
                 Setpoint2 = preheatBlockTemp;
@@ -1334,38 +1336,34 @@ void thermocycler(){
                 analogWrite(mosfetPinTwo, Output2);
                 analogWrite(mosfetPinThree, Output3);
 
-
-
-
-        unsigned long serialMillis = millis();
-        if (serialMillis - previousserialMillis >= serialinterval) {
-                previousserialMillis = serialMillis;
-                Serial.print("Setpoint Low: ");
-                Serial.println(Setpoint1);
-                Serial.print("Setpoint Mid: ");
-                Serial.println(Setpoint2);
-                Serial.print("Setpoint High: ");
-                Serial.println(Setpoint3);
-                Serial.print("Temp 1: ");
-                Serial.println(tempone);
-                Serial.print("Temp 2: ");
-                Serial.println(temptwo);
-                Serial.print("Temp 3: ");
-                Serial.println(tempthree);
-                Serial.print("Output1: ");
-                Serial.println(Output1);
-                Serial.print("Output 2: ");
-                Serial.println(Output2);
-                Serial.print("Output 3: ");
-                Serial.println(Output3);
+                unsigned long serialMillis = millis();
+                if (serialMillis - previousserialMillis >= serialinterval) {
+                        previousserialMillis = serialMillis;
+                        Serial.print("Setpoint Low: ");
+                        Serial.println(Setpoint1);
+                        Serial.print("Setpoint Mid: ");
+                        Serial.println(Setpoint2);
+                        Serial.print("Setpoint High: ");
+                        Serial.println(Setpoint3);
+                        Serial.print("Temp 1: ");
+                        Serial.println(tempone);
+                        Serial.print("Temp 2: ");
+                        Serial.println(temptwo);
+                        Serial.print("Temp 3: ");
+                        Serial.println(tempthree);
+                        Serial.print("Output1: ");
+                        Serial.println(Output1);
+                        Serial.print("Output 2: ");
+                        Serial.println(Output2);
+                        Serial.print("Output 3: ");
+                        Serial.println(Output3);
+                }
         }
-                
+
+        if (templid < -10) {
+                analogWrite(mosfetPinLid, 0);
         }
-        //else{
-        //         analogWrite(mosfetPinOne, 0);
-        //         analogWrite(mosfetPinTwo, 0);
-        //         analogWrite(mosfetPinThree, 0);
-        // }
+
 }
 
 void deleteProgram(){
@@ -1399,10 +1397,10 @@ void resetFiles(){
         String resetalert;
         File config = SPIFFS.open("/config.json", "w");
 
-        config.print("{\"update\":\"false\",\"autostart\":\"true\",\"programname\":\"test\",\"programdata\":[2,0,95,10,5,95,40,45,72,30,72,20,50,60],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"userssid\":\"\",\"connected\":\"false\",\"ip\":\"\",\"quietfan\":\"false\"}");
+        config.print("{\"update\":\"false\",\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"userssid\":\"\",\"connected\":\"false\",\"ip\":\"\",\"quietfan\":\"false\"}");
         config.close();
         File programfile = SPIFFS.open("/programs.json", "w");
-        programfile.print("{\"General\":[1,100,95,180,25,95,30,45,72,60,72,300,55,0],\"test\":[2,0,95,10,5,95,40,45,72,30,72,20,50,65]}");
+        programfile.print("{\"General Regular\":[1,100,95,180,25,95,30,45,72,60,72,300,55,0],\"General Gradient\":[2,100,95,180,25,95,30,45,72,60,72,300,55,65]}");
         programfile.close();
         File wififile = SPIFFS.open("/wifi.json", "w");
         wififile.print("{\"connect\":\"false\",\"userpsw\":\"\",\"userssid\":\"\",\"userpass\":\"\"}");
@@ -1536,6 +1534,8 @@ void loadConfig(){
                         autostartName = root.get<String>("programname");
                         
                         autostartProgram = root.get<String>("programdata");
+                        Serial.print("autostartProgram: ");
+                        Serial.println(autostartProgram);
                         
                         
                         autostart = true;
@@ -1618,7 +1618,11 @@ void saveProgram(){
                         return;
                 }
                 Serial.println("root success");
+                Serial.print("array before: ");
+                Serial.println(data);
                 JsonArray& array = jsonBuffer.parseArray(data);
+                Serial.print("json array: ");
+                // Serial.println(array);
                 root[programNameSave] = array;
                 root.printTo(Serial);
                 File file = SPIFFS.open("/programs.json", "w");
@@ -1636,12 +1640,13 @@ void saveProgram(){
 
 
 void runAutoStart(){
+        Serial.println("Running Autostart");
         programName = autostartName;
         Serial.println(programName);
         StaticJsonBuffer<500> jsonBuffer;
         JsonArray& array = jsonBuffer.parseArray(autostartProgram);
         if (!array.success()) {
-                Serial.println("parse failed");
+                Serial.println("autostart parse failed");
                 autostart = false;
                 return;
         }
@@ -1799,6 +1804,7 @@ void runAutoStart(){
                   Serial.println(highheatBlockTemp);
                 }
         PCRon = true;
+        Serial.print("PCR true autostart");
         autostart = false;
         jsonBuffer.clear();
 }
@@ -1852,8 +1858,14 @@ void handleAutostart(){
           Serial.println("root success");
           if (root["autostart"] == "true") {
             root["autostart"] = "false";
+            root["programname"] = "";
+            root["programdata"] = "[]";
             autostartalert = "{\"autostartalert\":\"Autostart Turned Off\"}";
           }else if (root["autostart"] == "false") {
+           
+                Serial.print("array before: ");
+                Serial.println(data);
+                
             root["autostart"] = "true";
             root["programname"] = autostartprogramName;
             root["programdata"] = data;
@@ -2001,25 +2013,25 @@ void saveWifiConfig(boolean connect){
 void updateFirmware(){
         Serial.println("update function ");
         runAsyncClient();
-        // File file = SPIFFS.open("/config.json", "r");
-        // size_t size = file.size();
-        // std::unique_ptr<char[]> buf (new char[size]);
-        // file.readBytes(buf.get(), size);
+        File file = SPIFFS.open("/config.json", "r");
+        size_t size = file.size();
+        std::unique_ptr<char[]> buf (new char[size]);
+        file.readBytes(buf.get(), size);
 
-        // StaticJsonBuffer<600> jsonBuffer;
-        // JsonObject& root = jsonBuffer.parseObject(buf.get());
-        // file.close();
+        StaticJsonBuffer<600> jsonBuffer;
+        JsonObject& root = jsonBuffer.parseObject(buf.get());
+        file.close();
 
-        // Serial.println("json root: ");
-        // if (root.success()) {
-        //         Serial.println("root success");
-        //         root["update"] = "true";
-        //         root.printTo(Serial);
-        //         File file = SPIFFS.open("/config.json", "w");
-        //         root.printTo(file);
-        //         file.close();
-        //         ESP.restart();
-        // }
+        Serial.println("json root: ");
+        if (root.success()) {
+                Serial.println("root success");
+                root["update"] = "true";
+                root.printTo(Serial);
+                File file = SPIFFS.open("/config.json", "w");
+                root.printTo(file);
+                file.close();
+                ESP.restart();
+        }
 }
 
 
@@ -2356,8 +2368,8 @@ void sendJSON(){
                 cycleNumInt = (int) cycleNum;
                 Setpointlidint = (int) Setpointlid;
                 Setpointblockint = (int) Setpoint2;
-                // Serial.print("totalTime before: ");
-                // Serial.println(totalTime);
+                // Serial.print("templid: ");
+                // Serial.println(templid);
                 int totalTimeInt = (int) totalTime;
                 // Serial.print("totalTime after: ");
                 // Serial.println(totalTime);
@@ -2471,7 +2483,7 @@ void setup(){
         loadConfig();
         setWifi();
         if (updatestart == true)
-        {
+        { 
                 Serial.println("Update Start");
                 File file = SPIFFS.open("/config.json", "r");
                 size_t size = file.size();
@@ -2573,6 +2585,7 @@ void setup(){
         lidPID.SetOutputLimits(0, 1023);
         fanPID.SetMode(AUTOMATIC);
         fanPID.SetOutputLimits(0, 1023);
+        ads.setGain(GAIN_ONE);
         ads.begin();
 
         // attach AsyncWebSocket
@@ -2687,6 +2700,7 @@ void loop(){
                         }
                 }
         }
+        // Serial.println(autostart);
         if (autostart) {
                 runAutoStart();
         }

@@ -2,5 +2,6 @@
     "terminal.integrated.env.osx": {
         "PATH": "/Users/isaacbean/.platformio/penv/bin:/Users/isaacbean/.platformio/penv:/Users/isaacbean/bin:/Users/isaacbean/anaconda/bin:/Library/Frameworks/Python.framework/Versions/2.7/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin",
         "PLATFORMIO_CALLER": "vscode"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }
