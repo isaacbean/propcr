@@ -247,7 +247,10 @@
   text-align: center;
   margin: auto;
   width: 80%;
+  padding: 5px;
 }
+
+
 
 .closeModal {
   padding-top: 2px;
@@ -551,6 +554,19 @@ input.loadbutton {
       text-align: center;
       display: none;
     }
+
+    #displaydiv2 {
+      margin: auto;
+      text-align: center;
+      display: none;
+    }
+
+    #cyclediv {
+      margin: auto;
+      text-align: center;
+      display: none;
+    }
+
     #progname{
       margin-bottom: 5px;
     }
@@ -1943,22 +1959,28 @@ if (programType === "hr" || programType === "hg") {
           ge("appleTitle").setAttribute("content", titleName);
           ge("appTitle").setAttribute("content", titleName);
         }
-        
-        pcrRunning = Number(JSONobj.pcrOn)
-        if (pcrRunning) {
-          pcrRunning = true;
-          ge('displaydiv').style.display = "block";
-          ge('displaydiv1').style.display = "block";
-          if (JSONobj.pauseSwitch == "Unpause") {
-            ge('progstate').innerHTML = "Paused";
-          } else {
-            ge('progstate').innerHTML = "Running";
-          }
-          if (JSONobj.programName != "") {
+        ge('progstate').innerHTML = JSONobj.progState;
+        pcrRunning = Number(JSONobj.pcrOn);
+        if (JSONobj.programName != "") {
             ge("progname").innerHTML = "\"" + JSONobj.programName + "\"";
           }else {
             ge("progname").innerHTML = "";
           }
+        if (pcrRunning) {
+          pcrRunning = true;
+          ge('displaydiv').style.display = "block";
+          ge('displaydiv1').style.display = "block";
+          ge('displaydiv2').style.display = "block";
+          // if (JSONobj.pauseSwitch == "Unpause") {
+          //   ge('progstate').innerHTML = "Paused";
+          // } else {
+          //   ge('progstate').innerHTML = "Running";
+          // }
+          // if (JSONobj.programName != "") {
+          //   ge("progname").innerHTML = "\"" + JSONobj.programName + "\"";
+          // }else {
+          //   ge("progname").innerHTML = "";
+          // }
           progtitle = JSONobj.programType;
           if (progtitle == 1) {
             progtype = "Regular PCR";
@@ -1997,6 +2019,7 @@ if (programType === "hr" || programType === "hg") {
           if (progtitle == 1 || progtitle == 2 ||progtitle == 3 ||progtitle == 4) {
 
             if (JSONobj.cycleState == "Initial Denature"){
+              ge('cyclediv').style.display = "none";
               ge('cycleTime').innerHTML = JSONobj.totalTime;}
             if (JSONobj.cycleState == "Touchdown Phase Denature Step"){
               ge('cyclediv').style.display = "block";
@@ -2042,8 +2065,8 @@ if (programType === "hr" || programType === "hg") {
         } else {
           ge("singleblocktemp").style.display = "block";
           ge("gradienttemp").style.display = "none";
-          ge('progstate').innerHTML = "PCR Ready";
-          ge('progname').innerHTML = "";
+          // ge('progstate').innerHTML = "PCR Ready";
+          // ge('progname').innerHTML = "";
           ge('displaydiv').style.display = "none";
           ge('displaydiv1').style.display = "none";
         }
@@ -2199,7 +2222,6 @@ window.onclick = function(event) {
       ge("stopModal").style.display = "block";
     }
 function confirmButton(){
-  ge('progstate').innerHTML = "PCR Ready";
   a = 'stop:';
   isgradient = false;
   ge("singleblocktemp").style.display = "block";
@@ -2278,7 +2300,6 @@ function resetFiles(){
 
 
 function updateFirmware(){
-  
   if (Boolean(connected)) {
     p = 'update1:';
     ws.send(p);
@@ -2286,11 +2307,7 @@ function updateFirmware(){
       ge("updatealert").innerHTML = "You must be connected to a wifi network to update the firmware";
       ge("updatealert").style.backgroundColor = alertColor;
     }
-
-
-    
   }
-
 
 function quietfanSend(){
     p = "quietfan:";
@@ -2370,20 +2387,15 @@ function showTab(tab, tablink){
   ge("programpcr").style.display = "none";
   ge("programramp").style.display = "none";
   ge("programheat").style.display = "none";
-
-
   ge("tabpcr").style.borderBottom = borderThin;
   ge("tabpcr").style.borderTop = "none";
   ge("tabramp").style.borderBottom = borderThin;
   ge("tabramp").style.borderTop = "none";
   ge("tabheat").style.borderBottom = borderThin;
   ge("tabheat").style.borderTop = "none";
-  // ge("tabheat").style.borderRight = borderThin;
   ge(tablink).style.borderTop = borderThick;
   ge(tab).style.display = "block";
   ge(tablink).style.borderBottom = "none";
-
-
 
   if (tablink == "tabpcr") {
     programTab = "p";
@@ -2422,7 +2434,6 @@ function showTab(tab, tablink){
     programType = programTab + programButton;
   }
 }
-
 
 function regularHeatButton(){
       programButton = "r";
@@ -2676,14 +2687,6 @@ window.onload = (function(){
 
   </div>
   <div class="container">
-
-    <!-- <div id="menudiv" style="display:none">
-      <input type="button" onclick="showProgram()" value="New Program" />
-      <input type="button" onclick="showLoad()" value="Load Program" />
-      <input type="button" onclick="showView()" value="PCR Status" />
-      <input type="button" onclick="showSettings()" value="Settings" />
-
-    </div> -->
     <div id="loaddiv">
 
     </div>
@@ -2722,7 +2725,7 @@ window.onload = (function(){
         <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Wifi Network Name' id="wifiname" maxlength="32"/><span>Wifi Network Name</span></label>
           
           <div class="help">
-            The name (SSID) of the network you would like the proPCR to join when it restarts next time.
+            <b>Wifi Network Name: </b>The name (SSID) of the network you would like the proPCR to join when it restarts next time.
           </div>
         </div>
         <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Wifi Password' id="wifipass" maxlength="63"/><span>Wifi Password</span></label>
@@ -2789,14 +2792,13 @@ window.onload = (function(){
 
 
     <div id="viewdiv">
-
       <h1 id="progstate"></h1>
-
-
+      <div id="displaydiv2">
+          <h2 id="progname"></h2>
+          <h4 id="progtitle"></h4>
+      </div>
+      
       <div id="displaydiv">
-
-        <h2 id="progname"></h2>
-        <h4 id="progtitle"></h4>
         <h3 id='cycleState'></h3>
         <div id="cyclediv">
           <h3>Cycle</h3>&nbsp;
@@ -2847,7 +2849,7 @@ window.onload = (function(){
         <input id='stopButton' type="button" onclick="stopButton();" value="Stop">
         </div>
         <div id="stopModal" class="modal">
-          <div class="modal-content">
+          <div class="modal-content" >
             <span class="closeModal" onclick="cancelButton()">&times;</span>
             <h3 style="clear:both">Please Confirm Stop</h3>
             <div class="buttondiv">
@@ -2872,6 +2874,9 @@ window.onload = (function(){
         <button class="tab" id="tabheat" onclick="showTab('programheat', 'tabheat')"><span class="tabspan">Heat Block</span></button>
       </div>
       <div id="programramp">
+          <div class="help">
+              <b>The Ramp Function: </b>This tab is where you can create, save, and run ramp programs. There are no cycles in a ramp program. It creates a linear change of the block temperature over a set period of time. A ramp is useful for things like controlled annealing of oligos.   
+            </div>
         <input type="button" class="button16" id="regularRampButton" onclick="regularRampButton()" value="Regular Ramp" />
         <input type="button" class="button16" id="gradientRampButton" onclick="gradientRampButton()" value="Gradient Ramp" />
         <h2 id="gradrampstat">Gradient Ramp Off</h2>
@@ -2880,13 +2885,13 @@ window.onload = (function(){
             <p id="pstartRampTemp"></p>
           </div>
           <div class="help">
-            The starting temperature of the ramp.
+            <b>Start Temp: </b>The starting temperature of the ramp.
           </div>
           <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='End Temp &deg;C' id="endRampTemp" name='endRampTemp' maxlength="2" /><span>End Temp &deg;C</span></label>
             <p id="pendRampTemp"></p>
           </div>
           <div class="help">
-            The ending temperature of the ramp.
+            <b>End Temp: </b>The ending temperature of the ramp.
           </div>
         </div>
         <div id="gradramp">
@@ -2894,38 +2899,41 @@ window.onload = (function(){
             <p id="plowstartRampTemp"></p>
           </div>
           <div class="help">
-            The low gradient starting temperature of the ramp.
+            <b>Low Start Temp: </b>The low gradient starting temperature of the ramp.
           </div>
           <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High Start Temp &deg;C' id="highstartRampTemp" name='highstartRampTemp' maxlength="2" /><span>High Start Temp &deg;C</span></label>
             <p id="phighstartRampTemp"></p>
           </div>
           <div class="help">
-            The high gradient starting temperature of the ramp.
+            <b>High Start Temp: </b>The high gradient starting temperature of the ramp.
           </div>
           <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Low End Temp &deg;C' id="lowendRampTemp" name='lowendRampTemp' maxlength="2" /><span>Low End Temp &deg;C</span></label>
             <p id="plowendRampTemp"></p>
           </div>
           <div class="help">
-            The low gradient ending temperature of the ramp.
+            <b>Low End Temp: </b>The low gradient ending temperature of the ramp.
           </div>
           <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High End Temp &deg;C' id="highendRampTemp" name='highendRampTemp' maxlength="2" /><span>High End Temp &deg;C</span></label>
             <p id="phighendRampTemp"></p>
           </div>
           <div class="help">
-            The high gradient ending temperature of the ramp.
+            <b>High End Temp: </b>The high gradient ending temperature of the ramp.
           </div>
         </div>
         <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Ramp Time (minutes)' id="rampTime" name='rampTime' maxlength="4"/><span>Ramp Time (minutes)</span></label>
           <p id="prampTime"></p>
         </div>
         <div class="help">
-          The amount of time for the ramp.
+          <b>Ramp Time: </b>The amount of time for the ramp.
         </div>
 
       </div>
 
 
       <div id="programheat">
+          <div class="help">
+              <b>The Heat Block Function: </b>This tab is where you can create, save, and run heat block programs. There are no cycles in a heat block program. It holds the block at a steady temperature for a set period of time. A heat block program is useful for things like running isothermal reactions.   
+            </div>
         <input type="button" class="button16" id="regularHeatButton" onclick="regularHeatButton()" value="Regular Heat" />
         <input type="button" class="button16" id="gradientHeatButton" onclick="gradientHeatButton()" value="Gradient Heat" />
         <h2 id="gradheatstat">Gradient Heat Off</h2>
@@ -2934,7 +2942,7 @@ window.onload = (function(){
             <p id="pheatBlockTemp"></p>
           </div>
           <div class="help">
-            The temperature of the block during the program.
+            <b>Heat Block Temp: </b>The temperature of the block during the program.
           </div>
         </div>
         <div id="gradheat">
@@ -2942,20 +2950,20 @@ window.onload = (function(){
             <p id="plowheatBlockTemp"></p>
           </div>
           <div class="help">
-            The low gradient temperature of the block during the program.
+            <b>Low Heat Block Temp: </b>The low gradient temperature of the block during the program.
           </div>
           <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High Heat Block Temp &deg;C' id="highheatBlockTemp" name='highheatBlockTemp' maxlength="2" /><span>High Heat Block Temp &deg;C</span></label>
             <p id="phighheatBlockTemp"></p>
           </div>
           <div class="help">
-            The high gradient temperature of the block during the program.
+            <b>High Heat Block Temp: </b>The high gradient temperature of the block during the program.
           </div>
         </div>
         <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Heat Block Time (minutes)' id="heatBlockTime" name='heatBlockTime' maxlength="4"/><span>Heat Block Time (minutes)</span></label>
           <p id="pheatBlockTime"></p>
         </div>
         <div class="help">
-          The amount of time for the program to run.
+          <b>Heat Block Time: </b>The amount of time for the program to run.
         </div>
       </div>
 
@@ -2964,6 +2972,9 @@ window.onload = (function(){
     <div id="programpcr">
 
       <div id="selectprogram">
+          <div class="help">
+              (This is an information box, you can turn them off in the Settings) <br><b>The PCR Function: </b>This tab is where you can create, save, and run PCR programs.  
+            </div>
         <h3 style="margin-top:15px">Please Select PCR Program Type:</h3>
         <input type="button" class="button16" id="regularButton" onclick="programRegular()" value="Regular PCR" />
         <input type="button" class="button16" id="gradientButton" onclick="programGradient()" value="Gradient PCR" />
@@ -2979,7 +2990,7 @@ window.onload = (function(){
           <p id="preheatLidInput"></p>
         </div>
         <div class="help">
-            This allows you to heat the lid to a desired temperature before you start a program.
+          <b>Preheat Lid Temp: </b>This optional setting allows you to save time by heating the lid to a desired temperature before you start a program. <b>CAUTION! Metal elements may be hot when you open the lid</b>
         </div>
         <div class="displaytemp">
           <p>Current Lid Temp=
@@ -3006,7 +3017,7 @@ window.onload = (function(){
           <p id="preheatBlockInput"></p>
         </div>
         <div class="help">
-            This allows you to heat the block to a desired temperature before you start a program. 
+          <b>Preheat Block Temp: </b>This optional setting allows you to save time by heating the block to a desired temperature before you start a program. <b>CAUTION! Metal elements may be hot when you open the lid</b>
         </div>
         <div class="displaytemp">
           <p>Block Temp=
@@ -3030,50 +3041,50 @@ window.onload = (function(){
         <p id="pinitDenatureTemp"></p>
       </div>
       <div class="help">
-          The initial denature happens once at the start of a program to separate double stranded DNA into single stranded DNA. 95&deg; celcius is a standard temperature for denaturing DNA.
+        <b>Initial Denature Temp: </b>The initial denature happens once at the start of a program to separate double stranded DNA into single stranded DNA. 95&deg; celcius is a standard temperature for denaturing DNA.
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Initial Denature Time (sec)' id="initDenatureTime" name='initDenatureTime' maxlength="4"/><span>Initial Denature Time (sec)</span></label>
         <p id="pinitDenatureTime"></p>
       </div>
       <div class="help">
-          2-5 minutes (120-300 seconds) are common times for the initial denaturation. More time may be needed if using a "hot start" polymerase.
+        <b>Initial Denature Time: </b>2-5 minutes (120-300 seconds) are common times for the initial denaturation. More time may be needed if using a "hot start" polymerase.
       </div>
 
     <div id="TDdiv" style="display:none">
       <h3 style="text-align:center">Touchdown (TD) Phase</h3>
       <div class="help">
-          You can learn more about Touchdown PCR at: https://genome.cshlp.org/content/4/5/S185.full.pdf+html
+        <b>Touchdown PCR: </b>More information about Touchdown PCR avaliable at: https://genome.cshlp.org/content/4/5/S185.full.pdf+html
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Number of Cycles' id="TDCycleNum" name='TDCycleNum' maxlength="2"/><span>TD Number of Cycles</span></label>
         <p id="pTDCycleNum"></p>
       </div>
       <div class="help">
-          The number of touchdown cycles in the touchdown phase.
+        <b>TD Number of Cycles: </b>The number of touchdown cycles in the touchdown phase.
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Denature Temp (&deg;C)' id="TDdenatureTemp" name='TDdenatureTemp' maxlength="2"/><span>TD Denature Temp (&deg;C)</span></label>
         <p id="pTDdenatureTemp"></p>
       </div>
       <div class="help">
-          The temperature for each denature step in the touchdown phase. 95&deg; celcius is common.
+        <b>TD Denature Temp: </b>The temperature for each denature step in the touchdown phase. 95&deg; celcius is common.
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Denature Time (sec)' id="TDdenatureTime" name='TDdenatureTime' maxlength="4"/><span>TD Denature Time (sec)</span></label>
         <p id="pTDdenatureTime"></p>
       </div>
       <div class="help">
-          The time for each denature step in the touchdown phase. 30 seconds is common.
+        <b>TD Denature Time: </b>The time for each denature step in the touchdown phase. 30 seconds is common.
       </div>
       <div id="TDregulardiv" style="display:none">
         <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Start Anneal Temp (&deg;C)' id="TDStartTemp" name='TDStartTemp' maxlength="2" /><span>TD Start Anneal Temp (&deg;C)</span></label>
           <p id="pTDStartTemp"></p>
         </div>
         <div class="help">
-            The temperature of the first anneal step in the touchdown phase. 10&deg; higher than the calculated anneal temperature is common.
+          <b>TD Start Anneal Temp: </b>The temperature of the first anneal step in the touchdown phase. 10&deg; higher than the calculated anneal temperature is common.
         </div>
         <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD End Anneal Temp (&deg;C)' id="TDEndTemp" name='TDEndTemp' maxlength="2" /><span>TD End Anneal Temp (&deg;C)</span></label>
           <p id="pTDEndTemp"></p>
         </div>
         <div class="help">
-            The temperature of the last anneal step in the touchdown phase. 1&deg; above the desired anneal temperature is common (either at the calculated temperature or 5&deg; below it).
+          <b>TD End Anneal Temp: </b>The temperature of the last anneal step in the touchdown phase. 1&deg; above the desired anneal temperature is common (either at the calculated temperature or 5&deg; below it).
         </div>
       </div>
       <div id="TDGdiv" style="display:none">
@@ -3081,44 +3092,44 @@ window.onload = (function(){
           <p id="pTDLowStartTemp"></p>
         </div>
         <div class="help">
-            The low gradient temperature of the first anneal step in the touchdown phase. 10&deg; higher than the calculated anneal temperature is common.
+          <b>Low TD Start Anneal Temp: </b>The low gradient temperature of the first anneal step in the touchdown phase. 10&deg; higher than the calculated anneal temperature is common.
         </div>
         <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High TD Start Anneal Temp (&deg;C)' id="TDHighStartTemp" name='TDHighStartTemp' maxlength="2" /><span>High TD Start Anneal Temp (&deg;C)</span></label>
           <p id="pTDHighStartTemp"></p>
         </div>
         <div class="help">
-            The high gradient temperature of the first anneal step in the touchdown phase.
+          <b>High TD Start Anneal Temp: </b>The high gradient temperature of the first anneal step in the touchdown phase.
         </div>
         <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Low TD End Anneal Temp (&deg;C)' id="TDLowEndTemp" name='TDLowEndTemp' maxlength="2" /><span>Low TD End Anneal Temp (&deg;C)</span></label>
           <p id="pTDLowEndTemp"></p>
         </div>
         <div class="help">
-            The low gradient temperature of the last anneal step in the touchdown phase. 1&deg; above the desired anneal temperature is common (either at the calculated temperature or 5&deg; below it).
+          <b>Low TD End Anneal Temp: </b>The low gradient temperature of the last anneal step in the touchdown phase. 1&deg; above the desired anneal temperature is common (either at the calculated temperature or 5&deg; below it).
         </div>
         <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High TD End Anneal Temp (&deg;C)' id="TDHighEndTemp" name='TDHighEndTemp' maxlength="2" /><span>High TD End Anneal Temp (&deg;C)</span></label>
           <p id="pTDHighEndTemp"></p>
         </div>
         <div class="help">
-            The high gradient temperature of the last anneal step in the touchdown phase. 1&deg; above the desired anneal temperature is common (either at the calculated temperature or 5&deg; below it).
+          <b>High TD End Anneal Temp: </b>The high gradient temperature of the last anneal step in the touchdown phase. 1&deg; above the desired anneal temperature is common (either at the calculated temperature or 5&deg; below it).
         </div>
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Anneal Time (sec)' id="TDannealTime" name='TDannealTime' maxlength="4"/><span>TD Anneal Time (sec)</span></label>
         <p id="pTDannealTime"></p>
       </div>
       <div class="help">
-          The time for each anneal step in the touchdown phase. 45 seconds is common.
+        <b>TD Anneal Time: </b>The time for each anneal step in the touchdown phase. 45 seconds is common.
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Extend Temp (&deg;C)' id="TDextendTemp" name='TDextendTemp' maxlength="2"/><span>TD Extend Temp (&deg;C)</span></label>
         <p id="pTDextendTemp"></p>
       </div>
       <div class="help">
-        The temperature for each extend step in the touchdown phase. 72&deg; celcius is common.
+        <b>TD Extend Temp: </b>The temperature for each extend step in the touchdown phase. 72&deg; celcius is common.
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='TD Extend Time (sec)' id="TDextendTime" name='TDextendTime' maxlength="4"/><span>TD Extend Time (sec)</span></label>
         <p id="pTDextendTime"></p>
       </div>
       <div class="help">
-        The time for each extend step in the touchdown phase. 60 seconds per 1000 basepairs to be amplified is common, though some polymerases require more time.
+        <b>TD Extend Time: </b>The time for each extend step in the touchdown phase. 60 seconds per 1000 basepairs to be amplified is common, though some polymerases require more time.
       </div>
       <h3 style="text-align:center">Regular Phase</h3>
 
@@ -3129,19 +3140,19 @@ window.onload = (function(){
         <p id="pcycleNum"></p>
       </div>
       <div class="help">
-        The number of cycles.
+        <b>Number of Cycles: </b>The number of times your program will run through the denature, anneal, and extend steps. 20-30 cycles is common.
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Denature Temp (&deg;C)' id="denatureTemp" name='denatureTemp' maxlength="2"/><span>Denature Temp (&deg;C)</span></label>
         <p id="pdenatureTemp"></p>
       </div>
       <div class="help">
-        The temperature for each denature step. 95&deg; celcius is common.
+        <b>Denature Temp: </b>The temperature for each denature step. 95&deg; celcius is common.
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Denature Time (sec)' id="denatureTime" name='denatureTime' maxlength="4"/><span>Denature Time (sec)</span></label>
         <p id="pdenatureTime"></p>
       </div>
       <div class="help">
-        The time for each denature step. 30 seconds is common.
+        <b>Denature Time: </b>The time for each denature step. 30 seconds is common.
       </div>
 
           <div id="regularProg" style="display:none">
@@ -3149,7 +3160,7 @@ window.onload = (function(){
               <p id="pannealTemp"></p>
             </div>
             <div class="help">
-              The temperature for each anneal step. 5&deg; celcius lower than the calculated primer temperature is common.
+              <b>Anneal Temp: </b>The temperature for each anneal step. 5&deg; celcius lower than the calculated primer temperature is common.
           </div>
           </div>
           <div id="gradientProg" style="display:none">
@@ -3158,13 +3169,13 @@ window.onload = (function(){
               <p id="pannealTempLow"></p>
             </div>
             <div class="help">
-              The low gradient temperature for each anneal step. 
+              <b>Low Anneal Temp: </b>The low gradient temperature for each anneal step. 
           </div>
             <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='High Anneal Temp (&deg;C)' id="annealTempHigh" name='annealTempHigh' maxlength="2"/><span>High Anneal Temp (&deg;C)</span></label>
               <p id="pannealTempHigh"></p>
             </div>
             <div class="help">
-              The high gradient temperature for each anneal step. 
+              <b>High Anneal Temp: </b>The high gradient temperature for each anneal step. 
           </div>
           </div>
 
@@ -3172,31 +3183,31 @@ window.onload = (function(){
             <p id="pannealTime"></p>
           </div>
           <div class="help">
-            The time for each anneal step. 45 seconds is common.
+            <b>Anneal Time: </b>The time for each anneal step. 45 seconds is common.
         </div>
           <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Extend Temp (&deg;C)' id="extendTemp" name='extendTemp' maxlength="2"/><span>Extend Temp (&deg;C)</span></label>
             <p id="pextendTemp"></p>
           </div>
           <div class="help">
-            The temperature for each extend step. 72&deg; celcius is common.
+            <b>Extend Temp: </b>The temperature for each extend step. 72&deg; celcius is common.
           </div>
           <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Extend Time (sec)' id="extendTime" name='extendTime' maxlength="4"/><span>Extend Time (sec)</span></label>
             <p id="pextendTime"></p>
           </div>
           <div class="help">
-            The time for each extend step. 60 seconds per 1000 basepairs to be amplified is common, though some polymerases require more time.
+            <b>Extend Time: </b>The time for each extend step. 60 seconds per 1000 basepairs to be amplified is common, though some polymerases require more time.
           </div>
           <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Final Extend Temp (&deg;C)' id="finalExtendTemp" name='finalExtendTemp' maxlength="2"/><span>Final Extend Temp (&deg;C)</span></label>
             <p id="pfinalExtendTemp"></p>
           </div>
           <div class="help">
-            The temperature for the final extend step. 72&deg; celcius is common.
+            <b>Final Extend Temp: </b>The temperature for the final extend step. 72&deg; celcius is common.
           </div>
           <div class="inputNum"><label class="has-float-label"><input type='tel' placeholder='Final Extend Time (sec)' id="finalExtendTime" name='finalExtendTime' maxlength="4"/><span>Final Extend Time (sec)</span></label>
             <p id="pfinalExtendTime"></p>
           </div>
           <div class="help">
-            The time for the final extend step. 5 minutes (300 seconds) is common.
+            <b>Final Extend Time: </b>The time for the final extend step. 5 minutes (300 seconds) is common.
           </div>
 
 
@@ -3207,13 +3218,13 @@ window.onload = (function(){
         <p id="psetLidTemp"></p>
       </div>
       <div class="help">
-        The temperature of the lid during the program. 
+        <b>Lid Temp: </b>A heated lid prevents condensation from forming at the top of the tubes, which would alter the reaction conditions. A few degrees above the highest reaction temperature is common. If you leave this field blank, the lid will not heat. <b>CAUTION! Metal elements may be hot when you open the lid</b>
       </div>
       <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Program Name (Optional)' id="programName" name='programName' maxlength="20"/><span>Program Name (Optional)</span></label>
         <p id="pprogramName"></p>
       </div>
       <div class="help">
-        The name of the program if you would like to save it.
+        <b>Program Name: </b>The name of the program if you would like to save it.
       </div>
 
 

@@ -117,6 +117,7 @@ float extendTime;
 float finalExtendTemp;
 float finalExtendTime;
 float cycleNum;
+int cycleNumInt;
 byte cycleCount = 1;
 float heatLow = 0;
 float heatHigh = 0;
@@ -165,7 +166,7 @@ float heatBlockTemp;
 float lowheatBlockTemp;
 float highheatBlockTemp;
 float heatBlockTime;
-
+String progState = "PCR Ready";
 String data;
 String programName;
 String programNameSave;
@@ -442,7 +443,7 @@ float readTherm(int therm){
          */
         average = therm;
         // convert the value to resistance
-        average = 25000 / average - 1;
+        average = 25500 / average - 1;
         average = SERIESRESISTOR / average;
         //Serial.print("Thermistor ");
         //Serial.print(therm);
@@ -481,7 +482,7 @@ void readThermistors(){
 void resetPCR() {
         cycleState = "Heating Lid";
         isPaused = false;
-        programName = "";
+        // programName = "";
         programType = 1;
         setLidTemp = 0;
         initDenatureTemp = 0;
@@ -497,6 +498,7 @@ void resetPCR() {
         finalExtendTemp = 0;
         finalExtendTime = 0;
         cycleNum = 0;
+        cycleNumInt = 0;
         cycleCount = 1;
         TDcycleNum = 0;
         TDdenatureTemp = 0;
@@ -572,9 +574,11 @@ void runPCR(float &low, float &high){
                                 if (programType == 3 || programType == 4) {
                                   programState = 2;
                                   cycleState = "Touchdown Phase Denature Step";
+                                  cycleNumInt = (int) TDcycleNum;
                                 }else{
                                   programState = 3;
                                   cycleState = "Denature Step";
+                                  cycleNumInt = (int) cycleNum;
                                 }
                               }
                 }
@@ -731,6 +735,7 @@ void runPCR(float &low, float &high){
                 cycleCount = 1;
                 programState = 3;
                 cycleState = "Denature Step";
+                cycleNumInt = (int) cycleNum;
         }
         break;
 
@@ -867,6 +872,7 @@ void runPCR(float &low, float &high){
 
         //Program done
         case 5:
+                progState = "Finished";
                 resetPCR();
                 Serial.println("Program done!");
                 break;
@@ -972,6 +978,7 @@ void runRamp(float &low, float &high){
         break;
 
         case 3:
+                progState = "Finished";
                 resetPCR();
                 Serial.println("Program done!");
                 break;
@@ -1032,6 +1039,7 @@ void runHeat(float &low, float &high){
                 break;
 
                 case 3:
+                        progState = "Finished";
                         resetPCR();
                         Serial.println("Program done!");
                         break;
@@ -1170,14 +1178,14 @@ void thermocycler(){
         if (gap1 > 10){ 
                 heatPID1.SetMode(MANUAL);
                 Output1 = 1023;
-                resetOutput1 = true;
+                resetOutput1=true;
                 // heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
-        }else if (gap1 <= 10 && gap1 >= 1){
+        }else if (gap1 <= 10 && gap1 >= 2){
                 Output1 = 0;
                 heatPID1.SetMode(AUTOMATIC);
                 heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
                 resetOutput1 = true;
-        }else if (gap1 < 1 && gap1 >= -1){
+        }else if (gap1 < 2 && gap1 >= -1){
                 if (resetOutput1 == true)
                 {
                        Output1 = 0;
@@ -1277,9 +1285,9 @@ void thermocycler(){
                                 // Serial.println(Outputfan);
 
                                 if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
-                                  if (Outputfan >= 200 && Outputfan < 1023) {
+                                  if (Outputfan >= 250 && Outputfan < 1023) {
                                         analogWrite(fanPin, 1023);
-                                        }else if (Outputfan > 0 && Outputfan < 200){
+                                        }else if (Outputfan > 0 && Outputfan < 250){
                                         analogWrite(fanPin, 0);
                                         }else{
                                         analogWrite(fanPin, Outputfan);
@@ -1400,7 +1408,7 @@ void resetFiles(){
         config.print("{\"update\":\"false\",\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"userssid\":\"\",\"connected\":\"false\",\"ip\":\"\",\"quietfan\":\"false\"}");
         config.close();
         File programfile = SPIFFS.open("/programs.json", "w");
-        programfile.print("{\"General Regular\":[1,100,95,180,25,95,30,45,72,60,72,300,55,0],\"General Gradient\":[2,100,95,180,25,95,30,45,72,60,72,300,55,65]}");
+        programfile.print("{\"General Regular\":[1,100,95,180,25,95,30,45,72,60,72,300,55,0],\"General Gradient\":[2,100,95,180,25,95,30,45,72,60,72,300,55,65],\"General Touchdown\":[3,100,95,180,20,95,30,45,72,60,72,300,55,0,10,95,30,45,72,60,65,55]}");
         programfile.close();
         File wififile = SPIFFS.open("/wifi.json", "w");
         wififile.print("{\"connect\":\"false\",\"userpsw\":\"\",\"userssid\":\"\",\"userpass\":\"\"}");
@@ -1640,6 +1648,7 @@ void saveProgram(){
 
 
 void runAutoStart(){
+        progState = "Running";
         Serial.println("Running Autostart");
         programName = autostartName;
         Serial.println(programName);
@@ -2052,6 +2061,8 @@ void handleWS(String msg){
         Serial.println(data);
 
         if (command == "run") {
+                programName = "";
+                progState = "Running";
                 resetPCR();
                 preheatLid = false;
                 preheatBlock = false;
@@ -2270,6 +2281,7 @@ void handleWS(String msg){
                 saveProgram();
         }
         if (command == "stop") {
+                progState = "Stopped";
                 resetPCR();
         }
         if (command == "delete") {
@@ -2332,13 +2344,15 @@ void handleWS(String msg){
           updateFirmware();
         }
        
-
-
-
-
         if(var=="isPaused") {
-                if(val=="true") isPaused=true;
-                if(val=="false") isPaused=false;
+                if(val=="true"){
+                        progState = "Paused";
+                        isPaused=true;
+                }
+                if(val=="false"){
+                        progState = "Running";
+                        isPaused=false;
+                }
         }
         if(var=="preheatLid") {
                 if(val=="true") preheatLid=true;
@@ -2363,16 +2377,10 @@ void handleWS(String msg){
 void sendJSON(){
         if(millis()>wait001) {
                 int Setpointlidint;
-                int cycleNumInt;
                 int Setpointblockint;
-                cycleNumInt = (int) cycleNum;
                 Setpointlidint = (int) Setpointlid;
                 Setpointblockint = (int) Setpoint2;
-                // Serial.print("templid: ");
-                // Serial.println(templid);
                 int totalTimeInt = (int) totalTime;
-                // Serial.print("totalTime after: ");
-                // Serial.println(totalTime);
                 String pauseSwitch="Pause";
                 String preheatLidText = "Lid is Off";
                 String preheatLidButton = "Start";
@@ -2383,7 +2391,7 @@ void sendJSON(){
                 if(preheatLid==true) preheatLidButton="Stop";
                 if(preheatBlock==true) preheatBlockText="Block is On";
                 if(preheatBlock==true) preheatBlockButton="Stop";
-                JSONtxt="{\"runtime\":\""+runTime+"\","+  // JSON requires double quotes
+                JSONtxt="{\"runtime\":\""+runTime+"\","+ 
                          "\"templid\":\""+(String)templid+"\","+
                          "\"connected\":\""+connected+"\","+
                          "\"chipid\":\""+chipIDstring+"\","+
@@ -2400,6 +2408,7 @@ void sendJSON(){
                          "\"Setpointlid\":\""+(String)Setpointlidint+"\","+
                          "\"Setpointblock\":\""+(String)Setpointblockint+"\","+
                          "\"cycleState\":\""+cycleState+"\","+
+                         "\"progState\":\""+progState+"\","+
                          "\"programName\":\""+programName+"\","+
                          "\"programType\":\""+(String)programType+"\","+
                          "\"pcrOn\":\""+PCRon+"\","+
