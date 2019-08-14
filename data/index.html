@@ -190,7 +190,7 @@
 
     #ipaddresstext {
       z-index: -10;
-      top: -100px;
+      top: -1000px;
       position: absolute;
     }
 
@@ -558,7 +558,7 @@ input.loadbutton {
     #displaydiv2 {
       margin: auto;
       text-align: center;
-      display: none;
+      /* display: none; */
     }
 
     #cyclediv {
@@ -1922,8 +1922,13 @@ if (programType === "hr" || programType === "hg") {
       intervalTimer = setInterval(disconnectCheck, 5000);
     }
 
+    function refreshPage(){
+      location.reload(true);
+    }
+
     function disconnectCheck(){
       if(WSdisconnected){
+        runModal("The browser has lost the websocket connection.<br>The proPCR will not be affected.<br>Please check wifi and refresh the browser window to reconnect.", "Cancel", cancelButton, "Refresh", refreshPage);
       ge("connectstatus").innerHTML = "DISCONNECTED";
       ge("connectionalert").innerHTML = "Please check wifi / refresh the browser window";
       ge("navbar").style.height = "95px";
@@ -1933,6 +1938,8 @@ if (programType === "hr" || programType === "hg") {
       }
       WSdisconnected = true;
     }
+
+    
 
     function copyAddress(){
       var copyText = document.getElementById("ipaddresstext");
@@ -1955,6 +1962,7 @@ if (programType === "hr" || programType === "hg") {
           titleSet = false;
           var titleName = "proPCR " + JSONobj.chipid;
           ge("machineid").innerHTML = JSONobj.chipid;
+          ge("propcrwifiname").innerHTML = JSONobj.chipid;
           document.title = titleName;
           ge("appleTitle").setAttribute("content", titleName);
           ge("appTitle").setAttribute("content", titleName);
@@ -2203,34 +2211,37 @@ if (programType === "hr" || programType === "hg") {
       ws.send(a);
     }
 
-// function modal(modalmessage, leftbuttontext, leftbuttoncallback, rightbuttontext, rightbuttoncallback){
-//   ge("modalId").style.display = "block";
-//   ge("modalMessage").innerHTML = modalmessage;
-//   ge("leftButton").value = leftbuttontext;
-//   ge("rightButton").value = rightbuttontext;
-//   ge("leftButton").onclick = leftbuttoncallback;
-//   ge("rightButton").onclick = rightbuttoncallback;
-// }
+function runModal(modalmessage, leftbuttontext, leftbuttoncallback, rightbuttontext, rightbuttoncallback){
+  ge("modalId").style.display = "block";
+  ge("modalMessage").innerHTML = modalmessage;
+  ge("leftButton").value = leftbuttontext;
+  ge("rightButton").value = rightbuttontext;
+  ge("leftButton").onclick = leftbuttoncallback;
+  ge("rightButton").onclick = rightbuttoncallback;
+}
 
 window.onclick = function(event) {
-      var modal = ge("stopModal");
+      var modal = ge("modalId");
         if (event.target == modal) {
             modal.style.display = "none";
         }
     }
     function stopButton() {
-      ge("stopModal").style.display = "block";
+      runModal("Please Confirm Stop", "Confirm Stop", confirmButton, "Cancel", cancelButton);
     }
+    // function stopButton() {
+    //   ge("stopModal").style.display = "block";
+    // }
 function confirmButton(){
   a = 'stop:';
   isgradient = false;
   ge("singleblocktemp").style.display = "block";
   ge("gradienttemp").style.display = "none";
   ws.send(a);
-  ge("stopModal").style.display = "none";
+  ge("modalId").style.display = "none";
 }
 function cancelButton(){
-  ge("stopModal").style.display = "none";
+  ge("modalId").style.display = "none";
 }
 
 function selectLoad(key, keydata){
@@ -2544,7 +2555,7 @@ function changeTheme(theme){
     themeColor = "dark";
     borderThin = "1px solid #a7a7a7";
     borderThick = "3px solid #a7a7a7";
-    alertColor = "#ff9d2e";
+    alertColor = "#985100";
     buttonSelected = "#754106";
     buttonDeselected = "#111";
     if (Boolean(firstload)) {
@@ -2696,14 +2707,14 @@ window.onload = (function(){
       <div id="helpset" class="setting" onclick="expandShow('helpon','helpicon')"><div id="helpicon" class="settingsicon">+</div><div>&nbsp;Show Information Boxes: <span id="helpstat" class="stat">ON</span></div></div>
       <div id="helpon" style="display:none">
           <div id="helpalert" class="alertmsg"></div>
-        <div class="info">This setting turns on and off the information boxes that describe what perameter or setting is.</div>
+        <div class="help">This setting turns on and off the information boxes that describe what perameter or setting is.</div>
         <input type="button" id="helpbutton" onclick="helpSend()"value="Turn Info Boxes Off"/>
       </div>
 
       <div id="autostartset" class="setting" onclick="expandShow('autostart','autostarticon')"><div id="autostarticon" class="settingsicon">+</div><div>&nbsp;Autostart: <span id="autostartstat" class="stat">OFF</span></div></div>
       <div id="autostart" style="display:none">
         
-      <div class="info">Autostart will run a selected program automatically when the machine powers on</div>
+      <div class="help">Autostart will run a selected program automatically when the machine powers on. No need to connect to the proPCR, just switch it on and it will start running the selected program.</div>
       <h3 style="text-align:center; margin-bottom: 0;">Select Program to Autostart:</h3>
       <p id="autostarterror"></p>
       <div id="progselect"></div>
@@ -2717,7 +2728,7 @@ window.onload = (function(){
 
       <div id="connectwifiset" class="setting" onclick="expandShow('connectwifi','connectwifiicon')"><div id="connectwifiicon" class="settingsicon">+</div><div>&nbsp;Connect to Wifi Network: <span id="connectwifistat" class="stat">OFF</span></div></div>
       <div id="connectwifi" style="display:none">
-        <div class="info">This setting will connect the proPCR to a separate wifi network. Upon connection, the proPCR will have a unique address so that it can be programmed by a device connected to the same network.</div>
+        <div class="help">This setting will connect the proPCR to a separate wifi network from its own. Upon successful connection, the proPCR will have a unique IP address so that it can be accessed and programmed from the separate wifi network. The proPCR will continue to broadcast its own wifi network "proPCR.<span id="propcrwifiname"></span>", which is where the unique IP address will be displayed.</div>
         <div id="connectmsg">
         <span id="connectnetworkmsg">On startup proPCR will connect to the network:&nbsp;</span>
         <span id="connectnetwork"></span>
@@ -2738,7 +2749,7 @@ window.onload = (function(){
 
       <div id="aponset" class="setting" onclick="expandShow('apon','aponicon')"><div id="aponicon" class="settingsicon">+</div><div>&nbsp;Broadcast proPCR Network: <span id="aponstat" class="stat">ON</span></div></div>
       <div id="apon" style="display:none">
-        <div class="info">This setting turns on and off the wifi network that the proPCR broadcasts. If you turn this off and have trouble connecting to another wifi network, you may have to reset the proPCR to connect to it.</div>
+        <div class="help">This setting turns on and off the wifi network that the proPCR broadcasts. If you turn this off and have trouble connecting to another wifi network, you may have to reset the proPCR to connect to it.</div>
         <div id="aponalert">
         </div>
         <input type="button" id="aponbutton" onclick="aponSend()"value="Turn Broadcast On"/>
@@ -2746,7 +2757,7 @@ window.onload = (function(){
 
       <div id="userpswset" class="setting" onclick="expandShow('userpsw','userpswicon')"><div id="userpswicon" class="settingsicon">+</div><div>&nbspCustom proPCR password: <span id="userpswstat" class="stat">OFF</span></div></div>
       <div id="userpsw" style="display:none">
-        <div class="info">Set a custom password for the proPCR wifi network.</div>
+        <div class="help">Set a custom password for the proPCR wifi network. </div>
         <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='New Password' id="userpswinput" maxlength="63"/><span>New Password</span></label></div>
           <div id="puserpswinput"></div>
           <input type="button" id="userpswbutton" onclick="userpswSend()" value="Turn Custom Password On"/>
@@ -2808,7 +2819,7 @@ window.onload = (function(){
         </div>
         <div id="timerdiv">
           <h3 id='timer'></h3>
-          <h3>seconds of</h3>&nbsp;
+          <h3>&nbsp;seconds of&nbsp;</h3>
           <h3 id='cycleTime'></h3>
         </div>
       </div>
@@ -2848,7 +2859,23 @@ window.onload = (function(){
         <input id='pauseButton' type="button" onclick="pauseButton();" value="Pause">
         <input id='stopButton' type="button" onclick="stopButton();" value="Stop">
         </div>
-        <div id="stopModal" class="modal">
+        
+        
+
+
+
+     <!-- function runModal(modalmessage, leftbuttontext, leftbuttoncallback, rightbuttontext, rightbuttoncallback){
+            ge("modalId").style.display = "block";
+            ge("modalMessage").innerHTML = modalmessage;
+            ge("leftButton").value = leftbuttontext;
+            ge("rightButton").value = rightbuttontext;
+            ge("leftButton").onclick = leftbuttoncallback();
+            ge("rightButton").onclick = rightbuttoncallback();
+          } -->
+
+
+
+        <!-- <div id="stopModal" class="modal">
           <div class="modal-content" >
             <span class="closeModal" onclick="cancelButton()">&times;</span>
             <h3 style="clear:both">Please Confirm Stop</h3>
@@ -2858,7 +2885,9 @@ window.onload = (function(){
 
             </div>
           </div>
-        </div>
+        </div> -->
+
+
       </div>
     </div>
 
@@ -2990,7 +3019,7 @@ window.onload = (function(){
           <p id="preheatLidInput"></p>
         </div>
         <div class="help">
-          <b>Preheat Lid Temp: </b>This optional setting allows you to save time by heating the lid to a desired temperature before you start a program. <b>CAUTION! Metal elements may be hot when you open the lid</b>
+          <b>Preheat Lid Temp: </b>This optional setting allows you to save time by heating the lid to a desired temperature before you start a program. <br><b>CAUTION! Metal elements may be hot when you open the lid</b>
         </div>
         <div class="displaytemp">
           <p>Current Lid Temp=
@@ -3017,7 +3046,7 @@ window.onload = (function(){
           <p id="preheatBlockInput"></p>
         </div>
         <div class="help">
-          <b>Preheat Block Temp: </b>This optional setting allows you to save time by heating the block to a desired temperature before you start a program. <b>CAUTION! Metal elements may be hot when you open the lid</b>
+          <b>Preheat Block Temp: </b>This optional setting allows you to save time by heating the block to a desired temperature before you start a program. <br><b>CAUTION! Metal elements may be hot when you open the lid</b>
         </div>
         <div class="displaytemp">
           <p>Block Temp=
@@ -3235,6 +3264,17 @@ window.onload = (function(){
       <input type='button' onclick="sendProgram()" id="runbutton" value="Run" />
     </div>
   </div>
+  <div id="modalId" class="modal">
+      <div class="modal-content" >
+        <span class="closeModal" onclick="cancelButton()">&times;</span>
+        <h3 id="modalMessage" style="clear:both"></h3>
+        <div class="buttondiv">
+        <input id='leftButton' type="button"  >
+        <input id='rightButton' type="button"  >
+
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 
