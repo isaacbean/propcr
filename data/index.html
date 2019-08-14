@@ -1928,7 +1928,7 @@ if (programType === "hr" || programType === "hg") {
 
     function disconnectCheck(){
       if(WSdisconnected){
-        runModal("The browser has lost the websocket connection.<br>The proPCR will not be affected.<br>Please check wifi and refresh the browser window to reconnect.", "Cancel", cancelButton, "Refresh", refreshPage);
+        runModal("The browser has lost the websocket connection.<br>The proPCR will not be affected.<br>To reconnect please refresh the browser window and/or check wifi.", "Cancel", cancelButton, "Refresh", refreshPage);
       ge("connectstatus").innerHTML = "DISCONNECTED";
       ge("connectionalert").innerHTML = "Please check wifi / refresh the browser window";
       ge("navbar").style.height = "95px";
@@ -1966,6 +1966,7 @@ if (programType === "hr" || programType === "hg") {
           document.title = titleName;
           ge("appleTitle").setAttribute("content", titleName);
           ge("appTitle").setAttribute("content", titleName);
+
         }
         ge('progstate').innerHTML = JSONobj.progState;
         pcrRunning = Number(JSONobj.pcrOn);
@@ -2706,8 +2707,8 @@ window.onload = (function(){
 
       <div id="helpset" class="setting" onclick="expandShow('helpon','helpicon')"><div id="helpicon" class="settingsicon">+</div><div>&nbsp;Show Information Boxes: <span id="helpstat" class="stat">ON</span></div></div>
       <div id="helpon" style="display:none">
-          <div id="helpalert" class="alertmsg"></div>
         <div class="help">This setting turns on and off the information boxes that describe what perameter or setting is.</div>
+        <div id="helpalert" class="alertmsg"></div>
         <input type="button" id="helpbutton" onclick="helpSend()"value="Turn Info Boxes Off"/>
       </div>
 
@@ -2728,7 +2729,7 @@ window.onload = (function(){
 
       <div id="connectwifiset" class="setting" onclick="expandShow('connectwifi','connectwifiicon')"><div id="connectwifiicon" class="settingsicon">+</div><div>&nbsp;Connect to Wifi Network: <span id="connectwifistat" class="stat">OFF</span></div></div>
       <div id="connectwifi" style="display:none">
-        <div class="help">This setting will connect the proPCR to a separate wifi network from its own. Upon successful connection, the proPCR will have a unique IP address so that it can be accessed and programmed from the separate wifi network. The proPCR will continue to broadcast its own wifi network "proPCR.<span id="propcrwifiname"></span>", which is where the unique IP address will be displayed.</div>
+        <div class="help">This setting will connect the proPCR to a separate wifi network from its own. After entering credentials, you will need to turn off and on the proPCR to initiate the connection. Upon successful connection, the proPCR will have a unique IP address so that it can be accessed and programmed from the separate wifi network. The proPCR will continue to broadcast its own wifi network "proPCR.<span id="propcrwifiname"></span>", which is where the unique IP address will be displayed.</div>
         <div id="connectmsg">
         <span id="connectnetworkmsg">On startup proPCR will connect to the network:&nbsp;</span>
         <span id="connectnetwork"></span>
@@ -2749,7 +2750,7 @@ window.onload = (function(){
 
       <div id="aponset" class="setting" onclick="expandShow('apon','aponicon')"><div id="aponicon" class="settingsicon">+</div><div>&nbsp;Broadcast proPCR Network: <span id="aponstat" class="stat">ON</span></div></div>
       <div id="apon" style="display:none">
-        <div class="help">This setting turns on and off the wifi network that the proPCR broadcasts. If you turn this off and have trouble connecting to another wifi network, you may have to reset the proPCR to connect to it.</div>
+        <div class="help">This setting turns on and off the wifi network that the proPCR broadcasts.</div>
         <div id="aponalert">
         </div>
         <input type="button" id="aponbutton" onclick="aponSend()"value="Turn Broadcast On"/>
