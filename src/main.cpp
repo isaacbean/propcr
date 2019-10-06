@@ -70,8 +70,8 @@ bool resetOutput3 = true;
 //Specify the links and initial tuning parameters
 //double Kp=600, Ki=0, Kd=.00001;
 //PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-double aggKp=300, aggKi=.5, aggKd=.001;
-double consKp=1700, consKi=2, consKd=500;
+double aggKp=600, aggKi=.5, aggKd=.001;
+double consKp=1500, consKi=2, consKd=500;
 double alidKp=1000, alidKi=.01, alidKd=.5;
 double lidKp=1000, lidKi=1, lidKd=10;
 double aggKpfan=400, aggKifan=.01, aggKdfan=.0001;
@@ -207,7 +207,7 @@ unsigned long previousserialMillis = 0;
 static AsyncClient * aClient = NULL;
 
 void runAsyncClient(){
-        //Serial.println("async client");
+        Serial.println("async client");
   if(aClient)//client already exists
     return;
 
@@ -216,24 +216,24 @@ void runAsyncClient(){
     return;
 
   aClient->onError([](void * arg, AsyncClient * client, err_t error){
-    //Serial.println("Connect Error");
+    Serial.println("Connect Error");
     aClient = NULL;
     delete client;
   }, NULL);
 
   aClient->onConnect([](void * arg, AsyncClient * client){
-    //Serial.println("Connected");
+    Serial.println("Connected");
     aClient->onError(NULL, NULL);
 
     client->onDisconnect([](void * arg, AsyncClient * c){
-      //Serial.println("Disconnected");
+      Serial.println("Disconnected");
       aClient = NULL;
       delete c;
     }, NULL);
 
     client->onData([](void * arg, AsyncClient * c, void * data, size_t len){
-      //Serial.print("\r\nData: ");
-      //Serial.println(len);
+      Serial.print("\r\nData: ");
+      Serial.println(len);
       uint8_t * d = (uint8_t*)data;
       for(size_t i=0; i<len;i++)
         Serial.write(d[i]);
@@ -244,7 +244,7 @@ void runAsyncClient(){
   }, NULL);
 
   if(!aClient->connect("www.propcr.com", 80)){
-    //Serial.println("Connect Fail");
+    Serial.println("Connect Fail");
     AsyncClient * client = aClient;
     aClient = NULL;
     delete client;
@@ -252,24 +252,24 @@ void runAsyncClient(){
 }
 
 void setupAP(){
-        //Serial.println("Configuring access point...");
-        //Serial.println(ESP.getChipId());
+        Serial.println("Configuring access point...");
+        Serial.println(ESP.getChipId());
         String chipID = String(ESP.getChipId()).substring(3,6);
-        //Serial.println(chipID);
+        Serial.println(chipID);
         chipIDint = chipID.toInt();
         while (chipIDint > 255 || chipIDint < 100) {
                 if (chipIDint < 100) {
                   chipIDint = chipIDint + 500;
                 }
                 chipIDint = chipIDint - 155;
-                //Serial.println(chipIDint);
+                Serial.println(chipIDint);
         }
         IPAddress apIP(1, 1, 1, chipIDint);
         chipIDstring = String(chipIDint);
         softAP_ssid = "proPCR." + chipIDstring;
         propcrChip = "propcr" + chipIDstring;
         WiFi.hostname(propcrChip);
-        //Serial.print("softAP_ssid: ");
+        Serial.print("softAP_ssid: ");
         Serial.println(softAP_ssid);
         if (userpsw != "") {
                 softAP_password = userpsw;
@@ -282,8 +282,8 @@ void setupAP(){
         WiFi.softAPConfig(apIP, apIP, netMsk);
         WiFi.softAP(softAP_ssid.c_str(), softAP_password.c_str());
         delay(500); // Needed delay so IP address doesn't blank
-        //Serial.print("AP IP address: ");
-        //Serial.println(WiFi.softAPIP());
+        Serial.print("AP IP address: ");
+        Serial.println(WiFi.softAPIP());
 
 }
 
@@ -298,29 +298,29 @@ String toStringIp(IPAddress ip) {
 
 void startWifi(){
 
-        //Serial.println("function: startWifi()");
+        Serial.println("function: startWifi()");
 
     //     int n = WiFi.scanNetworks();
-    //     //Serial.print(n);
-    // //Serial.println(" networks found");
+    //     Serial.print(n);
+    // Serial.println(" networks found");
     // for (int i = 0; i < n; ++i)
     // {
     //   // Print SSID and RSSI for each network found
-    //   //Serial.print(i + 1);
-    //   //Serial.print(": ");
-    //   //Serial.print(WiFi.SSID(i));
-    //   //Serial.print(" (");
-    //   //Serial.print(WiFi.RSSI(i));
-    //   //Serial.print(")");
-    //   //Serial.println((WiFi.encryptionType(i) == ENC_TYPE_NONE)?" ":"*");
+    //   Serial.print(i + 1);
+    //   Serial.print(": ");
+    //   Serial.print(WiFi.SSID(i));
+    //   Serial.print(" (");
+    //   Serial.print(WiFi.RSSI(i));
+    //   Serial.print(")");
+    //   Serial.println((WiFi.encryptionType(i) == ENC_TYPE_NONE)?" ":"*");
     //   delay(10);
     // }
 
         WiFi.mode(WIFI_STA);
-        //Serial.print("userssid: ");
-        //Serial.println(userssid);
-        //Serial.print("userpass: ");
-        //Serial.println(userpass);
+        Serial.print("userssid: ");
+        Serial.println(userssid);
+        Serial.print("userpass: ");
+        Serial.println(userpass);
         if (userpass == "") {
                 WiFi.begin(userssid.c_str());
         }else{
@@ -333,26 +333,26 @@ void startWifi(){
               delay(100);
               if (WiFi.status()==WL_CONNECTED) {
                 APcatch = true;
-                //Serial.println("wifi connected");
+                Serial.println("wifi connected");
       			connected = "true";
             localIPaddress = toStringIp(WiFi.localIP());
-            //Serial.print("local ip:");
-            //Serial.println(WiFi.localIP());
-            //Serial.println(localIPaddress);
+            Serial.print("local ip:");
+            Serial.println(WiFi.localIP());
+            Serial.println(localIPaddress);
       		}
           }
 
-        //Serial.print("Wifi status: ");
-        //Serial.println(WiFi.status());
+        Serial.print("Wifi status: ");
+        Serial.println(WiFi.status());
         if (WiFi.status() == 3){
                   if (apon) {
                           WiFi.mode(WIFI_AP_STA);
                           delay(500);
-                          //Serial.println("connected ap sta");
+                          Serial.println("connected ap sta");
 
                   }
-                        //Serial.print("connected localIP: ");
-                        //Serial.println(WiFi.localIP());
+                        Serial.print("connected localIP: ");
+                        Serial.println(WiFi.localIP());
         }
         if (apon) {
                 setupAP();
@@ -412,7 +412,7 @@ void wifiScan(){
 
 // boolean captivePortal() {
 //         if (!isIp(server.hostHeader()) && server.hostHeader() != (propcrChip+".local")) {
-//                 //Serial.println("Request redirected to captive portal");
+//                 Serial.println("Request redirected to captive portal");
 //                 server.sendHeader("Location", String("http://") + toStringIp(server.client().localIP()), true);
 //                 server.send ( 302, "text/plain", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves.
 //                 server.client().stop(); // Stop is needed because we sent no content length
@@ -423,7 +423,7 @@ void wifiScan(){
 
 float readTherm(int therm){
 
-        uint8_t i;
+        //uint8_t i;
         float average;
         /*
            // take N samples in a row, with a slight delay
@@ -438,17 +438,17 @@ float readTherm(int therm){
              average += samples[i];
            }
            average /= NUMSAMPLES;
-           ////Serial.print("Average analog reading: ");
-           ////Serial.println(average);
+           //Serial.print("Average analog reading: ");
+           //Serial.println(average);
          */
         average = therm;
         // convert the value to resistance
         average = 25500 / average - 1;
         average = SERIESRESISTOR / average;
-        ////Serial.print("Thermistor ");
-        ////Serial.print(therm);
-        ////Serial.print(" resistance conversion: ");
-        ////Serial.println(average);
+        //Serial.print("Thermistor ");
+        //Serial.print(therm);
+        //Serial.print(" resistance conversion: ");
+        //Serial.println(average);
 
 
         steinhart = average / THERMISTORNOMINAL;    // (R/Ro)
@@ -458,10 +458,10 @@ float readTherm(int therm){
         steinhart = 1.0 / steinhart;              // Invert
         steinhart -= 273.15;                      // convert to C
         /*
-           //Serial.print("Thermistor ");
-           //Serial.print(therm);
-           //Serial.print(" temp celcius: ");
-           //Serial.println(steinhart);
+           Serial.print("Thermistor ");
+           Serial.print(therm);
+           Serial.print(" temp celcius: ");
+           Serial.println(steinhart);
          */
         return steinhart;
 }
@@ -483,6 +483,9 @@ void resetPCR() {
         cycleState = "Heating Lid";
         isPaused = false;
         // programName = "";
+        Setpointlid = 0;
+        heatLow = 0;
+        heatHigh = 0;
         programType = 1;
         setLidTemp = 0;
         initDenatureTemp = 0;
@@ -560,10 +563,10 @@ void runPCR(float &low, float &high){
                 high = initDenatureTemp;
                 totalTime = initDenatureTime;
                 if (Input1 >= low - tempthreshold) {
-                        // //Serial.print("Timer: ");
-                        // //Serial.print(timerSerial);
-                        // //Serial.print(" of ");
-                        // //Serial.println(initDenatureTimeSec);
+                        // Serial.print("Timer: ");
+                        // Serial.print(timerSerial);
+                        // Serial.print(" of ");
+                        // Serial.println(initDenatureTimeSec);
                         currentMillis = millis();
                         if (timerStarted == false) {
                                 previousMillis = millis();
@@ -587,24 +590,24 @@ void runPCR(float &low, float &high){
         //Touchdown Cycles
         case 2:
         if (cycleCount <= TDcycleNum) {
-                //Serial.print("Touchdown Cycle ");
-                //Serial.print(cycleCount);
-                //Serial.print(" of ");
-                //Serial.println(TDcycleNum);
+                Serial.print("Touchdown Cycle ");
+                Serial.print(cycleCount);
+                Serial.print(" of ");
+                Serial.println(TDcycleNum);
 
                 //Denature step
                 if (denatureStep == true) {
                   totalTime = TDdenatureTime;
-                        //Serial.println("TD Denature Step");
+                        Serial.println("TD Denature Step");
 
                         low = TDdenatureTemp;
                         high = TDdenatureTemp;
 
                         if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                                //Serial.print("Timer: ");
-                                //Serial.print(timerSerial);
-                                //Serial.print(" of ");
-                                //Serial.println(TDdenatureTimeSec);
+                                Serial.print("Timer: ");
+                                Serial.print(timerSerial);
+                                Serial.print(" of ");
+                                Serial.println(TDdenatureTimeSec);
                                 currentMillis = millis();
                                 if (timerStarted == false) {
                                         previousMillis = millis();
@@ -622,7 +625,7 @@ void runPCR(float &low, float &high){
                 //Anneal step
                 if (annealStep == true) {
                     totalTime = TDannealTime;
-                        //Serial.println("Touchdown Phase Anneal Step");
+                        Serial.println("Touchdown Phase Anneal Step");
 
                         if (programType == 3) {
                           float tempStep;
@@ -683,10 +686,10 @@ void runPCR(float &low, float &high){
                         }
 
                         if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                                //Serial.print("Timer: ");
-                                //Serial.print(timerSerial);
-                                //Serial.print(" of ");
-                                //Serial.println(TDannealTimeSec);
+                                Serial.print("Timer: ");
+                                Serial.print(timerSerial);
+                                Serial.print(" of ");
+                                Serial.println(TDannealTimeSec);
                                 currentMillis = millis();
 
                                 if (timerStarted == false) {
@@ -695,7 +698,7 @@ void runPCR(float &low, float &high){
                                 }
                         }
                         if (timerStarted == true && currentMillis - previousMillis > TDannealTime) {
-                                //Serial.println("Timer Stopped");
+                                Serial.println("Timer Stopped");
                                 annealStep = false;
                                 extendStep = true;
                                 timerStarted = false;
@@ -705,16 +708,16 @@ void runPCR(float &low, float &high){
                 //Extend step
                 if (extendStep == true) {
                   totalTime = TDextendTime;
-                        //Serial.println("TD Extend Step");
+                        Serial.println("TD Extend Step");
 
                         low = TDextendTemp;
                         high = TDextendTemp;
 
                         if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                                //Serial.print("Timer: ");
-                                //Serial.print(timerSerial);
-                                //Serial.print(" of ");
-                                //Serial.println(TDextendTimeSec);
+                                Serial.print("Timer: ");
+                                Serial.print(timerSerial);
+                                Serial.print(" of ");
+                                Serial.println(TDextendTimeSec);
                                 currentMillis = millis();
 
                                 if (timerStarted == false) {
@@ -741,24 +744,24 @@ void runPCR(float &low, float &high){
 
         case 3:
                 if (cycleCount <= cycleNum) {
-                        // //Serial.print("Cycle ");
-                        // //Serial.print(cycleCount);
-                        // //Serial.print(" of ");
-                        // //Serial.println(cycleNum);
+                        // Serial.print("Cycle ");
+                        // Serial.print(cycleCount);
+                        // Serial.print(" of ");
+                        // Serial.println(cycleNum);
 
                         //Denature step
                         if (denatureStep == true) {
                           totalTime = denatureTime;
-                                // //Serial.println("Denature Step");
+                                // Serial.println("Denature Step");
 
                                 low = denatureTemp;
                                 high = denatureTemp;
 
                                 if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                                        // //Serial.print("Timer: ");
-                                        // //Serial.print(timerSerial);
-                                        // //Serial.print(" of ");
-                                        // //Serial.println(denatureTimeSec);
+                                        // Serial.print("Timer: ");
+                                        // Serial.print(timerSerial);
+                                        // Serial.print(" of ");
+                                        // Serial.println(denatureTimeSec);
                                         currentMillis = millis();
                                         if (timerStarted == false) {
                                                 previousMillis = millis();
@@ -776,7 +779,7 @@ void runPCR(float &low, float &high){
                         //Anneal step
                         if (annealStep == true) {
                           totalTime = annealTime;
-                                // //Serial.println("Anneal Step");
+                                // Serial.println("Anneal Step");
 
                                 if (programType == 1 || programType == 3) {
                                   low = annealTemp;
@@ -789,10 +792,10 @@ void runPCR(float &low, float &high){
 
 
                                 if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                                        // //Serial.print("Timer: ");
-                                        // //Serial.print(timerSerial);
-                                        // //Serial.print(" of ");
-                                        // //Serial.println(annealTimeSec);
+                                        // Serial.print("Timer: ");
+                                        // Serial.print(timerSerial);
+                                        // Serial.print(" of ");
+                                        // Serial.println(annealTimeSec);
                                         currentMillis = millis();
 
                                         if (timerStarted == false) {
@@ -801,7 +804,7 @@ void runPCR(float &low, float &high){
                                         }
                                 }
                                 if (timerStarted == true && currentMillis - previousMillis > annealTime) {
-                                        // //Serial.println("Timer Stopped");
+                                        // Serial.println("Timer Stopped");
                                         annealStep = false;
                                         extendStep = true;
                                         timerStarted = false;
@@ -811,16 +814,16 @@ void runPCR(float &low, float &high){
                         //Extend step
                         if (extendStep == true) {
                           totalTime = extendTime;
-                                // //Serial.println("Extend Step");
+                                // Serial.println("Extend Step");
 
                                 low = extendTemp;
                                 high = extendTemp;
 
                                 if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                                        // //Serial.print("Timer: ");
-                                        // //Serial.print(timerSerial);
-                                        // //Serial.print(" of ");
-                                        // //Serial.println(extendTimeSec);
+                                        // Serial.print("Timer: ");
+                                        // Serial.print(timerSerial);
+                                        // Serial.print(" of ");
+                                        // Serial.println(extendTimeSec);
                                         currentMillis = millis();
 
                                         if (timerStarted == false) {
@@ -846,16 +849,16 @@ void runPCR(float &low, float &high){
         //Final extend
         case 4:
           totalTime = finalExtendTime;
-                //Serial.println("Final Extend Step");
+                Serial.println("Final Extend Step");
 
                 low = finalExtendTemp;
                 high = finalExtendTemp;
 
                 if (Input1 >= low - tempthreshold && Input1 <= low + tempthreshold) {
-                        //Serial.print("Timer: ");
-                        //Serial.print(timerSerial);
-                        //Serial.print(" of ");
-                        //Serial.println(finalExtendTimeSec);
+                        Serial.print("Timer: ");
+                        Serial.print(timerSerial);
+                        Serial.print(" of ");
+                        Serial.println(finalExtendTimeSec);
                         currentMillis = millis();
                         if (timerStarted == false) {
                                 previousMillis = millis();
@@ -874,7 +877,7 @@ void runPCR(float &low, float &high){
         case 5:
                 progState = "Finished";
                 resetPCR();
-                //Serial.println("Program done!");
+                Serial.println("Program done!");
                 break;
         }
 }
@@ -896,7 +899,7 @@ void runRamp(float &low, float &high){
         
         case 1:
                 
-                //Serial.println("Heating to Start Temp");
+                Serial.println("Heating to Start Temp");
                 if (programType == 5) {
                   low = startRampTemp;
                   high = startRampTemp;
@@ -905,11 +908,11 @@ void runRamp(float &low, float &high){
                   low = lowstartRampTemp;
                   high = highstartRampTemp;
                 }
-                //Serial.print("Input3: ");
-                //Serial.println(Input3);
+                Serial.print("Input3: ");
+                Serial.println(Input3);
 
                 if (Input3 >= high - 1) {
-                  //Serial.println("Running Ramp");
+                  Serial.println("Running Ramp");
 
                                 cycleState = "Running Ramp";
                                 programState = 2;
@@ -918,12 +921,12 @@ void runRamp(float &low, float &high){
 
         case 2:
         totalTime = rampTime;
-        // //Serial.print("Timer: ");
-        // //Serial.print(timerSerial);
-        // //Serial.print(" of ");
-        // //Serial.println(TDdenatureTimeSec);
-        //Serial.print("Input3: ");
-        //Serial.println(Input3);
+        // Serial.print("Timer: ");
+        // Serial.print(timerSerial);
+        // Serial.print(" of ");
+        // Serial.println(TDdenatureTimeSec);
+        Serial.print("Input3: ");
+        Serial.println(Input3);
         currentMillis = millis();
         if (timerStarted == false) {
                 previousMillis = millis();
@@ -931,28 +934,28 @@ void runRamp(float &low, float &high){
         }
         unsigned long elapsedMillis;
         elapsedMillis = currentMillis - previousMillis;
-        //Serial.print("elapsedMillis: ");
-        //Serial.println(elapsedMillis);
+        Serial.print("elapsedMillis: ");
+        Serial.println(elapsedMillis);
 
         if (programType == 5) {
-          //Serial.println("prog5");
+          Serial.println("prog5");
           float tempStep;
           tempStep = endRampTemp - startRampTemp;
-          //Serial.print("startRampTemp - endRampTemp: ");
-          //Serial.println(tempStep);
-          //Serial.print("rampTimeMin: ");
-          //Serial.println(rampTime);
+          Serial.print("startRampTemp - endRampTemp: ");
+          Serial.println(tempStep);
+          Serial.print("rampTimeMin: ");
+          Serial.println(rampTime);
           tempStep /= rampTime;
-          //Serial.print("tempStep /= rampTime; ");
-          //Serial.println(tempStep, 6);
+          Serial.print("tempStep /= rampTime; ");
+          Serial.println(tempStep, 6);
 
 
           tempStep *= elapsedMillis;
-          //Serial.print("tempStep *= elapsedMillis; ");
-          //Serial.println(tempStep,8);
+          Serial.print("tempStep *= elapsedMillis; ");
+          Serial.println(tempStep,8);
           tempStep += startRampTemp;
-          //Serial.print("tempStep += startRampTemp;: ");
-          //Serial.println(tempStep);
+          Serial.print("tempStep += startRampTemp;: ");
+          Serial.println(tempStep);
           low = tempStep;
           high = tempStep;
         }
@@ -980,7 +983,7 @@ void runRamp(float &low, float &high){
         case 3:
                 progState = "Finished";
                 resetPCR();
-                //Serial.println("Program done!");
+                Serial.println("Program done!");
                 break;
         }
 }
@@ -1000,7 +1003,7 @@ void runHeat(float &low, float &high){
                 break;
 
         case 1:
-                //Serial.println("Heating to Start Temp");
+                Serial.println("Heating to Start Temp");
                 if (programType == 7) {
                   low = heatBlockTemp;
                   high = heatBlockTemp;
@@ -1041,7 +1044,7 @@ void runHeat(float &low, float &high){
                 case 3:
                         progState = "Finished";
                         resetPCR();
-                        //Serial.println("Program done!");
+                        Serial.println("Program done!");
                         break;
               }
             }
@@ -1071,33 +1074,33 @@ void thermocycler(){
                                 unsigned long serialMillis = millis();
                                 if (serialMillis - previousserialMillis >= serialinterval) {
                                 previousserialMillis = serialMillis;
-                                // //Serial.print("Setpoint Low: ");
-                                // //Serial.println(heatLow);
-                                // //Serial.print("Setpoint Mid: ");
-                                // //Serial.println(heatMid);
-                                // //Serial.print("Setpoint High: ");
-                                // //Serial.println(heatHigh);
-                                //Serial.print("Temp 1: ");
-                                //Serial.println(tempone);
-                                //Serial.print("Temp 2: ");
-                                //Serial.println(temptwo);
-                                //Serial.print("Temp 3: ");
-                                //Serial.println(tempthree);
-                                //Serial.print("Temp Lid: ");
-                                //Serial.println(templid);
-                                //Serial.print("Output1: ");
-                                //Serial.println(Output1);
-                                //Serial.print("Output 2: ");
-                                //Serial.println(Output2);
-                                //Serial.print("Output 3: ");
-                                //Serial.println(Output3);
-                                //Serial.print("Output Lid: ");
-                                //Serial.println(Outputlid);
-                                //Serial.print("Output Fan: ");
-                                //Serial.println(Outputfan);
-                                //Serial.print("Mode: ");
-                                //Serial.println(heatPID1.GetMode());
-                                //Serial.println(" ");
+                                // Serial.print("Setpoint Low: ");
+                                // Serial.println(heatLow);
+                                // Serial.print("Setpoint Mid: ");
+                                // Serial.println(heatMid);
+                                // Serial.print("Setpoint High: ");
+                                // Serial.println(heatHigh);
+                                Serial.print("Temp 1: ");
+                                Serial.println(tempone);
+                                Serial.print("Temp 2: ");
+                                Serial.println(temptwo);
+                                Serial.print("Temp 3: ");
+                                Serial.println(tempthree);
+                                Serial.print("Temp Lid: ");
+                                Serial.println(templid);
+                                Serial.print("Output1: ");
+                                Serial.println(Output1);
+                                Serial.print("Output 2: ");
+                                Serial.println(Output2);
+                                Serial.print("Output 3: ");
+                                Serial.println(Output3);
+                                Serial.print("Output Lid: ");
+                                Serial.println(Outputlid);
+                                Serial.print("Output Fan: ");
+                                Serial.println(Outputfan);
+                                Serial.print("Mode: ");
+                                Serial.println(heatPID1.GetMode());
+                                Serial.println(" ");
                                 }
                         }
                       if (programType == 5 || programType == 6){
@@ -1110,35 +1113,61 @@ void thermocycler(){
                         Setpoint2 = heatMid;
                         Setpoint3 = heatHigh;
                         Setpointfan = heatLow;
-                        //Serial.print("Setpoint Low: ");
-                        //Serial.println(heatLow);
-                        //Serial.print("Setpoint Mid: ");
-                        //Serial.println(heatMid);
-                        //Serial.print("Setpoint High: ");
-                        //Serial.println(heatHigh);
-                        //Serial.print("Temp 1: ");
-                        //Serial.println(tempone);
-                        //Serial.print("Temp 2: ");
-                        //Serial.println(temptwo);
-                        //Serial.print("Temp 3: ");
-                        //Serial.println(tempthree);
-                        //Serial.print("Setpoint Fan: ");
-                        //Serial.println(Setpointfan);
-                        //Serial.print("Output1: ");
-                        //Serial.println(Output1);
-                        //Serial.print("Output 2: ");
-                        //Serial.println(Output2);
-                        //Serial.print("Output 3: ");
-                        //Serial.println(Output3);
-                        //Serial.print("Output Lid: ");
-                        //Serial.println(Outputlid);
-                        //Serial.print("Output Fan: ");
-                        //Serial.println(Outputfan);
+                        Serial.print("Setpoint Low: ");
+                        Serial.println(heatLow);
+                        Serial.print("Setpoint Mid: ");
+                        Serial.println(heatMid);
+                        Serial.print("Setpoint High: ");
+                        Serial.println(heatHigh);
+                        Serial.print("Temp 1: ");
+                        Serial.println(tempone);
+                        Serial.print("Temp 2: ");
+                        Serial.println(temptwo);
+                        Serial.print("Temp 3: ");
+                        Serial.println(tempthree);
+                        Serial.print("Setpoint Fan: ");
+                        Serial.println(Setpointfan);
+                        Serial.print("Output1: ");
+                        Serial.println(Output1);
+                        Serial.print("Output 2: ");
+                        Serial.println(Output2);
+                        Serial.print("Output 3: ");
+                        Serial.println(Output3);
+                        Serial.print("Output Lid: ");
+                        Serial.println(Outputlid);
+                        Serial.print("Output Fan: ");
+                        Serial.println(Outputfan);
 
 
                       }
                       if (programType == 7 || programType == 8){
                         runHeat(heatLow, heatHigh);
+
+                        Serial.print("Setpoint Low: ");
+                        Serial.println(heatLow);
+                        Serial.print("Setpoint Mid: ");
+                        Serial.println(heatMid);
+                        Serial.print("Setpoint High: ");
+                        Serial.println(heatHigh);
+                        Serial.print("Temp 1: ");
+                        Serial.println(tempone);
+                        Serial.print("Temp 2: ");
+                        Serial.println(temptwo);
+                        Serial.print("Temp 3: ");
+                        Serial.println(tempthree);
+                        Serial.print("Setpoint Fan: ");
+                        Serial.println(Setpointfan);
+                        Serial.print("Output1: ");
+                        Serial.println(Output1);
+                        Serial.print("Output 2: ");
+                        Serial.println(Output2);
+                        Serial.print("Output 3: ");
+                        Serial.println(Output3);
+                        Serial.print("Output Lid: ");
+                        Serial.println(Outputlid);
+                        Serial.print("Output Fan: ");
+                        Serial.println(Outputfan);
+
                         totalTime /= 1000;
                         heatMid = heatLow + heatHigh;
                         heatMid /= 2;
@@ -1202,8 +1231,6 @@ void thermocycler(){
                 resetOutput1=true;
         }
         
-        
-
         double gap2 = Setpoint2-Input2; 
         if (gap2 > 10){ 
                 heatPID2.SetMode(MANUAL);
@@ -1290,8 +1317,8 @@ void thermocycler(){
                         if(isPaused == false) {
 
                                 fanPID.Compute();
-                                // //Serial.print("Output Fan: ");
-                                // //Serial.println(Outputfan);
+                                // Serial.print("Output Fan: ");
+                                // Serial.println(Outputfan);
 
                                 if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
                                   if (Outputfan >= 250 && Outputfan < 1023) {
@@ -1356,24 +1383,24 @@ void thermocycler(){
                 unsigned long serialMillis = millis();
                 if (serialMillis - previousserialMillis >= serialinterval) {
                         previousserialMillis = serialMillis;
-                        //Serial.print("Setpoint Low: ");
-                        //Serial.println(Setpoint1);
-                        //Serial.print("Setpoint Mid: ");
-                        //Serial.println(Setpoint2);
-                        //Serial.print("Setpoint High: ");
-                        //Serial.println(Setpoint3);
-                        //Serial.print("Temp 1: ");
-                        //Serial.println(tempone);
-                        //Serial.print("Temp 2: ");
-                        //Serial.println(temptwo);
-                        //Serial.print("Temp 3: ");
-                        //Serial.println(tempthree);
-                        //Serial.print("Output1: ");
-                        //Serial.println(Output1);
-                        //Serial.print("Output 2: ");
-                        //Serial.println(Output2);
-                        //Serial.print("Output 3: ");
-                        //Serial.println(Output3);
+                        Serial.print("Setpoint Low: ");
+                        Serial.println(Setpoint1);
+                        Serial.print("Setpoint Mid: ");
+                        Serial.println(Setpoint2);
+                        Serial.print("Setpoint High: ");
+                        Serial.println(Setpoint3);
+                        Serial.print("Temp 1: ");
+                        Serial.println(tempone);
+                        Serial.print("Temp 2: ");
+                        Serial.println(temptwo);
+                        Serial.print("Temp 3: ");
+                        Serial.println(tempthree);
+                        Serial.print("Output1: ");
+                        Serial.println(Output1);
+                        Serial.print("Output 2: ");
+                        Serial.println(Output2);
+                        Serial.print("Output 3: ");
+                        Serial.println(Output3);
                 }
         }
 
@@ -1394,7 +1421,7 @@ void deleteProgram(){
         file.close();
 
         if (root.success()) {
-                //Serial.println("root success");
+                Serial.println("root success");
                 root.remove(data);
                 //root.printTo(Serial);
                 File file = SPIFFS.open("/programs.json", "w");
@@ -1410,7 +1437,7 @@ void deleteProgram(){
 }
 
 void resetFiles(){
-        //Serial.println("files reset");
+        Serial.println("files reset");
         String resetalert;
         File config = SPIFFS.open("/config.json", "w");
 
@@ -1438,10 +1465,10 @@ void handleApon(){
   JsonObject& root = jsonBuffer.parseObject(buf.get());
   file.close();
 
-  //Serial.println("json root: ");
+  Serial.println("json root: ");
   if (root.success()) {
           String aponalert;
-          //Serial.println("root success");
+          Serial.println("root success");
           if (root["apon"] == "true") {
             root["apon"] = "false";
             aponalert = "{\"aponalert\":\"proPCR will not broadcast its own wifi network on start up\"}";
@@ -1471,10 +1498,10 @@ void handleHelp(){
   JsonObject& root = jsonBuffer.parseObject(buf.get());
   file.close();
 
-  //Serial.println("json root: ");
+  Serial.println("json root: ");
   if (root.success()) {
           String helpalert;
-          //Serial.println("root success");
+          Serial.println("root success");
           if (root["help"] == "true") {
             root["help"] = "false";
             helpalert = "{\"helpalert\":\"Info Boxes Turned Off\"}";
@@ -1504,10 +1531,10 @@ void handleTheme(){
   JsonObject& root = jsonBuffer.parseObject(buf.get());
   file.close();
 
-  //Serial.println("json root: ");
+  Serial.println("json root: ");
   if (root.success()) {
           String themealert;
-          //Serial.println("root success");
+          Serial.println("root success");
           if (root["theme"] == "true") {
             root["theme"] = "false";
             themealert = "{\"themealert\":\"Theme Switched To Dark\"}";
@@ -1529,13 +1556,13 @@ void handleTheme(){
 
 void loadConfig(){
         // if (!SPIFFS.exists("/config.json")) {
-        //         //Serial.println("make file");
+        //         Serial.println("make file");
         //         File file = SPIFFS.open("/config.json", "w");
         //         file.print("{\"update\":\"false\",\"autostart\":\"false\",\"programname\":\"\",\"programdata\":[],\"userpsw\":\"false\",\"apon\":\"true\",\"help\":\"true\",\"theme\":\"true\",\"connectwifi\":\"false\",\"quietfan\":\"false\"}");
         //         file.close();
         // }
         File file = SPIFFS.open("/config.json", "r");
-        //Serial.println("open file");
+        Serial.println("open file");
         size_t size = file.size();
         std::unique_ptr<char[]> buf (new char[size]);
         file.readBytes(buf.get(), size);
@@ -1545,14 +1572,14 @@ void loadConfig(){
         //root.printTo(Serial);
         file.close();
         if (root.success()) {
-                //Serial.println("root sucess");
+                Serial.println("root sucess");
                 if (root["autostart"] == "true") {
-                        //Serial.println("autostart true");
+                        Serial.println("autostart true");
                         autostartName = root.get<String>("programname");
                         
                         autostartProgram = root.get<String>("programdata");
-                        //Serial.print("autostartProgram: ");
-                        //Serial.println(autostartProgram);
+                        Serial.print("autostartProgram: ");
+                        Serial.println(autostartProgram);
                         
                         
                         autostart = true;
@@ -1569,11 +1596,11 @@ void loadConfig(){
                 }
         }
         jsonBuffer.clear();
-        //Serial.println("load end");
+        Serial.println("load end");
 }
 
 void setWifi(){
-  //Serial.println("setWifi()");
+  Serial.println("setWifi()");
   File file = SPIFFS.open("/wifi.json", "r");
   size_t size = file.size();
   std::unique_ptr<char[]> buf (new char[size]);
@@ -1581,26 +1608,26 @@ void setWifi(){
   StaticJsonBuffer<600> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(buf.get());
   file.close();
-  //Serial.println("json root: ");
+  Serial.println("json root: ");
   if (root.success()) {
-          //Serial.println("root success");
+          Serial.println("root success");
           if (root["connect"] == "true") {
                   connectwifi = true;
 
                   userssid = root.get<String>("userssid");
                   userpass = root.get<String>("userpass");
-                  //Serial.println("wifi credentials set");
+                  Serial.println("wifi credentials set");
           }else{
             connectwifi = false;
-            //Serial.println("wifi credentials not set");
+            Serial.println("wifi credentials not set");
           }
           if (root["userpsw"] != "") {
-                  //Serial.println("set userpsw");
+                  Serial.println("set userpsw");
                   userpsw = root.get<String>("userpsw");
           }
 
   }else{
-          //Serial.println("wifi.json not parsed");
+          Serial.println("wifi.json not parsed");
   }
   jsonBuffer.clear();
 }
@@ -1627,19 +1654,19 @@ void saveProgram(){
         JsonObject& root = jsonBuffer.parseObject(buf.get());
         file.close();
 
-        //Serial.println("json root: ");
+        Serial.println("json root: ");
         if (root.success()) {
                 if (root.size() > 20) {
                         String saveoverload = "{\"savealert\":\"Too many programs saved, please delete one before saving\"}";
                         ws.textAll(saveoverload);
                         return;
                 }
-                //Serial.println("root success");
-                //Serial.print("array before: ");
-                //Serial.println(data);
+                Serial.println("root success");
+                Serial.print("array before: ");
+                Serial.println(data);
                 JsonArray& array = jsonBuffer.parseArray(data);
-                //Serial.print("json array: ");
-                // //Serial.println(array);
+                Serial.print("json array: ");
+                // Serial.println(array);
                 root[programNameSave] = array;
                 //root.printTo(Serial);
                 File file = SPIFFS.open("/programs.json", "w");
@@ -1658,48 +1685,48 @@ void saveProgram(){
 
 void runAutoStart(){
         progState = "Running";
-        //Serial.println("Running Autostart");
+        Serial.println("Running Autostart");
         programName = autostartName;
-        //Serial.println(programName);
+        Serial.println(programName);
         StaticJsonBuffer<500> jsonBuffer;
         JsonArray& array = jsonBuffer.parseArray(autostartProgram);
         if (!array.success()) {
-                //Serial.println("autostart parse failed");
+                Serial.println("autostart parse failed");
                 autostart = false;
                 return;
         }
         //array.printTo(Serial);
                 programType = array[0];
-                //Serial.print("programType: ");
-                //Serial.println(programType);
+                Serial.print("programType: ");
+                Serial.println(programType);
                 setLidTemp = array[1];
-                //Serial.print("Lid temp: ");
-                //Serial.println(setLidTemp);
+                Serial.print("Lid temp: ");
+                Serial.println(setLidTemp);
                 if (programType == 1 || programType == 2 || programType == 3 || programType == 4) {
                   initDenatureTemp = array[2];
-                  //Serial.print("initDenatureTemp: ");
-                  //Serial.println(initDenatureTemp);
+                  Serial.print("initDenatureTemp: ");
+                  Serial.println(initDenatureTemp);
                   initDenatureTime = array.get<float>(3);
                   initDenatureTimeSec = initDenatureTime;
                   initDenatureTime *= 1000;
-                  //Serial.print("initDenatureTime: ");
-                  //Serial.println(initDenatureTime);
+                  Serial.print("initDenatureTime: ");
+                  Serial.println(initDenatureTime);
                   cycleNum = array.get<float>(4);
-                  //Serial.print("cycleNum: ");
-                  //Serial.println(cycleNum);
+                  Serial.print("cycleNum: ");
+                  Serial.println(cycleNum);
                   denatureTemp = array.get<float>(5);
-                  //Serial.print("denatureTemp: ");
-                  //Serial.println(denatureTemp);
+                  Serial.print("denatureTemp: ");
+                  Serial.println(denatureTemp);
                   denatureTime = array.get<float>(6);
                   denatureTimeSec = denatureTime;
                   denatureTime *= 1000;
-                  //Serial.print("denatureTime: ");
-                  //Serial.println(denatureTime);
+                  Serial.print("denatureTime: ");
+                  Serial.println(denatureTime);
                   annealTime = array.get<float>(7);
                   annealTimeSec = annealTime;
                   annealTime *= 1000;
-                  //Serial.print("annealTime: ");
-                  //Serial.println(annealTime);
+                  Serial.print("annealTime: ");
+                  Serial.println(annealTime);
                   extendTemp = array.get<float>(8);
                   extendTime = array.get<float>(9);
                   extendTimeSec = extendTime;
@@ -1708,121 +1735,121 @@ void runAutoStart(){
                   finalExtendTime = array.get<float>(11);
                   finalExtendTimeSec = finalExtendTime;
                   finalExtendTime *= 1000;
-                  //Serial.print("finalExtendTime: ");
-                  //Serial.println(finalExtendTime);
+                  Serial.print("finalExtendTime: ");
+                  Serial.println(finalExtendTime);
                 }
                 if (programType == 1 || programType == 3) {
                   annealTemp = array.get<float>(12);
-                  //Serial.print("annealTemp: ");
-                  //Serial.println(annealTemp);
+                  Serial.print("annealTemp: ");
+                  Serial.println(annealTemp);
                 }
                 if (programType == 2 || programType == 4) {
                   annealTempLow = array.get<float>(12);
-                  //Serial.print("annealTempLow: ");
-                  //Serial.println(annealTempLow);
+                  Serial.print("annealTempLow: ");
+                  Serial.println(annealTempLow);
                   annealTempHigh = array.get<float>(13);
-                  //Serial.print("annealTempHigh: ");
-                  //Serial.println(annealTempHigh);
+                  Serial.print("annealTempHigh: ");
+                  Serial.println(annealTempHigh);
                 }
                 if (programType == 3 || programType == 4) {
                   TDcycleNum = array.get<float>(14);
-                  //Serial.print("TDcycleNum: ");
-                  //Serial.println(TDcycleNum);
+                  Serial.print("TDcycleNum: ");
+                  Serial.println(TDcycleNum);
                   TDdenatureTemp = array.get<float>(15);
-                  //Serial.print("TDdenatureTemp: ");
-                  //Serial.println(TDdenatureTemp);
+                  Serial.print("TDdenatureTemp: ");
+                  Serial.println(TDdenatureTemp);
                   TDdenatureTime = array.get<float>(16);
-                  //Serial.print("TDdenatureTime: ");
-                  //Serial.println(TDdenatureTime);
+                  Serial.print("TDdenatureTime: ");
+                  Serial.println(TDdenatureTime);
                   TDdenatureTimeSec = TDdenatureTime;
                   TDdenatureTime *= 1000;
                   TDannealTime = array.get<float>(17);
-                  //Serial.print("TDannealTime: ");
-                  //Serial.println(TDannealTime);
+                  Serial.print("TDannealTime: ");
+                  Serial.println(TDannealTime);
                   TDannealTimeSec = TDannealTime;
                   TDannealTime *= 1000;
                   TDextendTemp = array.get<float>(18);
-                  //Serial.print("TDextendTemp: ");
-                  //Serial.println(TDextendTemp);
+                  Serial.print("TDextendTemp: ");
+                  Serial.println(TDextendTemp);
                   TDextendTime = array.get<float>(19);
-                  //Serial.print("TDextendTime: ");
-                  //Serial.println(TDextendTime);
+                  Serial.print("TDextendTime: ");
+                  Serial.println(TDextendTime);
                   TDextendTimeSec = TDextendTime;
                   TDextendTime *= 1000;
                 }
                 if (programType == 3){
                   TDStartTemp = array.get<float>(20);
-                  //Serial.print("TDStartTemp: ");
-                  //Serial.println(TDStartTemp);
+                  Serial.print("TDStartTemp: ");
+                  Serial.println(TDStartTemp);
                   TDEndTemp = array.get<float>(21);
-                  //Serial.print("TDEndTemp: ");
-                  //Serial.println(TDEndTemp);
+                  Serial.print("TDEndTemp: ");
+                  Serial.println(TDEndTemp);
                 }
                 if (programType == 4){
                   TDLowStartTemp = array.get<float>(20);
-                  //Serial.print("TDLowStartTemp: ");
-                  //Serial.println(TDLowStartTemp);
+                  Serial.print("TDLowStartTemp: ");
+                  Serial.println(TDLowStartTemp);
                   TDHighStartTemp = array.get<float>(21);
-                  //Serial.print("TDHighStartTemp: ");
-                  //Serial.println(TDHighStartTemp);
+                  Serial.print("TDHighStartTemp: ");
+                  Serial.println(TDHighStartTemp);
                   TDLowEndTemp = array.get<float>(22);
-                  //Serial.print("TDLowEndTemp: ");
-                  //Serial.println(TDLowEndTemp);
+                  Serial.print("TDLowEndTemp: ");
+                  Serial.println(TDLowEndTemp);
                   TDHighEndTemp = array.get<float>(23);
-                  //Serial.print("TDHighEndTemp: ");
-                  //Serial.println(TDHighEndTemp);
+                  Serial.print("TDHighEndTemp: ");
+                  Serial.println(TDHighEndTemp);
                 }
                 if (programType == 5 || programType == 6) {
                   rampTime = array.get<float>(2);
-                  //Serial.print("rampTime: ");
-                  //Serial.println(rampTime);
+                  Serial.print("rampTime: ");
+                  Serial.println(rampTime);
                   rampTimeMin = rampTime;
                   rampTime *= 60000;
                 }
                 if (programType == 5) {
                   startRampTemp = array.get<float>(3);
-                  //Serial.print("startRampTemp: ");
-                  //Serial.println(startRampTemp);
+                  Serial.print("startRampTemp: ");
+                  Serial.println(startRampTemp);
                   endRampTemp = array.get<float>(4);
-                  //Serial.print("endRampTemp: ");
-                  //Serial.println(endRampTemp);
+                  Serial.print("endRampTemp: ");
+                  Serial.println(endRampTemp);
                 }
                 if (programType == 6) {
                   lowstartRampTemp = array.get<float>(3);
-                  //Serial.print("lowstartRampTemp: ");
-                  //Serial.println(lowstartRampTemp);
+                  Serial.print("lowstartRampTemp: ");
+                  Serial.println(lowstartRampTemp);
                   highstartRampTemp = array.get<float>(4);
-                  //Serial.print("highstartRampTemp: ");
-                  //Serial.println(highstartRampTemp);
+                  Serial.print("highstartRampTemp: ");
+                  Serial.println(highstartRampTemp);
                   lowendRampTemp = array.get<float>(5);
-                  //Serial.print("lowendRampTemp: ");
-                  //Serial.println(lowendRampTemp);
+                  Serial.print("lowendRampTemp: ");
+                  Serial.println(lowendRampTemp);
                   highendRampTemp = array.get<float>(6);
-                  //Serial.print("highendRampTemp: ");
-                  //Serial.println(highendRampTemp);
+                  Serial.print("highendRampTemp: ");
+                  Serial.println(highendRampTemp);
                 }
                 if (programType == 7 || programType == 8) {
                   heatBlockTime = array.get<float>(2);
-                  //Serial.print("heatBlockTime: ");
-                  //Serial.println(heatBlockTime);
+                  Serial.print("heatBlockTime: ");
+                  Serial.println(heatBlockTime);
                   heatBlockTimeMin = heatBlockTime;
                   heatBlockTime *= 60000;
                 }
                 if (programType == 7){
                   heatBlockTemp = array.get<float>(3);
-                  //Serial.print("heatBlockTemp: ");
-                  //Serial.println(heatBlockTemp);
+                  Serial.print("heatBlockTemp: ");
+                  Serial.println(heatBlockTemp);
                 }
                 if (programType == 8){
                   lowheatBlockTemp = array.get<float>(3);
-                  //Serial.print("lowheatBlockTemp: ");
-                  //Serial.println(lowheatBlockTemp);
+                  Serial.print("lowheatBlockTemp: ");
+                  Serial.println(lowheatBlockTemp);
                   highheatBlockTemp = array.get<float>(4);
-                  //Serial.print("highheatBlockTemp: ");
-                  //Serial.println(highheatBlockTemp);
+                  Serial.print("highheatBlockTemp: ");
+                  Serial.println(highheatBlockTemp);
                 }
         PCRon = true;
-        //Serial.print("PCR true autostart");
+        Serial.print("PCR true autostart");
         autostart = false;
         jsonBuffer.clear();
 }
@@ -1856,7 +1883,7 @@ void handleLED(){
 bool shouldReboot = false;
 
 void onRequest(AsyncWebServerRequest *request){
-        //Serial.println("async redirect");
+        Serial.println("async redirect");
         request->redirect("http://connect.propcr.com");
 }
 
@@ -1870,10 +1897,10 @@ void handleAutostart(){
   JsonObject& root = jsonBuffer.parseObject(buf.get());
   file.close();
 
-  //Serial.println("json root: ");
+  Serial.println("json root: ");
   if (root.success()) {
           String autostartalert;
-          //Serial.println("root success");
+          Serial.println("root success");
           if (root["autostart"] == "true") {
             root["autostart"] = "false";
             root["programname"] = "";
@@ -1881,8 +1908,8 @@ void handleAutostart(){
             autostartalert = "{\"autostartalert\":\"Autostart Turned Off\"}";
           }else if (root["autostart"] == "false") {
            
-                //Serial.print("array before: ");
-                //Serial.println(data);
+                Serial.print("array before: ");
+                Serial.println(data);
                 
             root["autostart"] = "true";
             root["programname"] = autostartprogramName;
@@ -1902,7 +1929,7 @@ void handleAutostart(){
 }
 
 void saveUserpsw(boolean userpsw){
-  //Serial.println("saveUserpsw()");
+  Serial.println("saveUserpsw()");
   File file = SPIFFS.open("/wifi.json", "r");
   size_t size = file.size();
   std::unique_ptr<char[]> buf (new char[size]);
@@ -1910,10 +1937,10 @@ void saveUserpsw(boolean userpsw){
   StaticJsonBuffer<600> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(buf.get());
   file.close();
-  //Serial.println("json root wifi.json: ");
+  Serial.println("json root wifi.json: ");
   //root.printTo(Serial);
   if (root.success()) {
-          //Serial.println("root success");
+          Serial.println("root success");
           String userpswalert;
           if (userpsw) {
             root["userpsw"] = data;
@@ -1938,7 +1965,7 @@ void saveUserpsw(boolean userpsw){
 
 
 void saveUserpswConfig(boolean userpsw){
-  //Serial.println("saveUserpswConfig()");
+  Serial.println("saveUserpswConfig()");
   File configfile = SPIFFS.open("/config.json", "r");
   size_t configsize = configfile.size();
   std::unique_ptr<char[]> configbuf (new char[configsize]);
@@ -1946,7 +1973,7 @@ void saveUserpswConfig(boolean userpsw){
   StaticJsonBuffer<600> jsonBuffer;
   JsonObject& config = jsonBuffer.parseObject(configbuf.get());
   configfile.close();
-  //Serial.println("json root config.json: ");
+  Serial.println("json root config.json: ");
   //config.printTo(Serial);
   if (config.success()) {
     if (userpsw) {
@@ -1970,9 +1997,9 @@ void saveWifi(boolean connect){
   StaticJsonBuffer<600> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(buf.get());
   file.close();
-  //Serial.println("json root: ");
+  Serial.println("json root: ");
   if (root.success()) {
-          //Serial.println("root success");
+          Serial.println("root success");
           String connectalert;
           if (connect) {
             root["connect"] = "true";
@@ -1980,7 +2007,7 @@ void saveWifi(boolean connect){
             root["userpass"] = userpass;
             connectalert = "{\"connectalert\":\"On startup proPCR will connect to the network: "+userssid+"\"}";
           }else{
-                  //Serial.println("saveWifi() success");
+                  Serial.println("saveWifi() success");
             root["connect"] = "false";
             root["userssid"] = "";
             root["userpass"] = "";
@@ -1996,7 +2023,7 @@ void saveWifi(boolean connect){
           ws.textAll(savefail);
   }
   jsonBuffer.clear();
-  //Serial.println("saveWifi() end");
+  Serial.println("saveWifi() end");
 }
 
 void saveWifiConfig(boolean connect){
@@ -2007,14 +2034,14 @@ void saveWifiConfig(boolean connect){
   StaticJsonBuffer<1000> jsonBuffer;
   JsonObject& config = jsonBuffer.parseObject(configbuf.get());
   configfile.close();
-  //Serial.println("json root: ");
+  Serial.println("json root: ");
   if (config.success()) {
     if (connect) {
       config["connectwifi"] = "true";
       config["userssid"] = userssid;
 
     }else{
-            //Serial.println("saveWifiConfig() success");
+            Serial.println("saveWifiConfig() success");
       config["connectwifi"] = "false";
       config["userssid"] = "";
     }
@@ -2025,11 +2052,11 @@ void saveWifiConfig(boolean connect){
   savefile.close();
   //config.printTo(Serial);
   jsonBuffer.clear();
-  //Serial.println("saveWifiConfig() end");
+  Serial.println("saveWifiConfig() end");
 }
 
 void updateFirmware(){
-        //Serial.println("update function ");
+        Serial.println("update function ");
         runAsyncClient();
         File file = SPIFFS.open("/config.json", "r");
         size_t size = file.size();
@@ -2040,9 +2067,9 @@ void updateFirmware(){
         JsonObject& root = jsonBuffer.parseObject(buf.get());
         file.close();
 
-        //Serial.println("json root: ");
+        Serial.println("json root: ");
         if (root.success()) {
-                //Serial.println("root success");
+                Serial.println("root success");
                 root["update"] = "true";
                 //root.printTo(Serial);
                 File file = SPIFFS.open("/config.json", "w");
@@ -2055,19 +2082,19 @@ void updateFirmware(){
 
 
 void handleWS(String msg){
-        //Serial.println("Program: "+msg);
-        //Serial.println("websocket recieved");
+        Serial.println("Program: "+msg);
+        Serial.println("websocket recieved");
         byte separator=msg.indexOf('=');
         byte separator2=msg.indexOf(':');
         byte separator3=msg.indexOf('*');
         String var=msg.substring(0,separator);
         String val=msg.substring(separator+1);
         String command = msg.substring(0,separator2);
-        //Serial.println(command);
+        Serial.println(command);
         data = msg.substring(separator2+1,separator3);
 
-        //Serial.print("data: ");
-        //Serial.println(data);
+        Serial.print("data: ");
+        Serial.println(data);
 
         if (command == "run") {
                 programName = "";
@@ -2076,46 +2103,46 @@ void handleWS(String msg){
                 preheatLid = false;
                 preheatBlock = false;
                 programName = msg.substring(separator3+1);
-                //Serial.print("programName: ");
-                //Serial.println(programName);
+                Serial.print("programName: ");
+                Serial.println(programName);
                 StaticJsonBuffer<500> jsonBuffer;
                 JsonArray& array = jsonBuffer.parseArray(data);
                 if (!array.success()) {
-                        //Serial.println("parse failed");
+                        Serial.println("parse failed");
                         return;
                 }
                 //array.printTo(Serial);
                 programType = array[0];
-                //Serial.print("programType: ");
-                //Serial.println(programType);
+                Serial.print("programType: ");
+                Serial.println(programType);
                 setLidTemp = array[1];
-                //Serial.print("Lid temp: ");
-                //Serial.println(setLidTemp);
+                Serial.print("Lid temp: ");
+                Serial.println(setLidTemp);
                 if (programType == 1 || programType == 2 || programType == 3 || programType == 4) {
                   initDenatureTemp = array[2];
-                  //Serial.print("initDenatureTemp: ");
-                  //Serial.println(initDenatureTemp);
+                  Serial.print("initDenatureTemp: ");
+                  Serial.println(initDenatureTemp);
                   initDenatureTime = array.get<float>(3);
                   initDenatureTimeSec = initDenatureTime;
                   initDenatureTime *= 1000;
-                  //Serial.print("initDenatureTime: ");
-                  //Serial.println(initDenatureTime);
+                  Serial.print("initDenatureTime: ");
+                  Serial.println(initDenatureTime);
                   cycleNum = array.get<float>(4);
-                  //Serial.print("cycleNum: ");
-                  //Serial.println(cycleNum);
+                  Serial.print("cycleNum: ");
+                  Serial.println(cycleNum);
                   denatureTemp = array.get<float>(5);
-                  //Serial.print("denatureTemp: ");
-                  //Serial.println(denatureTemp);
+                  Serial.print("denatureTemp: ");
+                  Serial.println(denatureTemp);
                   denatureTime = array.get<float>(6);
                   denatureTimeSec = denatureTime;
                   denatureTime *= 1000;
-                  //Serial.print("denatureTime: ");
-                  //Serial.println(denatureTime);
+                  Serial.print("denatureTime: ");
+                  Serial.println(denatureTime);
                   annealTime = array.get<float>(7);
                   annealTimeSec = annealTime;
                   annealTime *= 1000;
-                  //Serial.print("annealTime: ");
-                  //Serial.println(annealTime);
+                  Serial.print("annealTime: ");
+                  Serial.println(annealTime);
                   extendTemp = array.get<float>(8);
                   extendTime = array.get<float>(9);
                   extendTimeSec = extendTime;
@@ -2124,153 +2151,153 @@ void handleWS(String msg){
                   finalExtendTime = array.get<float>(11);
                   finalExtendTimeSec = finalExtendTime;
                   finalExtendTime *= 1000;
-                  //Serial.print("finalExtendTime: ");
-                  //Serial.println(finalExtendTime);
+                  Serial.print("finalExtendTime: ");
+                  Serial.println(finalExtendTime);
                 }
                 if (programType == 1 || programType == 3) {
                   annealTemp = array.get<float>(12);
-                  //Serial.print("annealTemp: ");
-                  //Serial.println(annealTemp);
+                  Serial.print("annealTemp: ");
+                  Serial.println(annealTemp);
                 }
                 if (programType == 2 || programType == 4) {
                   annealTempLow = array.get<float>(12);
-                  //Serial.print("annealTempLow: ");
-                  //Serial.println(annealTempLow);
+                  Serial.print("annealTempLow: ");
+                  Serial.println(annealTempLow);
                   annealTempHigh = array.get<float>(13);
-                  //Serial.print("annealTempHigh: ");
-                  //Serial.println(annealTempHigh);
+                  Serial.print("annealTempHigh: ");
+                  Serial.println(annealTempHigh);
                 }
                 if (programType == 3 || programType == 4) {
                   TDcycleNum = array.get<float>(14);
-                  //Serial.print("TDcycleNum: ");
-                  //Serial.println(TDcycleNum);
+                  Serial.print("TDcycleNum: ");
+                  Serial.println(TDcycleNum);
                   TDdenatureTemp = array.get<float>(15);
-                  //Serial.print("TDdenatureTemp: ");
-                  //Serial.println(TDdenatureTemp);
+                  Serial.print("TDdenatureTemp: ");
+                  Serial.println(TDdenatureTemp);
                   TDdenatureTime = array.get<float>(16);
-                  //Serial.print("TDdenatureTime: ");
-                  //Serial.println(TDdenatureTime);
+                  Serial.print("TDdenatureTime: ");
+                  Serial.println(TDdenatureTime);
                   TDdenatureTimeSec = TDdenatureTime;
                   TDdenatureTime *= 1000;
                   TDannealTime = array.get<float>(17);
-                  //Serial.print("TDannealTime: ");
-                  //Serial.println(TDannealTime);
+                  Serial.print("TDannealTime: ");
+                  Serial.println(TDannealTime);
                   TDannealTimeSec = TDannealTime;
                   TDannealTime *= 1000;
                   TDextendTemp = array.get<float>(18);
-                  //Serial.print("TDextendTemp: ");
-                  //Serial.println(TDextendTemp);
+                  Serial.print("TDextendTemp: ");
+                  Serial.println(TDextendTemp);
                   TDextendTime = array.get<float>(19);
-                  //Serial.print("TDextendTime: ");
-                  //Serial.println(TDextendTime);
+                  Serial.print("TDextendTime: ");
+                  Serial.println(TDextendTime);
                   TDextendTimeSec = TDextendTime;
                   TDextendTime *= 1000;
                 }
                 if (programType == 3){
                   TDStartTemp = array.get<float>(20);
-                  //Serial.print("TDStartTemp: ");
-                  //Serial.println(TDStartTemp);
+                  Serial.print("TDStartTemp: ");
+                  Serial.println(TDStartTemp);
                   TDEndTemp = array.get<float>(21);
-                  //Serial.print("TDEndTemp: ");
-                  //Serial.println(TDEndTemp);
+                  Serial.print("TDEndTemp: ");
+                  Serial.println(TDEndTemp);
                 }
                 if (programType == 4){
                   TDLowStartTemp = array.get<float>(20);
-                  //Serial.print("TDLowStartTemp: ");
-                  //Serial.println(TDLowStartTemp);
+                  Serial.print("TDLowStartTemp: ");
+                  Serial.println(TDLowStartTemp);
                   TDHighStartTemp = array.get<float>(21);
-                  //Serial.print("TDHighStartTemp: ");
-                  //Serial.println(TDHighStartTemp);
+                  Serial.print("TDHighStartTemp: ");
+                  Serial.println(TDHighStartTemp);
                   TDLowEndTemp = array.get<float>(22);
-                  //Serial.print("TDLowEndTemp: ");
-                  //Serial.println(TDLowEndTemp);
+                  Serial.print("TDLowEndTemp: ");
+                  Serial.println(TDLowEndTemp);
                   TDHighEndTemp = array.get<float>(23);
-                  //Serial.print("TDHighEndTemp: ");
-                  //Serial.println(TDHighEndTemp);
+                  Serial.print("TDHighEndTemp: ");
+                  Serial.println(TDHighEndTemp);
                 }
                 if (programType == 5 || programType == 6) {
                   rampTime = array.get<float>(2);
-                  //Serial.print("rampTime: ");
-                  //Serial.println(rampTime);
+                  Serial.print("rampTime: ");
+                  Serial.println(rampTime);
                   rampTimeMin = rampTime;
                   rampTime *= 60000;
                 }
                 if (programType == 5) {
                   startRampTemp = array.get<float>(3);
-                  //Serial.print("startRampTemp: ");
-                  //Serial.println(startRampTemp);
+                  Serial.print("startRampTemp: ");
+                  Serial.println(startRampTemp);
                   endRampTemp = array.get<float>(4);
-                  //Serial.print("endRampTemp: ");
-                  //Serial.println(endRampTemp);
+                  Serial.print("endRampTemp: ");
+                  Serial.println(endRampTemp);
                 }
                 if (programType == 6) {
                   lowstartRampTemp = array.get<float>(3);
-                  //Serial.print("lowstartRampTemp: ");
-                  //Serial.println(lowstartRampTemp);
+                  Serial.print("lowstartRampTemp: ");
+                  Serial.println(lowstartRampTemp);
                   highstartRampTemp = array.get<float>(4);
-                  //Serial.print("highstartRampTemp: ");
-                  //Serial.println(highstartRampTemp);
+                  Serial.print("highstartRampTemp: ");
+                  Serial.println(highstartRampTemp);
                   lowendRampTemp = array.get<float>(5);
-                  //Serial.print("lowendRampTemp: ");
-                  //Serial.println(lowendRampTemp);
+                  Serial.print("lowendRampTemp: ");
+                  Serial.println(lowendRampTemp);
                   highendRampTemp = array.get<float>(6);
-                  //Serial.print("highendRampTemp: ");
-                  //Serial.println(highendRampTemp);
+                  Serial.print("highendRampTemp: ");
+                  Serial.println(highendRampTemp);
                 }
                 if (programType == 7 || programType == 8) {
                   heatBlockTime = array.get<float>(2);
-                  //Serial.print("heatBlockTime: ");
-                  //Serial.println(heatBlockTime);
+                  Serial.print("heatBlockTime: ");
+                  Serial.println(heatBlockTime);
                   heatBlockTimeMin = heatBlockTime;
                   heatBlockTime *= 60000;
                 }
                 if (programType == 7){
                   heatBlockTemp = array.get<float>(3);
-                  //Serial.print("heatBlockTemp: ");
-                  //Serial.println(heatBlockTemp);
+                  Serial.print("heatBlockTemp: ");
+                  Serial.println(heatBlockTemp);
                 }
                 if (programType == 8){
                   lowheatBlockTemp = array.get<float>(3);
-                  //Serial.print("lowheatBlockTemp: ");
-                  //Serial.println(lowheatBlockTemp);
+                  Serial.print("lowheatBlockTemp: ");
+                  Serial.println(lowheatBlockTemp);
                   highheatBlockTemp = array.get<float>(4);
-                  //Serial.print("highheatBlockTemp: ");
-                  //Serial.println(highheatBlockTemp);
+                  Serial.print("highheatBlockTemp: ");
+                  Serial.println(highheatBlockTemp);
                 }
                 //
                 // setLidTemp = array[0];
-                // //Serial.print("Lid temp: ");
-                // //Serial.println(setLidTemp);
+                // Serial.print("Lid temp: ");
+                // Serial.println(setLidTemp);
                 // initDenatureTemp = array[1];
-                // //Serial.print("initDenatureTemp: ");
-                // //Serial.println(initDenatureTemp);
+                // Serial.print("initDenatureTemp: ");
+                // Serial.println(initDenatureTemp);
                 // initDenatureTime = array.get<float>(2);
                 // initDenatureTimeSec = initDenatureTime;
                 // initDenatureTime *= 1000;
-                // //Serial.print("initDenatureTime: ");
-                // //Serial.println(initDenatureTime);
+                // Serial.print("initDenatureTime: ");
+                // Serial.println(initDenatureTime);
                 // cycleNum = array.get<float>(3);
-                // //Serial.print("cycleNum: ");
-                // //Serial.println(cycleNum);
+                // Serial.print("cycleNum: ");
+                // Serial.println(cycleNum);
                 // denatureTemp = array.get<float>(4);
-                // //Serial.print("denatureTemp: ");
-                // //Serial.println(denatureTemp);
+                // Serial.print("denatureTemp: ");
+                // Serial.println(denatureTemp);
                 // denatureTime = array.get<float>(5);
                 // denatureTimeSec = denatureTime;
                 // denatureTime *= 1000;
-                // //Serial.print("denatureTime: ");
-                // //Serial.println(denatureTime);
+                // Serial.print("denatureTime: ");
+                // Serial.println(denatureTime);
                 // programIsGradient = array.get<float>(6);
-                // //Serial.print("programIsGradient: ");
-                // //Serial.println(programIsGradient);
+                // Serial.print("programIsGradient: ");
+                // Serial.println(programIsGradient);
                 // annealTemp = array.get<float>(7);
                 // annealTempLow = array.get<float>(8);
                 // annealTempHigh = array.get<float>(9);
                 // annealTime = array.get<float>(10);
                 // annealTimeSec = annealTime;
                 // annealTime *= 1000;
-                // //Serial.print("annealTime: ");
-                // //Serial.println(annealTime);
+                // Serial.print("annealTime: ");
+                // Serial.println(annealTime);
                 // extendTemp = array.get<float>(11);
                 // extendTime = array.get<float>(12);
                 // extendTimeSec = extendTime;
@@ -2279,8 +2306,8 @@ void handleWS(String msg){
                 // finalExtendTime = array.get<float>(14);
                 // finalExtendTimeSec = finalExtendTime;
                 // finalExtendTime *= 1000;
-                // //Serial.print("finalExtendTime: ");
-                // //Serial.println(finalExtendTime);
+                // Serial.print("finalExtendTime: ");
+                // Serial.println(finalExtendTime);
                 PCRon = true;
                 jsonBuffer.clear();
         }
@@ -2373,13 +2400,13 @@ void handleWS(String msg){
         }
         if(var=="preheatLidTemp") {
                 preheatLidTemp = val.toFloat();
-                //Serial.print("preheatLidTemp: ");
-                //Serial.println(preheatLidTemp);
+                Serial.print("preheatLidTemp: ");
+                Serial.println(preheatLidTemp);
         }
         if(var=="preheatBlockTemp") {
                 preheatBlockTemp = val.toFloat();
-                //Serial.print("preheatBlockTemp: ");
-                //Serial.println(preheatBlockTemp);
+                Serial.print("preheatBlockTemp: ");
+                Serial.println(preheatBlockTemp);
         }
 }
 
@@ -2434,21 +2461,21 @@ void sendJSON(){
 
 void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
         if(type == WS_EVT_CONNECT) {
-                //Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
+                Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
 
 
         } else if(type == WS_EVT_DISCONNECT) {
-                //Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
+                Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
         } else if(type == WS_EVT_ERROR) {
-                //Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+                Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
         } else if(type == WS_EVT_PONG) {
-                //Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len) ? (char*)data : "");
+                Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len) ? (char*)data : "");
         } else if(type == WS_EVT_DATA) {
                 AwsFrameInfo * info = (AwsFrameInfo*)arg;
                 String msg = "";
                 if(info->final && info->index == 0 && info->len == len) {
                         //the whole message is in a single frame and we got all of it's data
-                        //Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
+                        Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
 
                         if(info->opcode == WS_TEXT) {
                                 for(size_t i=0; i < info->len; i++) {
@@ -2461,11 +2488,11 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
                         //message is comprised of multiple frames or the frame is split into multiple packets
                         if(info->index == 0) {
                                 //if(info->num == 0)
-                                        //Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
-                                //Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
+                                        Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
+                                Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
                         }
 
-                        //Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + len);
+                        Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + len);
 
                         if(info->opcode == WS_TEXT) {
                                 for(size_t i=0; i < info->len; i++) {
@@ -2489,11 +2516,11 @@ void setup(){
         delay(3000);
         Serial.begin(115200);
         //Serial.setDebugOutput(true);
-        //Serial.println("Setup Start");
+        Serial.println("Setup Start");
 
         SPIFFS.begin();
         if (drd.detectDoubleReset()) {
-          //Serial.println("Double reset detected");
+          Serial.println("Double reset detected");
           resetFiles();
         }
 
@@ -2502,7 +2529,7 @@ void setup(){
         setWifi();
         if (updatestart == true)
         { 
-                //Serial.println("Update Start");
+                Serial.println("Update Start");
                 File file = SPIFFS.open("/config.json", "r");
                 size_t size = file.size();
                 std::unique_ptr<char[]> buf (new char[size]);
@@ -2510,21 +2537,21 @@ void setup(){
                 StaticJsonBuffer<600> jsonBuffer;
                 JsonObject& root = jsonBuffer.parseObject(buf.get());
                 file.close();
-                //Serial.println("json root: ");
+                Serial.println("json root: ");
                 if (root.success()) {
-                        //Serial.println("root success");
+                        Serial.println("root success");
                         root["update"] = "false";
                         //root.printTo(Serial);
                         File file = SPIFFS.open("/config.json", "w");
                         root.printTo(file);
                         file.close();
                 }
-                //Serial.println();
+                Serial.println();
                 WiFi.mode(WIFI_STA);
-                //Serial.print("userssid: ");
-                //Serial.println(userssid);
-                //Serial.print("userpass: ");
-                //Serial.println(userpass);
+                Serial.print("userssid: ");
+                Serial.println(userssid);
+                Serial.print("userpass: ");
+                Serial.println(userpass);
                 if (userpass == "") {
                         WiFi.begin(userssid.c_str());
                 }else{
@@ -2532,27 +2559,27 @@ void setup(){
                 }
                 while (WiFi.status() != WL_CONNECTED) {
                         delay(1000);
-                        //Serial.println("Connecting..");
+                        Serial.println("Connecting..");
                 }
                 WiFiClient client;
                 ESPhttpUpdate.setLedPin(LED_BUILTIN, LOW);
                 t_httpUpdate_return ret = ESPhttpUpdate.updateSpiffs(client, "http://propcr.com/spiffs.bin");
-                //Serial.println(ret);
+                Serial.println(ret);
                 if (ret == 0) {
-                        //Serial.println("Update sketch...");
+                        Serial.println("Update sketch...");
                         ret = ESPhttpUpdate.update(client, "http://propcr.com/firmware.bin");
 
                         // switch (ret) {
                         //         case HTTP_UPDATE_FAILED:
-                        //         USE_//Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+                        //         USE_Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
                         //         break;
 
                         //         case HTTP_UPDATE_NO_UPDATES:
-                        //         USE_//Serial.println("HTTP_UPDATE_NO_UPDATES");
+                        //         USE_Serial.println("HTTP_UPDATE_NO_UPDATES");
                         //         break;
 
                         //         case HTTP_UPDATE_OK:
-                        //         USE_//Serial.println("HTTP_UPDATE_OK");
+                        //         USE_Serial.println("HTTP_UPDATE_OK");
                         //         break;
                         // }
                 }
@@ -2572,9 +2599,9 @@ void setup(){
         if (!connectwifi) {
                 const char * mdnsName = propcrChip.c_str();
                 if (!MDNS.begin(mdnsName)) {
-                        //Serial.println("Error setting up MDNS responder!");
+                        Serial.println("Error setting up MDNS responder!");
                 } else {
-                        //Serial.println("mDNS responder started");
+                        Serial.println("mDNS responder started");
                         // Add service to MDNS-SD
                         MDNS.addService("http", "tcp", 80);
                         MDNS.addService("ws", "tcp", 81);
@@ -2667,34 +2694,34 @@ void loop(){
         }
 
         if (millis() - resetTime < 60000) {
-          // //Serial.println("drd.loop");
+          // Serial.println("drd.loop");
             drd.loop();
         }
         if (millis() - resetTime > 60001) {
-          //Serial.println("drd.loop off");
+          Serial.println("drd.loop off");
             doubleReset = false;
         }
       }
         if (WiFi.status() != 3 && APcatch) {
-                //Serial.print("WiFi.status() = ");
-                //Serial.println(WiFi.status());
-                //Serial.println("APcatch started");
+                Serial.print("WiFi.status() = ");
+                Serial.println(WiFi.status());
+                Serial.println("APcatch started");
                 if (APtimernew) {
                         APtime = millis();
                         APtimernew = false;
                 }
 
                 if(millis() - APtime > 20000) {
-                        //Serial.println("APcatch tripped");
+                        Serial.println("APcatch tripped");
                         connectwifi = false;
                         WiFi.mode(WIFI_AP);
                         delay(500);
                         setupAP();
                         const char * mdnsName = propcrChip.c_str();
                         if (!MDNS.begin(mdnsName)) {
-                                //Serial.println("Error setting up MDNS responder!");
+                                Serial.println("Error setting up MDNS responder!");
                         } else {
-                                //Serial.println("mDNS responder started1");
+                                Serial.println("mDNS responder started1");
                                 // Add service to MDNS-SD
                                 MDNS.addService("http", "tcp", 80);
                                 MDNS.addService("ws", "tcp", 81);
@@ -2709,16 +2736,16 @@ void loop(){
                         openmdns = false;
                         const char * mdnsName = propcrChip.c_str();
                         if (!MDNS.begin(mdnsName)) {
-                                //Serial.println("Error setting up MDNS responder!");
+                                Serial.println("Error setting up MDNS responder!");
                         } else {
-                                //Serial.println("mDNS responder started");
+                                Serial.println("mDNS responder started");
                                 // Add service to MDNS-SD
                                 MDNS.addService("http", "tcp", 80);
                                 MDNS.addService("ws", "tcp", 81);
                         }
                 }
         }
-        // //Serial.println(autostart);
+        // Serial.println(autostart);
         if (autostart) {
                 runAutoStart();
         }
