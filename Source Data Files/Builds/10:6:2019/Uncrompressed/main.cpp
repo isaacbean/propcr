@@ -1984,7 +1984,10 @@ void saveUserpswConfig(boolean userpsw){
   }
   //config.printTo(Serial);
   File savefile = SPIFFS.open("/config.json", "w");
-  //config.printTo(savefile);
+
+  //BUG FOUND! THIS NEXT LINE WAS COMMENTED OUT ON OCTOBER RELEASE!
+  config.printTo(savefile);
+  
   savefile.close();
   jsonBuffer.clear();
 }

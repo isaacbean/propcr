@@ -45,7 +45,7 @@ DNSServer dnsServer;
 boolean isPaused = false;
 String runTime = "0";
 int websockMillis=500;
-String webSite,javaScript,JSONtxt;
+String JSONtxt;
 unsigned long wait001=0UL;
 
 int samples[NUMSAMPLES];
@@ -83,9 +83,6 @@ PID heatPID3(&Input3, &Output3, &Setpoint3, consKp, consKi, consKd, P_ON_E, DIRE
 PID lidPID(&Inputlid, &Outputlid, &Setpointlid, lidKp, lidKi, lidKd, P_ON_E, DIRECT);
 PID fanPID(&Inputfan, &Outputfan, &Setpointfan, consKpfan, consKifan, consKdfan, P_ON_E, REVERSE);
 
-boolean initialize1;
-boolean initialize2;
-boolean initialize3;
 
 boolean PCRon = false;
 boolean blockOn = false;
@@ -201,6 +198,9 @@ String chipIDstring;
 
 const long serialinterval = 250;
 unsigned long previousserialMillis = 0;
+
+const long WSinterval = 1000;
+unsigned long previousWSMillis = 0;
 
 //===> functions <--------------------------------------------------------------
 
@@ -1879,8 +1879,6 @@ void handleLED(){
     }
 }
 
-//flag to use from web update to reboot the ESP
-bool shouldReboot = false;
 
 void onRequest(AsyncWebServerRequest *request){
         //Serial.println("async redirect");
@@ -2027,28 +2025,29 @@ void saveWifi(boolean connect){
 }
 
 void saveWifiConfig(boolean connect){
-  File configfile = SPIFFS.open("/config.json", "r");
-  size_t configsize = configfile.size();
-  std::unique_ptr<char[]> configbuf (new char[configsize]);
-  configfile.readBytes(configbuf.get(), configsize);
+  File file = SPIFFS.open("/config.json", "r");
+  size_t size = file.size();
+  std::unique_ptr<char[]> buf (new char[size]);
+  file.readBytes(buf.get(), size);
   StaticJsonBuffer<1000> jsonBuffer;
-  JsonObject& config = jsonBuffer.parseObject(configbuf.get());
-  configfile.close();
-  //Serial.println("json root: ");
-  if (config.success()) {
+  JsonObject& root = jsonBuffer.parseObject(buf.get());
+  file.close();
+  Serial.println("json root: ");
+  if (root.success()) {
+          Serial.println("root success");
     if (connect) {
-      config["connectwifi"] = "true";
-      config["userssid"] = userssid;
+      root["connectwifi"] = "true";
+      root["userssid"] = userssid;
 
     }else{
             //Serial.println("saveWifiConfig() success");
-      config["connectwifi"] = "false";
-      config["userssid"] = "";
+      root["connectwifi"] = "false";
+      root["userssid"] = "";
     }
   }
   //config.printTo(Serial);
   File savefile = SPIFFS.open("/config.json", "w");
-  //config.printTo(savefile);
+  root.printTo(savefile);
   savefile.close();
   //config.printTo(Serial);
   jsonBuffer.clear();
@@ -2754,4 +2753,15 @@ void loop(){
         readThermistors();
         thermocycler();
         sendJSON();
+
+unsigned long WSMillis = millis();
+      if (WSMillis - previousWSMillis >= WSinterval) {
+        previousWSMillis = WSMillis;
+        ws.cleanupClients();
+      }
 }
+
+
+
+
+
