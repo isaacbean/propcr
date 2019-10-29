@@ -817,8 +817,17 @@
         }
 
         function showSettings() {
-            loadConfig();
+            if(Boolean(pcrRunning)){
+                ge("disableSettings").style.display = "block";
+                ge("settingsContainer").style.display = "none";
+                
+            }else{
+                loadConfig();
             loadData();
+                ge("disableSettings").style.display = "none";
+                ge("settingsContainer").style.display = "block";
+            }
+            
             // ge("menudiv").style.display = "none";
             ge("openbtn").style.display = "block";
             ge("programdiv").style.display = "none";
@@ -826,6 +835,7 @@
             ge("settingsdiv").style.display = "block";
             ge("viewdiv").style.display = "none";
             closeNav();
+            
         }
 
         function showView() {
@@ -932,6 +942,7 @@
             p += "*";
             ws.send(p);
             deletechange = true;
+            cancelButton();
         }
 
         function runLoad(keydata, datadata) {
@@ -1136,7 +1147,11 @@
                                 loaddelete.setAttribute("value", "delete");
                                 loaddelete.setAttribute("class", "loadbutton");
                                 loaddelete.addEventListener("click", function (event) {
-                                    deleteLoad(keydata);
+                                    runModal(
+                    "Confirm Delete "+keydata,
+                    "Cancel", cancelButton, "Confirm", function(){deleteLoad(keydata)});
+                                    
+                                    
                                 });
                                 h5.appendChild(t3);
                                 h4.appendChild(t2);
@@ -2678,7 +2693,8 @@
         </div>
 
         <div id="settingsdiv">
-
+            <div id="disableSettings" style="display:none"><h3 style="text-align: center">Settings are disabled while the proPCR is running.</h3> </div>
+            <div id="settingsContainer">
             <div id="helpset" class="setting" onclick="expandShow('helpon','helpicon')">
                 <div id="helpicon" class="settingsicon">+</div>
                 <div>&nbsp;Show Information Boxes: <span id="helpstat" class="stat">ON</span></div>
@@ -2810,8 +2826,8 @@
 
             </div>
 
-
             <div class="setting"></div>
+            </div>
         </div>
 
 

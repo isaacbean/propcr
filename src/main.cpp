@@ -70,10 +70,10 @@ bool resetOutput3 = true;
 //Specify the links and initial tuning parameters
 //double Kp=600, Ki=0, Kd=.00001;
 //PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-double aggKp=600, aggKi=.5, aggKd=.001;
-double consKp=1500, consKi=2, consKd=500;
+double aggKp=1800, aggKi=1, aggKd=1;
+double consKp=600, consKi=60, consKd=500;
 double alidKp=1000, alidKi=.01, alidKd=.5;
-double lidKp=1000, lidKi=1, lidKd=10;
+double lidKp=1000, lidKi=40, lidKd=100;
 double aggKpfan=400, aggKifan=.01, aggKdfan=.0001;
 double consKpfan=100, consKifan=.1, consKdfan=.2;
 //Specify the links and initial tuning parameters
@@ -388,38 +388,6 @@ void wifiScan(){
   json = String();
 }
 
-// String getContentType(String filename) { // convert the file extension to the MIME type
-//         if (filename.endsWith(".html")) return "text/html";
-//         else if (filename.endsWith(".css")) return "text/css";
-//         else if (filename.endsWith(".js")) return "application/javascript";
-//         else if (filename.endsWith(".ico")) return "image/x-icon";
-//         else if (filename.endsWith(".gz")) return "application/x-gzip";
-//         else if (filename.endsWith(".json")) return "application/json";
-//         return "text/plain";
-// }
-
-// boolean isIp(String str) {
-//         for (int i = 0; i < str.length(); i++) {
-//                 int c = str.charAt(i);
-//                 if (c != '.' && (c < '0' || c > '9')) {
-//                         return false;
-//                 }
-//         }
-//         return true;
-// }
-
-
-
-// boolean captivePortal() {
-//         if (!isIp(server.hostHeader()) && server.hostHeader() != (propcrChip+".local")) {
-//                 //Serial.println("Request redirected to captive portal");
-//                 server.sendHeader("Location", String("http://") + toStringIp(server.client().localIP()), true);
-//                 server.send ( 302, "text/plain", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves.
-//                 server.client().stop(); // Stop is needed because we sent no content length
-//                 return true;
-//         }
-//         return false;
-// }
 
 float readTherm(int therm){
 
@@ -537,6 +505,8 @@ void resetPCR() {
         timerStarted = false;
         totalTime = 0;
         denatureStep = true;
+        annealStep = false;
+        extendStep = false;
         preheatBlock = false;
         preheatLid = false;
 }
@@ -563,10 +533,10 @@ void runPCR(float &low, float &high){
                 high = initDenatureTemp;
                 totalTime = initDenatureTime;
                 if (Input1 >= low - tempthreshold) {
-                        // //Serial.print("Timer: ");
-                        // //Serial.print(timerSerial);
-                        // //Serial.print(" of ");
-                        // //Serial.println(initDenatureTimeSec);
+                        Serial.print("Timer: ");
+                        Serial.print(timerSerial);
+                        Serial.print(" of ");
+                        Serial.println(initDenatureTimeSec);
                         currentMillis = millis();
                         if (timerStarted == false) {
                                 previousMillis = millis();
@@ -585,6 +555,8 @@ void runPCR(float &low, float &high){
                                 }
                               }
                 }
+                // Serial.print("timerStarted: ");
+                        // Serial.println(timerStarted);
                 break;
 
         //Touchdown Cycles
@@ -1003,7 +975,7 @@ void runHeat(float &low, float &high){
                 break;
 
         case 1:
-                //Serial.println("Heating to Start Temp");
+                // Serial.println("Heating to Start Temp");
                 if (programType == 7) {
                   low = heatBlockTemp;
                   high = heatBlockTemp;
@@ -1074,33 +1046,41 @@ void thermocycler(){
                                 unsigned long serialMillis = millis();
                                 if (serialMillis - previousserialMillis >= serialinterval) {
                                 previousserialMillis = serialMillis;
-                                // //Serial.print("Setpoint Low: ");
-                                // //Serial.println(heatLow);
-                                // //Serial.print("Setpoint Mid: ");
-                                // //Serial.println(heatMid);
-                                // //Serial.print("Setpoint High: ");
-                                // //Serial.println(heatHigh);
-                                //Serial.print("Temp 1: ");
-                                //Serial.println(tempone);
-                                //Serial.print("Temp 2: ");
-                                //Serial.println(temptwo);
-                                //Serial.print("Temp 3: ");
-                                //Serial.println(tempthree);
-                                //Serial.print("Temp Lid: ");
-                                //Serial.println(templid);
-                                //Serial.print("Output1: ");
-                                //Serial.println(Output1);
-                                //Serial.print("Output 2: ");
-                                //Serial.println(Output2);
-                                //Serial.print("Output 3: ");
-                                //Serial.println(Output3);
-                                //Serial.print("Output Lid: ");
-                                //Serial.println(Outputlid);
-                                //Serial.print("Output Fan: ");
-                                //Serial.println(Outputfan);
-                                //Serial.print("Mode: ");
-                                //Serial.println(heatPID1.GetMode());
-                                //Serial.println(" ");
+                                Serial.print("Setpoint Low: ");
+                                Serial.println(heatLow);
+                                Serial.print("Setpoint Mid: ");
+                                Serial.println(heatMid);
+                                Serial.print("Setpoint High: ");
+                                Serial.println(heatHigh);
+                                Serial.print("Setpoint Fan: ");
+                                Serial.println(Setpointfan);
+                                Serial.print("Temp 1: ");
+                                Serial.println(tempone);
+                                Serial.print("Temp 2: ");
+                                Serial.println(temptwo);
+                                Serial.print("Temp 3: ");
+                                Serial.println(tempthree);
+                                Serial.print("Temp Lid: ");
+                                Serial.println(templid);
+                                Serial.print("Output1: ");
+                                Serial.println(Output1);
+                                Serial.print("Output 2: ");
+                                Serial.println(Output2);
+                                Serial.print("Output 3: ");
+                                Serial.println(Output3);
+                                Serial.print("Output Lid: ");
+                                Serial.println(Outputlid);
+                                Serial.print("Output Fan: ");
+                                Serial.println(Outputfan);
+                                Serial.print("denatureStep: ");
+                                Serial.println(denatureStep);
+                                Serial.print("annealStep: ");
+                                Serial.println(annealStep);
+                                Serial.print("extendStep: ");
+                                Serial.println(extendStep);
+                                // Serial.print("Mode: ");
+                                // Serial.println(heatPID1.GetMode());
+                                Serial.println(" ");
                                 }
                         }
                       if (programType == 5 || programType == 6){
@@ -1143,30 +1123,34 @@ void thermocycler(){
                       if (programType == 7 || programType == 8){
                         runHeat(heatLow, heatHigh);
 
-                        //Serial.print("Setpoint Low: ");
-                        //Serial.println(heatLow);
-                        //Serial.print("Setpoint Mid: ");
-                        //Serial.println(heatMid);
-                        //Serial.print("Setpoint High: ");
-                        //Serial.println(heatHigh);
-                        //Serial.print("Temp 1: ");
-                        //Serial.println(tempone);
-                        //Serial.print("Temp 2: ");
-                        //Serial.println(temptwo);
-                        //Serial.print("Temp 3: ");
-                        //Serial.println(tempthree);
-                        //Serial.print("Setpoint Fan: ");
-                        //Serial.println(Setpointfan);
-                        //Serial.print("Output1: ");
-                        //Serial.println(Output1);
-                        //Serial.print("Output 2: ");
-                        //Serial.println(Output2);
-                        //Serial.print("Output 3: ");
-                        //Serial.println(Output3);
-                        //Serial.print("Output Lid: ");
-                        //Serial.println(Outputlid);
-                        //Serial.print("Output Fan: ");
-                        //Serial.println(Outputfan);
+                        unsigned long serialMillis = millis();
+                if (serialMillis - previousserialMillis >= serialinterval) {
+                        previousserialMillis = serialMillis;
+                        Serial.print("Setpoint Low: ");
+                        Serial.println(heatLow);
+                        Serial.print("Setpoint Mid: ");
+                        Serial.println(heatMid);
+                        Serial.print("Setpoint High: ");
+                        Serial.println(Setpoint3);
+                        Serial.print("Temp 1: ");
+                        Serial.println(tempone);
+                        Serial.print("Temp 2: ");
+                        Serial.println(temptwo);
+                        Serial.print("Temp 3: ");
+                        Serial.println(tempthree);
+                        Serial.print("Setpoint Fan: ");
+                        Serial.println(Setpointfan);
+                        Serial.print("Output1: ");
+                        Serial.println(Output1);
+                        Serial.print("Output 2: ");
+                        Serial.println(Output2);
+                        Serial.print("Output 3: ");
+                        Serial.println(Output3);
+                        Serial.print("Output Lid: ");
+                        Serial.println(Outputlid);
+                        Serial.print("Output Fan: ");
+                        Serial.println(Outputfan);
+                }
 
                         totalTime /= 1000;
                         heatMid = heatLow + heatHigh;
@@ -1204,13 +1188,14 @@ void thermocycler(){
         }
 
         double gap1 = Setpoint1-Input1; 
-        if (gap1 > 10){ 
+        if (gap1 > 8){ 
                 heatPID1.SetMode(MANUAL);
                 Output1 = 1023;
                 resetOutput1=true;
                 // heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
-        }else if (gap1 <= 10 && gap1 >= 2){
-                Output1 = 0;
+        }
+        if (gap1 <= 8 && gap1 >= 2){
+                // Output1 = 0;
                 heatPID1.SetMode(AUTOMATIC);
                 heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
                 resetOutput1 = true;
@@ -1238,7 +1223,7 @@ void thermocycler(){
                 resetOutput2=true;
                 // heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
         }else if (gap2 <= 10 && gap2 >= 2){
-                Output2 = 0;
+                // Output2 = 0;
                 heatPID2.SetMode(AUTOMATIC);
                 heatPID2.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
                 resetOutput2 = true;
@@ -1260,13 +1245,13 @@ void thermocycler(){
         }
 
         double gap3 = Setpoint3-Input3; 
-        if (gap3 > 10){ 
+        if (gap3 > 8){ 
                 heatPID3.SetMode(MANUAL);
                 Output3 = 1023;
                 resetOutput3=true;
                 // heatPID1.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
-        }else if (gap3 <= 10 && gap3 >= 2){
-                Output3 = 0;
+        }else if (gap3 <= 8 && gap3 >= 2){
+                // Output3 = 0;
                 heatPID3.SetMode(AUTOMATIC);
                 heatPID3.SetTunings(aggKp, aggKi, aggKd, P_ON_E);
                 resetOutput3 = true;
@@ -1321,23 +1306,23 @@ void thermocycler(){
                                 // //Serial.println(Outputfan);
 
                                 if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
-                                  if (Outputfan >= 250 && Outputfan < 1023) {
+                                  if (Outputfan >= 300 && Outputfan < 1023) {
                                         analogWrite(fanPin, 1023);
-                                        }else if (Outputfan > 0 && Outputfan < 250){
+                                        }else if (Outputfan > 0 && Outputfan < 300){
                                         analogWrite(fanPin, 0);
                                         }else{
                                         analogWrite(fanPin, Outputfan);
                                         }
                                 }
                                 if (programType == 2 || programType == 4 || programType == 6 || programType == 8) {
-                                  if (abs(Setpoint1 - Setpoint3) > 7 && (Setpoint3 - Input3)<2 )
+                                  if (abs(Setpoint3 - Setpoint1) > 7 && (Setpoint3 - Input3)<2 )
                                         {
                                                 Outputfan = 1023;
                                                 analogWrite(fanPin, Outputfan);
                                         }else{      
-                                  if (Outputfan >= 300 && Outputfan < 1023) {
+                                  if (Outputfan >= 350 && Outputfan < 1023) {
                                         analogWrite(fanPin, 1023);
-                                        }else if (Outputfan > 0 && Outputfan < 300){
+                                        }else if (Outputfan >= 0 && Outputfan < 350){
                                         analogWrite(fanPin, 0);
                                         }else{
                                         analogWrite(fanPin, Outputfan);
@@ -1982,7 +1967,7 @@ void saveUserpswConfig(boolean userpsw){
   }
   //config.printTo(Serial);
   File savefile = SPIFFS.open("/config.json", "w");
-  //config.printTo(savefile);
+  config.printTo(savefile);
   savefile.close();
   jsonBuffer.clear();
 }
