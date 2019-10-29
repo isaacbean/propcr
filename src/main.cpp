@@ -361,32 +361,6 @@ void startWifi(){
 
 
 
-void wifiScan(){
-  String json = "{\"wifiscan\"[";
-  int n = WiFi.scanComplete();
-  if(n == -2){
-    WiFi.scanNetworks(true);
-  } else if(n){
-    for (int i = 0; i < n; ++i){
-      if(i) json += ",";
-      json += "{";
-      json += "\"rssi\":"+String(WiFi.RSSI(i));
-      json += ",\"ssid\":\""+WiFi.SSID(i)+"\"";
-      json += ",\"bssid\":\""+WiFi.BSSIDstr(i)+"\"";
-      json += ",\"channel\":"+String(WiFi.channel(i));
-      json += ",\"secure\":"+String(WiFi.encryptionType(i));
-      json += ",\"hidden\":"+String(WiFi.isHidden(i)?"true":"false");
-      json += "}";
-    }
-    WiFi.scanDelete();
-    if(WiFi.scanComplete() == -2){
-      WiFi.scanNetworks(true);
-    }
-  }
-  json += "]";
-  ws.textAll(json);
-  json = String();
-}
 
 
 float readTherm(int therm){
@@ -1315,7 +1289,7 @@ void thermocycler(){
                                         }
                                 }
                                 if (programType == 2 || programType == 4 || programType == 6 || programType == 8) {
-                                  if (abs(Setpoint3 - Setpoint1) > 7 && (Setpoint3 - Input3)<2 )
+                                  if (abs(Setpoint3 - Setpoint1) >= 5 && (Setpoint3 - Input3)<2 )
                                         {
                                                 Outputfan = 1023;
                                                 analogWrite(fanPin, Outputfan);
@@ -2649,6 +2623,33 @@ server.onNotFound([](AsyncWebServerRequest * request) {
 // server.on("/heap", HTTP_GET, [](AsyncWebServerRequest *request){
 //         request->send(200, "text/plain", String(ESP.getFreeHeap()));
 // });
+
+server.on("/scan", HTTP_GET, [](AsyncWebServerRequest *request){
+  String json = "[";
+  int n = WiFi.scanComplete();
+  if(n == -2){
+    WiFi.scanNetworks(true);
+  } else if(n){
+    for (int i = 0; i < n; ++i){
+      if(i) json += ",";
+      json += "{";
+      json += "\"rssi\":"+String(WiFi.RSSI(i));
+      json += ",\"ssid\":\""+WiFi.SSID(i)+"\"";
+      json += ",\"bssid\":\""+WiFi.BSSIDstr(i)+"\"";
+      json += ",\"channel\":"+String(WiFi.channel(i));
+      json += ",\"secure\":"+String(WiFi.encryptionType(i));
+      json += ",\"hidden\":"+String(WiFi.isHidden(i)?"true":"false");
+      json += "}";
+    }
+    WiFi.scanDelete();
+    if(WiFi.scanComplete() == -2){
+      WiFi.scanNetworks(true);
+    }
+  }
+  json += "]";
+  request->send(200, "application/json", json);
+  json = String();
+});
 //
 // server.on("/programs.json", HTTP_GET, [](AsyncWebServerRequest *request){
 //         request->send(SPIFFS, "/programs.json", "text/json");
@@ -2665,6 +2666,7 @@ server.onNotFound([](AsyncWebServerRequest * request) {
       //  server.onNotFound(onRequest);
 
         server.begin();
+       // WiFi.scanNetworks();
         }
 }
 

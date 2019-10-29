@@ -264,6 +264,10 @@
 
         @media(min-width:710px) {
 
+            #scanList{
+            padding-left: 30%
+        }
+
             .container,
             .modal-content {
                 width: 600px
@@ -417,7 +421,7 @@
             padding-top: 5px
         }
 
-        #loaddiv h1 {
+        #loaddiv h2 {
             text-align: center
         }
 
@@ -512,6 +516,14 @@
         #userpswbutton {
             font-size: 15px;
             width: auto
+        }
+
+        #scanList{
+            padding-left: 20%
+        }
+
+        .networkname{
+            cursor: pointer;
         }
 
         #displaydiv {
@@ -965,6 +977,81 @@
             }
             rawFile.send(null);
         }
+        var firstScan = 1;
+
+        function scanWifi(){
+            if (Boolean(pcrRunning)) {
+                return;
+            }else{
+            if (firstScan == 1){
+                firstScan = 0;
+                setTimeout(function(){
+                scanWifi();
+            },5500);
+            }
+            ge("scanList").innerHTML = "";
+            ge("scanButton").disabled = true;
+            ge("scanButton").value = "Scanning...";
+            setTimeout(function(){
+                ge("scanButton").disabled = false;
+                ge("scanButton").value = "Rescan Wifi Networks";
+            },5000);
+
+            var scanData = new XMLHttpRequest();
+            scanData.overrideMimeType("application/json");
+            scanData.open("GET", "/scan", true);
+            scanData.onreadystatechange = function () {
+                if (scanData.readyState === 4 && scanData.status == "200") {
+                    var data = JSON.parse(scanData.responseText);
+
+                    if (scanData.responseText == "[]") {
+                    ge("scanAlert").innerHTML = "No 2.4GHz Networks Found";
+                    
+                } else {
+                    ge("scanAlert").innerHTML = "";
+                    
+                    for (var key in data) {
+                        if (data.hasOwnProperty(key)) {
+                             var scanList;
+                             var h4;
+                             var networkDiv;
+                             var t2;
+                             var lock;
+
+                                (function () {
+                                    var keydata = key;
+                                    var datadata = data[key];
+                                    scanList = ge("scanList");
+                                    networkDiv = ce("div");
+                                    networkDiv.setAttribute("id", keydata);
+                                    networkDiv.addEventListener("click", function (event) {
+                                        ge("wifiname").value = datadata.ssid;
+                                    });
+                                    h4 = ce("h4");
+                                    h4.setAttribute("class", "networkname");
+                                    
+                                    t2 = document.createTextNode(datadata.ssid);
+                                    
+                                    
+                                    // if (datadata.secure != 7){
+                                    //     lock = document.createTextNode(/"&nbsp;&#128274;/");
+                                        
+                                    //     t2.appendChild(lock);
+                                    // }
+                                    h4.appendChild(t2);
+                                    networkDiv.appendChild(h4);
+                                    scanList.appendChild(networkDiv);
+                                    })();
+                        }
+                    }
+                }
+
+
+                }
+            }
+            scanData.send(null);
+        }
+        }
 
         function loadConfig() {
             readTextFile("/config.json", function (text) {
@@ -1045,12 +1132,12 @@
             ge("progselect").innerHTML = "";
             var loaddiv = ge("loaddiv");
             var progselect = ge("progselect");
-            var h1 = ce("h1");
-            h1.setAttribute("id", "loadalert");
+            var h2 = ce("h2");
+            h2.setAttribute("id", "loadalert");
             var h3 = ce("h3");
             h3.setAttribute("id", "selectalert");
             progselect.appendChild(h3);
-            loaddiv.appendChild(h1);
+            loaddiv.appendChild(h2);
             ge("loadalert").innerHTML = "Loading...";
             ge("selectalert").innerHTML = "Loading...";
             readTextFile("/programs.json", function (text) {
@@ -1071,7 +1158,7 @@
                             var h4;
                             var t2;
                             var progdiv;
-                            var h1;
+                            var h2;
                             var t;
                             var buttondiv;
                             var run;
@@ -1096,8 +1183,8 @@
                                 t2 = document.createTextNode(key);
                                 progdiv = ce("div");
                                 progdiv.setAttribute("id", keydata);
-                                h1 = ce("h1");
-                                h1.setAttribute("class", "loadprogname");
+                                h2 = ce("h2");
+                                h2.setAttribute("class", "loadprogname");
                                 t = document.createTextNode(key);
                                 h5 = ce("h4");
                                 h5.setAttribute("class", "progtitle");
@@ -1157,11 +1244,11 @@
                                 h4.appendChild(t2);
                                 selectdiv.appendChild(h4);
                                 progselect.appendChild(selectdiv);
-                                h1.appendChild(t);
+                                h2.appendChild(t);
                                 buttondiv.appendChild(run);
                                 buttondiv.appendChild(edit);
                                 buttondiv.appendChild(loaddelete);
-                                progdiv.appendChild(h1);
+                                progdiv.appendChild(h2);
                                 progdiv.appendChild(h5);
                                 progdiv.appendChild(buttondiv);
                                 loaddiv.appendChild(progdiv);
@@ -2141,10 +2228,10 @@
                 if (Boolean(deletechange) && Object.keys(JSONobj)[0] == "deletealert") {
                     var deleted = ge(JSONobj.deleted);
                     deleted.innerHTML = "";
-                    var h1 = ce("h1");
+                    var h2 = ce("h2");
                     var t = document.createTextNode(JSONobj.deletealert);
-                    h1.appendChild(t);
-                    deleted.appendChild(h1);
+                    h2.appendChild(t);
+                    deleted.appendChild(h2);
                     deletechange = false;
                 }
 
@@ -2153,7 +2240,7 @@
             ws.onclose = function (e) {
                 console.log('Socket is closed. Reconnect will be attempted in .5 second.', e.reason);
                 setTimeout(function () {
-                    connect();
+                    InitWebSocket();
                 }, 500);
             };
 
@@ -2172,6 +2259,7 @@
             showProgram();
             showTab('programpcr', 'tabpcr');
             InitWebSocket();
+            scanWifi();
             regularRampButton();
             regularHeatButton();
             programRegular();
@@ -2676,7 +2764,7 @@
             </div>
             <div id="connectionalert">
             </div>
-            <div id="ipinfo">
+            <div id="ipinfo" style="display:none">
                 <span>Avaliable on wifi network:&nbsp;</span>
                 <span id="ssidname"></span>
                 <span>&nbsp;at&nbsp;</span>
@@ -2742,6 +2830,15 @@
                     <span id="connectnetworkmsg">On startup proPCR will connect to the network:&nbsp;</span>
                     <span id="connectnetwork"></span>
                 </div>
+                <h3 style="text-align:center">Avaliable Wifi Networks:</h3>
+                <input type="button" id="scanButton" class="settingsbutton" style="font-size:15px;" onclick="scanWifi()"
+                    value="Scan Wifi Networks" />
+                    <h4 id="scanAlert" style="text-align:center"></h4>
+                <div id="scanList">
+
+
+                </div>
+
                 <div class="inputNum"><label class="has-float-label"><input type='text' placeholder='Wifi Network Name'
                             id="wifiname" maxlength="32" /><span>Wifi Network Name</span></label>
 
