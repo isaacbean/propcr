@@ -1026,7 +1026,6 @@
                                     networkDiv.setAttribute("id", keydata);
                                     networkDiv.addEventListener("click", function (event) {
                                         ge("wifiname").value = datadata.ssid;
-                                        ge("wifipass").focus();
                                     });
                                     h4 = ce("h4");
                                     h4.setAttribute("class", "networkname");
@@ -2830,7 +2829,7 @@
                     <span id="connectnetworkmsg">On startup proPCR will connect to the network:&nbsp;</span>
                     <span id="connectnetwork"></span>
                 </div>
-                <h3 style="text-align:center">Avaliable 2.4 GHz Wifi Networks:</h3>
+                <h3 style="text-align:center">Avaliable Wifi Networks:</h3>
                 <input type="button" id="scanButton" class="settingsbutton" style="font-size:15px;" onclick="scanWifi()"
                     value="Scan Wifi Networks" />
                     <h4 id="scanAlert" style="text-align:center"></h4>
