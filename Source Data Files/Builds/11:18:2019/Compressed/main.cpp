@@ -1136,51 +1136,10 @@ void thermocycler(){
                         Setpointfan = heatLow;
                       }
                 }else{
-                        Setpoint1 = heatLow;
-                        Setpoint2 = heatMid;
-                        Setpoint3 = heatHigh;
-                        Setpointfan = heatLow;
-
-
-                        unsigned long serialMillis = millis();
-                                if (serialMillis - previousserialMillis >= serialinterval) {
-                                previousserialMillis = serialMillis;
-                                //Serial.print("Setpoint Low: ");
-                                //Serial.println(heatLow);
-                                //Serial.print("Setpoint Mid: ");
-                                //Serial.println(heatMid);
-                                //Serial.print("Setpoint High: ");
-                                //Serial.println(heatHigh);
-                                //Serial.print("Setpoint Fan: ");
-                                //Serial.println(Setpointfan);
-                                //Serial.print("Temp 1: ");
-                                //Serial.println(tempone);
-                                //Serial.print("Temp 2: ");
-                                //Serial.println(temptwo);
-                                //Serial.print("Temp 3: ");
-                                //Serial.println(tempthree);
-                                //Serial.print("Temp Lid: ");
-                                //Serial.println(templid);
-                                //Serial.print("Output1: ");
-                                //Serial.println(Output1);
-                                //Serial.print("Output 2: ");
-                                //Serial.println(Output2);
-                                //Serial.print("Output 3: ");
-                                //Serial.println(Output3);
-                                //Serial.print("Output Lid: ");
-                                //Serial.println(Outputlid);
-                                //Serial.print("Output Fan: ");
-                                //Serial.println(Outputfan);
-                                //Serial.print("denatureStep: ");
-                                //Serial.println(denatureStep);
-                                //Serial.print("annealStep: ");
-                                //Serial.println(annealStep);
-                                //Serial.print("extendStep: ");
-                                //Serial.println(extendStep);
-                                //Serial.print("Mode: ");
-                                //Serial.println(heatPID1.GetMode());
-                                //Serial.println(" ");
-                                }
+                        Setpoint1 = tempone;
+                        Setpoint2 = temptwo;
+                        Setpoint3 = tempthree;
+                        Setpointlid = templid;
                 }
         }
         timerSerial = currentMillis - previousMillis;
@@ -1321,11 +1280,12 @@ void thermocycler(){
                                 //Serial.println(Outputfan);
 
                                 if (programType == 1 || programType == 3 || programType == 5 || programType == 7) {
-                                  if (Outputfan >= 300 && Outputfan <= 1023) {
+                                  if (Outputfan >= 300 && Outputfan < 1023) {
                                         analogWrite(fanPin, 1023);
-                                        }
-                                  if (Outputfan >= 0 && Outputfan < 300){
+                                        }else if (Outputfan > 0 && Outputfan < 300){
                                         analogWrite(fanPin, 0);
+                                        }else{
+                                        analogWrite(fanPin, Outputfan);
                                         }
                                 }
                                 if (programType == 2 || programType == 4 || programType == 6 || programType == 8) {
@@ -1334,11 +1294,12 @@ void thermocycler(){
                                                 Outputfan = 1023;
                                                 analogWrite(fanPin, Outputfan);
                                         }else{      
-                                  if (Outputfan >= 350 && Outputfan <= 1023) {
+                                  if (Outputfan >= 350 && Outputfan < 1023) {
                                         analogWrite(fanPin, 1023);
-                                        }
-                                  if (Outputfan >= 0 && Outputfan < 350){
+                                        }else if (Outputfan >= 0 && Outputfan < 350){
                                         analogWrite(fanPin, 0);
+                                        }else{
+                                        analogWrite(fanPin, Outputfan);
                                         }
                                 }
                                 }
@@ -1664,7 +1625,7 @@ void saveProgram(){
                 //Serial.println(data);
                 JsonArray& array = jsonBuffer.parseArray(data);
                 //Serial.print("json array: ");
-                array.printTo(Serial);
+                //Serial.println(array);
                 root[programNameSave] = array;
                 //root.printTo(Serial);
                 File file = SPIFFS.open("/programs.json", "w");
@@ -2079,7 +2040,7 @@ void updateFirmware(){
 
 
 void handleWS(String msg){
-        //Serial.println(msg);
+        //Serial.println("Program: "+msg);
         //Serial.println("websocket recieved");
         byte separator=msg.indexOf('=');
         byte separator2=msg.indexOf(':');
@@ -2285,6 +2246,8 @@ void handleWS(String msg){
                 //Serial.print("denatureTime: ");
                 //Serial.println(denatureTime);
                 // programIsGradient = array.get<float>(6);
+                //Serial.print("programIsGradient: ");
+                //Serial.println(programIsGradient);
                 // annealTemp = array.get<float>(7);
                 // annealTempLow = array.get<float>(8);
                 // annealTempHigh = array.get<float>(9);
@@ -2510,7 +2473,7 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
 void setup(){
         delay(3000);
         Serial.begin(115200);
-        Serial.setDebugOutput(true);
+        //Serial.setDebugOutput(true);
         //Serial.println("Setup Start");
 
         SPIFFS.begin();
@@ -2717,9 +2680,11 @@ void loop(){
         }
 
         if (millis() - resetTime < 60000) {
+          //Serial.println("drd.loop");
             drd.loop();
         }
         if (millis() - resetTime > 60001) {
+          //Serial.println("drd.loop off");
             doubleReset = false;
         }
       }
@@ -2766,7 +2731,7 @@ void loop(){
                         }
                 }
         }
-        
+        //Serial.println(autostart);
         if (autostart) {
                 runAutoStart();
         }
