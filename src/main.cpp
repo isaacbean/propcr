@@ -2510,7 +2510,7 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
 void setup(){
         delay(3000);
         Serial.begin(115200);
-        Serial.setDebugOutput(true);
+        //Serial.setDebugOutput(true);
         //Serial.println("Setup Start");
 
         SPIFFS.begin();

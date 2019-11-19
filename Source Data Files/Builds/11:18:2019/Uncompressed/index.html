@@ -1971,6 +1971,7 @@
 
         function disconnectCheck() {
             if (WSdisconnected) {
+                // InitWebSocket();
                 runModal(
                     "The browser has lost the connection with the proPCR.<br><br>If the proPCR was running a program, it will not be affected.<br><br>To reconnect please refresh the browser window and/or check wifi.",
                     "Cancel", cancelButton, "Refresh", refreshPage);
@@ -1981,6 +1982,13 @@
                 ge("connectview").style.color = "red";
                 ge("connectdot").style.backgroundColor = "red";
             }
+            // if(WSdisconnected == false){
+            //     cancelButton();
+            //     ge("connectstatus").innerHTML = "CONNECTED TO PROPCR";
+            //     ge("connectionalert").innerHTML = "";
+            //     ge("connectview").style.color = "green";
+            //     ge("connectdot").style.backgroundColor = "green";
+            // }
             WSdisconnected = true;
         }
 
@@ -1991,6 +1999,10 @@
             copyText.select();
             document.execCommand("copy");
             ge("copyaddress").innerHTML = "Copied";
+        }
+
+        function socketCheck(){
+
         }
 
 
@@ -2237,17 +2249,17 @@
 
             }
 
-            ws.onclose = function (e) {
-                console.log('Socket is closed. Reconnect will be attempted in .5 second.', e.reason);
-                setTimeout(function () {
-                    InitWebSocket();
-                }, 500);
-            };
+            // ws.onclose = function (e) {
+            //     console.log('Socket is closed. Reconnect will be attempted in .5 second.', e.reason);
+            //     setTimeout(function () {
+            //         // InitWebSocket();
+            //     }, 1000);
+            // };
 
-            ws.onerror = function (err) {
-                console.error('Socket encountered error: ', err.message, 'Closing socket');
-                ws.close();
-            };
+            // ws.onerror = function (err) {
+            //     console.error('Socket encountered error: ', err.message, 'Closing socket');
+            //     ws.close();
+            // };
 
         }
 
@@ -2759,7 +2771,7 @@
         <div id="connectview">
             <div>
                 <span id="connectdot"></span>
-                <span id="connectstatus">CONNECTED TO PROPCR&nbsp;</span>
+                <span id="connectstatus">CONNECTED TO PROPCR</span><span>&nbsp;</span>
                 <span id="machineid"></span>
             </div>
             <div id="connectionalert">
